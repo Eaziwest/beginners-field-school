@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Beginner's Field Nursery &amp; Primary School</title>
-  <meta name="description" content="Beginner's Field Nursery and Primary School — Online admissions, student portal, results, payments and school shop.">
+  <meta name="description" content="Beginner's Field Nursery and Primary School — Online admissions, student portal and academic results.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="css/style.css" />
   <style>
@@ -57,12 +57,6 @@
       padding: 5px 12px; border-radius: 50px;
     }
 
-    /* ── Tighter shop ── */
-    .shop-grid-home {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 20px; max-width: 1000px; margin: 0 auto;
-    }
   </style>
 </head>
 <body>
@@ -88,7 +82,6 @@
     <div class="nav-links">
       <a href="#about">About</a>
       <a href="#portal">Portal</a>
-      <a href="#shop">Shop</a>
       <a href="#contact">Contact</a>
       <a class="btn btn-yellow btn-sm" href="pages/admission.html">📋 Apply Now</a>
       <a class="btn btn-navy btn-sm" href="pages/login.html">🔐 Login</a>
@@ -107,7 +100,6 @@
       <a class="mobile-nav-link" href="index.html"><span class="mn-icon">&#127968;</span> Home</a>
       <a class="mobile-nav-link" href="#about" onclick="closeMobileNav()"><span class="mn-icon">&#127981;</span> About Us</a>
       <a class="mobile-nav-link" href="#portal" onclick="closeMobileNav()"><span class="mn-icon">&#128421;</span> Portal</a>
-      <a class="mobile-nav-link" href="#shop" onclick="closeMobileNav()"><span class="mn-icon">&#128722;</span> School Shop</a>
       <a class="mobile-nav-link" href="#contact" onclick="closeMobileNav()"><span class="mn-icon">&#128205;</span> Contact</a>
       <div class="mobile-nav-ctas">
         <a class="btn btn-yellow" href="pages/admission.html" style="justify-content:center;">&#128203; Apply for Admission</a>
@@ -156,7 +148,6 @@
         <span class="portal-feat-tag">📊 Results</span>
         <span class="portal-feat-tag">💳 Payments</span>
         <span class="portal-feat-tag">📅 Attendance</span>
-        <span class="portal-feat-tag">🛒 Shop</span>
         <span class="portal-feat-tag">📢 Announcements</span>
       </div>
       <a class="btn btn-navy" style="width:100%;justify-content:center;padding:14px;font-size:15px;background:#fff;color:var(--navy);border:2px solid var(--navy);" href="pages/login.html">
@@ -234,46 +225,7 @@
     </div>
   </section>
 
-
-    <!-- ===== SHOP ===== -->
-  <section class="section" id="shop">
-    <div class="section-title">
-      <div class="section-label">🛒 School Shop</div>
-      <h2>Order School Items Online</h2>
-      <p>Official school-approved items — order online and pick up at school</p>
-    </div>
-    <div class="shop-grid-home">
-      <div class="shop-item">
-        <div class="item-icon">👕</div>
-        <h4>School Uniform</h4>
-        <p class="item-sub">All sizes available</p>
-        <div class="price">₦3,500</div>
-      </div>
-      <div class="shop-item">
-        <div class="item-icon">📚</div>
-        <h4>Exercise Books</h4>
-        <p class="item-sub">A1 &amp; A2 · 20, 40 &amp; 60 leaves</p>
-        <div class="price">From ₦120</div>
-      </div>
-      <div class="shop-item">
-        <div class="item-icon">📖</div>
-        <h4>Subject Textbooks</h4>
-        <p class="item-sub">All subjects available</p>
-        <div class="price">From ₦1,400</div>
-      </div>
-      <div class="shop-item">
-        <div class="item-icon">✏️</div>
-        <h4>Stationery Pack</h4>
-        <p class="item-sub">Pens, pencils, ruler, eraser</p>
-        <div class="price">₦1,200</div>
-      </div>
-    </div>
-    <p style="text-align:center;margin-top:28px;color:var(--gray);font-size:14px;">
-      Log in to your student account to browse the full shop and place an order.
-      &nbsp;<a href="pages/login.html" style="color:var(--navy-light);font-weight:700;">Login to Shop →</a>
-    </p>
-  </section>
-
+  
   <!-- ===== FOOTER ===== -->
   <footer id="contact">
     <div class="footer-inner">
@@ -286,7 +238,6 @@
         <a href="pages/admission.html">Apply for Admission</a>
         <a href="pages/login.html">Login to Portal</a>
         <a href="#about">About Us</a>
-        <a href="#shop">School Shop</a>
       </div>
       <div class="footer-col">
         <h4>Contact Us</h4>
@@ -307,7 +258,6 @@
       &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a>
     </div>
   </footer>
-
 
 <script>
   function openMobileNav()  { document.getElementById('mobile-nav').classList.add('open'); }

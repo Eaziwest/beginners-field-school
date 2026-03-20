@@ -12,11 +12,6 @@
     .grade-B { color:var(--navy-mid); }
     .grade-C { color:#d97706; }
     .grade-F { color:var(--red); }
-    .cart-item {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:7px 0; border-bottom:1px solid rgba(0,0,0,0.07); font-size:14px;
-    }
-    .cart-item:last-child { border-bottom:none; }
 
     /* ── Payment / receipt section ── */
     .fee-payment-info {
@@ -100,8 +95,7 @@
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> My Results</div>
       <div class="sidebar-link"        onclick="switchToTab('fees',this)"><span class="icon">💰</span> School Fees</div>
-      <div class="sidebar-section">Shop &amp; Schedule</div>
-      <div class="sidebar-link"        onclick="switchToTab('shop',this)"><span class="icon">🛒</span> School Shop</div>
+      <div class="sidebar-section">Schedule</div>
       <div class="sidebar-link"        onclick="switchToTab('timetable',this)"><span class="icon">📅</span> Timetable</div>
     </div>
 
@@ -228,102 +222,10 @@
               <div class="fee-row"><span>Textbooks — from</span><span><strong>&#x20a6;1,400</strong></span></div>
               <div class="fee-row"><span>Exercise Books — from</span><span><strong>&#x20a6;120</strong></span></div>
             </div>
-            <p style="font-size:12px;color:var(--gray);margin-top:10px;">
-              You can also browse and select items in the <strong>School Shop</strong> tab, then bring your cart list to the reception desk for collection.
-            </p>
           </div>
         </div>
       </div>
 
-      <!-- ═══ SHOP ═══ -->
-      <div id="sp-shop" class="stab-pane">
-        <div class="card">
-          <h3>🛒 School Shop — Order Official Items</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">
-            Add items to your cart below. When you are ready, transfer the total to the school account and upload your bank receipt to place your order.
-          </p>
-
-          <!-- Uniform + Stationery -->
-          <div class="shop-grid" style="max-width:unset;margin-bottom:24px;">
-            <div class="shop-item">
-              <div class="item-icon">👕</div>
-              <h4>School Uniform</h4>
-              <p class="item-sub">Official school colours</p>
-              <select id="uniform-size">
-                <option value="">— Pick size —</option>
-                <option>Size 2 (2–3 yrs)</option><option>Size 4 (4–5 yrs)</option>
-                <option>Size 6 (6–7 yrs)</option><option>Size 8 (8–9 yrs)</option>
-                <option>Size 10 (10–11 yrs)</option><option>Size 12 (12–13 yrs)</option>
-                <option>Size 14 (13–14 yrs)</option><option>Size 16 (14–15 yrs)</option>
-              </select>
-              <div class="price">₦3,500</div>
-              <button class="btn btn-navy btn-sm" onclick="addUniform()">🛒 Add to Cart</button>
-            </div>
-            <div class="shop-item">
-              <div class="item-icon">✏️</div>
-              <h4>Stationery Pack</h4>
-              <p class="item-sub">Pens, pencils, ruler, eraser</p>
-              <div class="price">₦1,200</div>
-              <button class="btn btn-navy btn-sm" style="margin-top:10px;" onclick="addToCart('Stationery Pack — ₦1,200')">🛒 Add to Cart</button>
-            </div>
-          </div>
-
-          <!-- Books -->
-          <div style="background:var(--off-white);border-radius:16px;padding:24px;border:1.5px solid var(--light-gray);">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-              <span style="font-size:28px;">📚</span>
-              <div>
-                <h4 style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:2px;">Textbooks &amp; Exercise Books</h4>
-                <p style="color:var(--gray);font-size:13px;">Select the books you need and add to cart</p>
-              </div>
-            </div>
-            <div style="height:1.5px;background:var(--light-gray);margin:16px 0;"></div>
-            <p style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:4px;">📓 Exercise Books</p>
-            <p style="font-size:12px;color:var(--gray);margin-bottom:14px;">A1 &amp; A2 sizes · 20, 40 or 60 leaves</p>
-            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
-              <div class="book-size-header">📏 A1 Exercise Books</div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A1 Exercise Book — 20 Leaves</span><span class="book-price">₦150 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 20 Leaves',150)">Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A1 Exercise Book — 40 Leaves</span><span class="book-price">₦250 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 40 Leaves',250)">Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A1 Exercise Book — 60 Leaves</span><span class="book-price">₦380 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 60 Leaves',380)">Add</button></div></div>
-              <div class="book-size-header">📏 A2 Exercise Books</div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A2 Exercise Book — 20 Leaves</span><span class="book-price">₦120 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 20 Leaves',120)">Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A2 Exercise Book — 40 Leaves</span><span class="book-price">₦200 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 40 Leaves',200)">Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">A2 Exercise Book — 60 Leaves</span><span class="book-price">₦280 each</span></div><div class="book-controls"><button class="qty-btn" onclick="changeQty(this,-1)">−</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty(this,1)">+</button><button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 60 Leaves',280)">Add</button></div></div>
-            </div>
-            <p style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:12px;">📖 Subject Textbooks</p>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div class="book-row"><div class="book-info"><span class="book-name">Mathematics Textbook</span><span class="book-price">₦1,800</span></div><div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Mathematics Textbook — ₦1,800')">🛒 Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">English Language Textbook</span><span class="book-price">₦1,800</span></div><div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('English Language Textbook — ₦1,800')">🛒 Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">Basic Science Textbook</span><span class="book-price">₦1,600</span></div><div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Basic Science Textbook — ₦1,600')">🛒 Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">Social Studies Textbook</span><span class="book-price">₦1,500</span></div><div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Social Studies Textbook — ₦1,500')">🛒 Add</button></div></div>
-              <div class="book-row"><div class="book-info"><span class="book-name">Yoruba Language Textbook</span><span class="book-price">₦1,400</span></div><div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Yoruba Language Textbook — ₦1,400')">🛒 Add</button></div></div>
-            </div>
-          </div>
-
-          <!-- CART (no payment — contact office) -->
-          <div id="cart-box" class="cart-box" style="margin-top:24px;">
-            <h4 style="margin-bottom:14px;">&#128722; Your Cart (<span id="cart-cnt">0</span> items)</h4>
-            <div id="cart-body"></div>
-            <div id="cart-total" style="font-size:15px;font-weight:800;color:var(--navy);padding-top:12px;border-top:2px solid var(--yellow);margin-top:4px;margin-bottom:16px;"></div>
-
-            <div class="notif info">
-              <span>&#128205;</span>
-              <div>
-                <h4>How to collect your items</h4>
-                <p>Show this cart to the <strong>school bursar or reception desk</strong> and make payment there. Items will be prepared for you on the same day or within 24 hours.</p>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-              <button class="btn btn-navy" onclick="printCart()">&#128197; Print / Show Cart</button>
-              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">&#128465; Clear Cart</button>
-            </div>
-            <p style="font-size:12px;color:var(--gray);margin-top:10px;">
-              Items are available for collection at the school reception Monday to Friday, 8:00AM – 3:00PM.
-            </p>
-          </div>
-        </div>
-      </div>
 
       <!-- ═══ TIMETABLE ═══ -->
       <div id="sp-timetable" class="stab-pane">
@@ -426,19 +328,7 @@
     toast('Report card opened — use Print to save as PDF.');
   }
 
-  /* ── Add book ── */
-  function addBook(btn, bookName, unitPrice) {
-    const row   = btn.closest('.book-row');
-    const qtyEl = row ? row.querySelector('.qty-val') : null;
-    const qty   = qtyEl ? parseInt(qtyEl.textContent, 10) : 0;
-    if (qty < 1) { toast('⚠️ Please set a quantity greater than 0 first.'); return; }
-    const existing = cart.find(i => i.label === bookName);
-    if (existing) existing.qty += qty;
-    else cart.push({ label: bookName, price: unitPrice, qty });
-    if (qtyEl) qtyEl.textContent = '0';
-    renderCart();
-    toast(qty + '× ' + bookName + ' added to cart!');
-  }
+
 
 
 </script>
@@ -448,7 +338,6 @@
     <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)"><span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span></button>
     <button class="mbn-item" onclick="switchToTab('results');setMbn(this)"><span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span></button>
     <button class="mbn-item" onclick="switchToTab('fees');setMbn(this)"><span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span></button>
-    <button class="mbn-item" onclick="switchToTab('shop');setMbn(this)"><span class="mbn-icon">&#128722;</span><span class="mbn-label">Shop</span></button>
     <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)"><span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span></button>
   </div>
 </nav>
