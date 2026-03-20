@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal — Beginner's Field School</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="dash-header dash-header-amber">
+    <div>
+      <h1>🎒 Student Portal</h1>
+      <div class="sub">Welcome, Adaeze Nwosu — Primary 4 · Student ID: BFS/2025/001</div>
+    </div>
+    <div class="user-badge">
+      <div class="user-avatar user-avatar-amber">AN</div>
+      <div>
+        <div class="user-name" data-user-name>Adaeze Nwosu</div>
+        <div class="user-role" data-user-title>Primary 4 · 2024/2025</div>
+      </div>
+      <button class="btn btn-sm btn-outline-white" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">My Portal</div>
+      <div class="sidebar-link active" onclick="studentTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
+      <div class="sidebar-link"        onclick="studentTab('results',this)"><span class="icon">📊</span> My Results</div>
+      <div class="sidebar-link"        onclick="studentTab('payments',this)"><span class="icon">💳</span> Pay Fees</div>
+      <div class="sidebar-section">Shop &amp; Schedule</div>
+      <div class="sidebar-link"        onclick="studentTab('shop',this)"><span class="icon">🛒</span> School Shop</div>
+      <div class="sidebar-link"        onclick="studentTab('timetable',this)"><span class="icon">📅</span> Timetable</div>
+    </div>
+
+    <div class="dash-main">
+
+      <!-- OVERVIEW -->
+      <div id="sp-overview" class="stab-pane active">
+        <div class="stats-row">
+          <div class="stat-card" data-icon="📊"><div class="stat-num">88%</div><div class="stat-label">Term Average Score</div></div>
+          <div class="stat-card" data-icon="📅"><div class="stat-num">98%</div><div class="stat-label">Attendance Rate</div></div>
+          <div class="stat-card" data-icon="🏆"><div class="stat-num">3rd</div><div class="stat-label">Class Position</div></div>
+          <div class="stat-card" data-icon="💳"><div class="stat-num">₦0</div><div class="stat-label">Outstanding Fees</div></div>
+        </div>
+        <div class="card">
+          <h3>📢 School Announcements</h3>
+          <div class="notif warn"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Report cards will be available to download after closing date</p></div></div>
+          <div class="notif info"><span>🏆</span><div><h4>Inter-House Sports Day — March 15</h4><p>Wear your house colours. Events begin at 8:00AM sharp</p></div></div>
+          <div class="notif ok"><span>✅</span><div><h4>Your 3rd Term Results Are Now Available</h4><p>Visit the Results tab to view and download your report card</p></div></div>
+        </div>
+        <div class="card">
+          <h3>📊 Quick Results — 3rd Term 2024/2025</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total</th><th>Grade</th></tr></thead>
+              <tbody>
+                <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td><span class="grade grade-A">A</span></td></tr>
+                <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td><span class="grade grade-B">B</span></td></tr>
+                <tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td><span class="grade grade-B">B</span></td></tr>
+                <tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td><span class="grade grade-A">A</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-navy btn-sm" style="margin-top:14px;" onclick="studentTab('results',null)">View Full Results →</button>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="sp-results" class="stab-pane">
+        <div class="card">
+          <h3>📊 My Academic Results</h3>
+          <div class="subtabs">
+            <div class="stab active" onclick="switchResultTab(this,'sr1')">3rd Term 2024/25</div>
+            <div class="stab"        onclick="switchResultTab(this,'sr2')">2nd Term 2024/25</div>
+            <div class="stab"        onclick="switchResultTab(this,'sr3')">1st Term 2024/25</div>
+          </div>
+          <div id="sr1" class="stab-pane active">
+            <div class="result-banner">
+              <strong>Term Average: 86.75% &nbsp; <span class="badge b-green">🏆 3rd Position of 42 Students</span></strong>
+              <button class="btn btn-navy btn-sm" onclick="toast('Report card downloading...')">⬇️ Download Report Card</button>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Teacher's Remark</th></tr></thead>
+                <tbody>
+                  <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td><span class="grade grade-A">A</span></td><td>Excellent performance</td></tr>
+                  <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td><span class="grade grade-B">B</span></td><td>Very good work</td></tr>
+                  <tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td><span class="grade grade-B">B</span></td><td>Very good, keep it up</td></tr>
+                  <tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td><span class="grade grade-A">A</span></td><td>Outstanding</td></tr>
+                  <tr><td>Yoruba Language</td><td>20</td><td>50</td><td><strong>70</strong></td><td><span class="grade grade-C">C</span></td><td>Good, needs improvement</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="principal-comment">
+              <strong>Principal's Comment:</strong> Adaeze has shown remarkable dedication this term. She is encouraged to maintain this excellent standard. Well done! — Mrs. A. Okafor
+            </div>
+          </div>
+          <div id="sr2" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">2nd Term results not yet available.</p></div>
+          <div id="sr3" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">1st Term results not yet available.</p></div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS -->
+      <div id="sp-payments" class="stab-pane">
+        <div class="card">
+          <h3>💳 Pay School Fees</h3>
+          <div class="fee-summary">
+            <div class="fee-row"><span>School Fees — 3rd Term 2025</span><span>₦45,000</span></div>
+            <div class="fee-row"><span>Development Levy</span><span>₦5,000</span></div>
+            <div class="fee-row"><span style="color:var(--gray);font-size:13px;">Amount Already Paid</span><span style="color:var(--green-ok);">— ₦50,000</span></div>
+            <div class="fee-row total"><span>Outstanding Balance</span><span style="color:var(--green-ok);">₦0.00 ✅</span></div>
+          </div>
+          <div class="notif ok"><span>✅</span><div><h4>All Fees Paid for 3rd Term 2024/2025</h4><p>Payment confirmed on March 5, 2025 — Ref: PAY-0041</p></div></div>
+          <h4 style="margin:22px 0 14px;font-size:15px;">Make a New Payment</h4>
+          <div class="pay-opt sel" onclick="selectPayMethod(this)"><div class="pi">🏦</div><div><h4>Bank Transfer</h4><p>Zenith Bank · 1234567890 · Beginner's Field Nursery &amp; Primary School</p></div></div>
+          <div class="pay-opt"     onclick="selectPayMethod(this)"><div class="pi">💳</div><div><h4>Debit / Credit Card</h4><p>Visa, Mastercard, Verve accepted. Instant confirmation.</p></div></div>
+          <div class="pay-opt"     onclick="selectPayMethod(this)"><div class="pi">📱</div><div><h4>USSD</h4><p>Dial *966*1234567890*AMOUNT# from any mobile phone</p></div></div>
+          <button class="btn btn-yellow" style="width:100%;margin-top:16px;" onclick="toast('Payment initiated! You will receive a confirmation SMS shortly.')">💳 Proceed to Payment</button>
+        </div>
+        <div class="card">
+          <h3>📄 Payment History</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Ref No.</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+              <tbody>
+                <tr><td>PAY-0041</td><td>Mar 5, 2025</td><td>School Fees — 3rd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0042</td><td>Mar 5, 2025</td><td>Development Levy</td><td>₦5,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0028</td><td>Nov 8, 2024</td><td>School Fees — 2nd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0015</td><td>Aug 12, 2024</td><td>School Uniform × 2</td><td>₦7,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHOP -->
+      <div id="sp-shop" class="stab-pane">
+        <div class="card">
+          <h3>🛒 School Shop — Order Official Items</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">All items are official school-approved. Ready for pickup at school reception within 3 working days.</p>
+          <div class="shop-grid" style="max-width:unset;">
+            <div class="shop-item"><div class="item-icon">👕</div><h4>School Uniform</h4><p class="item-sub">All sizes available</p><select><option>Size 10</option><option>Size 12</option><option>Size 14</option><option>Size 16</option></select><div class="price">₦3,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Uniform ×1')">🛒 Add to Cart</button></div>
+            <div class="shop-item"><div class="item-icon">📚</div><h4>Textbook Set</h4><p class="item-sub">Primary 4 — complete set</p><div class="price">₦8,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('Primary 4 Textbook Set')">🛒 Add to Cart</button></div>
+            <div class="shop-item"><div class="item-icon">🎒</div><h4>School Bag</h4><p class="item-sub">Standard approved size</p><div class="price">₦5,000</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Bag')">🛒 Add to Cart</button></div>
+            <div class="shop-item"><div class="item-icon">✏️</div><h4>Stationery Pack</h4><p class="item-sub">Pens, pencils, ruler, eraser</p><div class="price">₦1,200</div><button class="btn btn-navy btn-sm" onclick="addToCart('Stationery Pack')">🛒 Add to Cart</button></div>
+            <div class="shop-item"><div class="item-icon">👟</div><h4>School Sandals</h4><p class="item-sub">Sizes 28–42</p><select><option>Size 36</option><option>Size 37</option><option>Size 38</option><option>Size 39</option></select><div class="price">₦4,000</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Sandals')">🛒 Add to Cart</button></div>
+            <div class="shop-item"><div class="item-icon">🍱</div><h4>Lunch Box Set</h4><p class="item-sub">With insulated water bottle</p><div class="price">₦2,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('Lunch Box Set')">🛒 Add to Cart</button></div>
+          </div>
+          <div id="cart-box" class="cart-box">
+            <h4>🛒 Your Cart (<span id="cart-cnt">0</span> items)</h4>
+            <div id="cart-body"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn btn-navy" onclick="placeOrder()">✅ Place Order</button>
+              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">Clear Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMETABLE -->
+      <div id="sp-timetable" class="stab-pane">
+        <div class="card">
+          <h3>📅 Class Timetable — Primary 4 (2024/2025 Session)</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
+              <tbody>
+                <tr><td><strong>8:00 – 9:00</strong></td><td>Mathematics</td><td>English</td><td>Mathematics</td><td>Science</td><td>Social Studies</td></tr>
+                <tr><td><strong>9:00 – 10:00</strong></td><td>English</td><td>Mathematics</td><td>Science</td><td>English</td><td>Mathematics</td></tr>
+                <tr class="tt-break"><td><strong>10:00 – 10:30</strong></td><td colspan="5">☕ Morning Break</td></tr>
+                <tr><td><strong>10:30 – 11:30</strong></td><td>Science</td><td>Social Studies</td><td>Yoruba</td><td>Mathematics</td><td>English</td></tr>
+                <tr><td><strong>11:30 – 12:30</strong></td><td>Social Studies</td><td>Yoruba</td><td>English</td><td>Social Studies</td><td>Assembly / Games</td></tr>
+                <tr class="tt-break"><td><strong>12:30 – 1:30</strong></td><td colspan="5">🍽️ Lunch Break</td></tr>
+                <tr><td><strong>1:30 – 2:30</strong></td><td>Yoruba</td><td>Science</td><td>Social Studies</td><td>Yoruba</td><td>—</td></tr>
+                <tr class="tt-dismiss"><td><strong>2:30</strong></td><td colspan="5">🏠 School Dismissal</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast">🔔 <span id="toast-text"></span></div>
+<script src="../js/auth.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // ── Auth guard: must be student ──
+  const _user = requireAuth('student');
+  injectUserInfo(_user);
+</script>
+</body>
+</html>

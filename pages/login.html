@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Beginner's Field School</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 55%, var(--navy-light) 100%);
+    }
+
+    .login-card {
+      background: var(--white); border-radius: 26px; padding: 48px 42px;
+      width: 100%; max-width: 470px; box-shadow: var(--shadow-lg);
+      animation: fadeUp 0.4s ease;
+    }
+    .login-logo { text-align: center; margin-bottom: 30px; }
+    .login-logo .logo-crest {
+      width: 70px; height: 70px; font-size: 30px;
+      margin: 0 auto 14px;
+      background: linear-gradient(145deg, var(--navy-mid), var(--navy-light));
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 3px solid var(--yellow); box-shadow: 0 0 0 4px rgba(245,194,0,0.15);
+    }
+    .login-logo h1 { font-family: 'Merriweather', serif; font-size: 20px; color: var(--navy); }
+    .login-logo p  { font-size: 11px; color: var(--gray); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+    .login-bar { height: 5px; background: var(--yellow); border-radius: 50px; margin-bottom: 28px; }
+
+    /* Role tabs */
+    .role-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+    .role-tab {
+      padding: 11px 6px; border-radius: 12px; border: 2px solid var(--light-gray);
+      background: var(--off-white); text-align: center; cursor: pointer; transition: all 0.2s;
+    }
+    .role-tab .rt-icon  { font-size: 22px; display: block; margin-bottom: 5px; }
+    .role-tab .rt-label { font-size: 12px; font-weight: 700; color: var(--gray); }
+    .role-tab.active { border-color: var(--yellow); background: var(--yellow-pale); }
+    .role-tab.active .rt-label { color: var(--navy); }
+
+    /* Password field */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 46px; }
+    .pw-toggle {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 17px; color: var(--gray);
+      padding: 0; line-height: 1;
+    }
+    .pw-toggle:hover { color: var(--navy); }
+
+    /* Error */
+    .login-error {
+      display: none; background: #fee2e2; color: #991b1b;
+      border: 1px solid #fca5a5; border-radius: 10px;
+      padding: 12px 14px; font-size: 13.5px; font-weight: 600;
+      margin-bottom: 16px; text-align: center;
+    }
+    .login-error.show { display: block; animation: fadeUp 0.2s ease; }
+
+    /* Demo credentials */
+    .demo-hint {
+      background: var(--yellow-pale); border: 1.5px solid var(--yellow);
+      border-radius: 14px; padding: 16px 18px; margin-top: 22px;
+    }
+    .demo-hint h4 {
+      font-size: 11.5px; font-weight: 800; color: var(--navy-mid);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .demo-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; background: rgba(255,255,255,0.75);
+      border-radius: 9px; margin-bottom: 7px; cursor: pointer;
+      transition: all 0.15s; border: 1.5px solid transparent;
+    }
+    .demo-row:last-child { margin-bottom: 0; }
+    .demo-row:hover { background: #fff; border-color: var(--yellow); }
+    .demo-icon { font-size: 17px; flex-shrink: 0; }
+    .demo-info { flex: 1; }
+    .demo-role  { font-size: 12px; font-weight: 800; color: var(--navy); }
+    .demo-creds { font-size: 11px; color: var(--gray); font-family: monospace; margin-top: 2px; }
+    .demo-fill  { font-size: 11px; color: var(--navy-light); font-weight: 800; flex-shrink: 0; }
+
+    .back-link { display: block; text-align: center; margin-top: 18px; color: var(--gray); font-size: 13px; }
+    .back-link a { color: var(--navy-light); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="logo-crest">🌱</div>
+      <h1>Beginner's Field</h1>
+      <p>Nursery &amp; Primary School</p>
+    </div>
+    <div class="login-bar"></div>
+
+    <h2 style="font-family:'Merriweather',serif;font-size:21px;color:var(--navy);margin-bottom:5px;">🔐 Sign In to Your Portal</h2>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">Select your role, then enter your credentials</p>
+
+    <!-- Role tabs -->
+    <div class="role-tabs">
+      <div class="role-tab active" id="tab-admin"   onclick="selectRole('admin')">
+        <span class="rt-icon">🏛️</span><span class="rt-label">Admin</span>
+      </div>
+      <div class="role-tab" id="tab-teacher" onclick="selectRole('teacher')">
+        <span class="rt-icon">👩‍🏫</span><span class="rt-label">Teacher</span>
+      </div>
+      <div class="role-tab" id="tab-student" onclick="selectRole('student')">
+        <span class="rt-icon">🎒</span><span class="rt-label">Student</span>
+      </div>
+    </div>
+    <input type="hidden" id="selected-role" value="admin" />
+
+    <!-- Error -->
+    <div class="login-error" id="login-error"></div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="login-email" placeholder="Enter your email address"
+             onkeydown="if(event.key==='Enter') attemptLoginForm()" autocomplete="email" />
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="login-password" placeholder="Enter your password"
+               onkeydown="if(event.key==='Enter') attemptLoginForm()" autocomplete="current-password" />
+        <button class="pw-toggle" type="button" onclick="togglePw()" id="pw-btn" title="Show / hide password">👁️</button>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button class="btn btn-navy" style="width:100%;padding:13px;font-size:15px;margin-bottom:12px;" onclick="attemptLoginForm()">
+      🔐 Sign In
+    </button>
+    <div class="divider">or</div>
+    <a class="btn btn-yellow" style="width:100%;justify-content:center;" href="admission.html">📋 Apply for Admission</a>
+
+    <p style="font-size:12.5px;color:var(--gray);text-align:center;margin-top:14px;">
+      <a href="#" onclick="showForgot()" style="color:var(--navy-light);font-weight:600;">Forgot your password?</a>
+    </p>
+
+    <!-- Demo credentials -->
+    <div class="demo-hint">
+      <h4>🧪 Demo Credentials — click any row to fill</h4>
+      <div class="demo-row" onclick="fillCreds('admin@beginnersfieldschool.edu.ng','Admin@2025','admin')">
+        <span class="demo-icon">🏛️</span>
+        <div class="demo-info">
+          <div class="demo-role">Admin / Principal</div>
+          <div class="demo-creds">admin@beginnersfieldschool.edu.ng &nbsp;·&nbsp; Admin@2025</div>
+        </div>
+        <span class="demo-fill">Fill →</span>
+      </div>
+      <div class="demo-row" onclick="fillCreds('e.chukwu@beginnersfieldschool.edu.ng','Teacher@2025','teacher')">
+        <span class="demo-icon">👩‍🏫</span>
+        <div class="demo-info">
+          <div class="demo-role">Teacher</div>
+          <div class="demo-creds">e.chukwu@beginnersfieldschool.edu.ng &nbsp;·&nbsp; Teacher@2025</div>
+        </div>
+        <span class="demo-fill">Fill →</span>
+      </div>
+      <div class="demo-row" onclick="fillCreds('student@beginnersfieldschool.edu.ng','Student@2025','student')">
+        <span class="demo-icon">🎒</span>
+        <div class="demo-info">
+          <div class="demo-role">Student / Parent</div>
+          <div class="demo-creds">student@beginnersfieldschool.edu.ng &nbsp;·&nbsp; Student@2025</div>
+        </div>
+        <span class="demo-fill">Fill →</span>
+      </div>
+    </div>
+
+    <p class="back-link"><a href="../index.html">← Back to Homepage</a></p>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script>
+
+    /* Role tab */
+    function selectRole(role) {
+      document.getElementById('selected-role').value = role;
+      document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + role).classList.add('active');
+      hideError();
+    }
+
+    /* Password toggle */
+    function togglePw() {
+      const inp = document.getElementById('login-password');
+      const btn = document.getElementById('pw-btn');
+      if (inp.type === 'password') { inp.type = 'text';     btn.textContent = '🙈'; }
+      else                         { inp.type = 'password'; btn.textContent = '👁️'; }
+    }
+
+    /* Error helpers */
+    function showError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = '❌  ' + msg;
+      el.classList.add('show');
+    }
+    function hideError() {
+      document.getElementById('login-error').classList.remove('show');
+    }
+
+    /* Fill demo credentials */
+    function fillCreds(email, pw, role) {
+      document.getElementById('login-email').value    = email;
+      document.getElementById('login-password').value = pw;
+      selectRole(role);
+    }
+
+    /* Main login handler */
+    function attemptLoginForm() {
+      hideError();
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const role     = document.getElementById('selected-role').value;
+
+      if (!email)    { showError('Please enter your email address.'); return; }
+      if (!password) { showError('Please enter your password.');      return; }
+
+      const user = attemptLogin(email, password);
+
+      if (!user) {
+        showError('Incorrect email or password. Please try again.');
+        document.getElementById('login-password').value = '';
+        return;
+      }
+
+      if (user.role !== role) {
+        showError(
+          'These credentials belong to the ' + user.role.charAt(0).toUpperCase() + user.role.slice(1) +
+          ' portal. Please select the correct role tab above.'
+        );
+        return;
+      }
+
+      saveSession(user);
+      window.location.href = user.portal;
+    }
+
+    /* Forgot password */
+    function showForgot() {
+      alert('Please contact the school admin to reset your password.\n\nEmail: admin@beginnersfieldschool.edu.ng\nPhone: +234 800 000 0000');
+    }
+
+    /* Auto-redirect if already logged in */
+    (function () {
+      const user = getSession();
+      if (!user) return;
+      const map = { admin: 'admin.html', teacher: 'teacher.html', student: 'student.html' };
+      if (map[user.role]) window.location.href = map[user.role];
+    })();
+
+  </script>
+</body>
+</html>

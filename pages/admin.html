@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal — Beginner's Field School</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div>
+      <h1>🏛️ Admin Portal</h1>
+      <div class="sub">Welcome back, Mrs. Adaeze Okafor — Principal · Beginner's Field School</div>
+    </div>
+    <div class="user-badge">
+      <div class="user-avatar">AO</div>
+      <div>
+        <div class="user-name" data-user-name>Mrs. A. Okafor</div>
+        <div class="user-role" data-user-title>Principal</div>
+      </div>
+      <button class="btn btn-sm btn-outline-white" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">Main</div>
+      <div class="sidebar-link active"  onclick="adminTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-link"         onclick="adminTab('admissions',this)"><span class="icon">📋</span> Admissions</div>
+      <div class="sidebar-link"         onclick="adminTab('students',this)"><span class="icon">🎒</span> Students</div>
+      <div class="sidebar-section">Management</div>
+      <div class="sidebar-link"         onclick="adminTab('teachers',this)"><span class="icon">👩‍🏫</span> Teachers</div>
+      <div class="sidebar-link"         onclick="adminTab('payments',this)"><span class="icon">💳</span> Payments</div>
+      <div class="sidebar-link"         onclick="adminTab('results',this)"><span class="icon">📊</span> Results</div>
+      <div class="sidebar-section">Communication</div>
+      <div class="sidebar-link"         onclick="adminTab('announcements',this)"><span class="icon">📢</span> Announcements</div>
+    </div>
+
+    <div class="dash-main">
+
+      <!-- OVERVIEW -->
+      <div id="ap-overview" class="stab-pane active">
+        <div class="stats-row">
+          <div class="stat-card" data-icon="🎒"><div class="stat-num">847</div><div class="stat-label">Total Students</div></div>
+          <div class="stat-card" data-icon="👩‍🏫"><div class="stat-num">45</div><div class="stat-label">Teaching Staff</div></div>
+          <div class="stat-card" data-icon="📋"><div class="stat-num">38</div><div class="stat-label">Pending Admissions</div></div>
+          <div class="stat-card" data-icon="💰"><div class="stat-num">₦4.2M</div><div class="stat-label">Fees Collected (Term)</div></div>
+        </div>
+        <div class="card">
+          <h3>🔔 Recent Alerts</h3>
+          <div class="notif warn"><span>⚠️</span><div><h4>38 Admission Applications Pending Review</h4><p>Applications received for 2025/2026 session require your approval</p></div></div>
+          <div class="notif ok"><span>✅</span><div><h4>Third Term Results Upload — 92% Complete</h4><p>8 classes are yet to upload results. Deadline: this Friday</p></div></div>
+          <div class="notif err"><span>❌</span><div><h4>23 Students With Outstanding Fees</h4><p>Automated reminder sent to parents. 5 have not responded</p></div></div>
+          <div class="notif info"><span>ℹ️</span><div><h4>PTA Meeting — Saturday March 22, 2025</h4><p>Venue: School Hall · 10:00AM. 142 parents confirmed attendance</p></div></div>
+        </div>
+        <div class="card">
+          <h3>📋 Recent Admission Applications</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Class</th><th>Parent</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Chidera Obi</strong></td><td>Primary 1</td><td>Mr. Obi — 0801 234 5678</td><td>Mar 18</td><td><span class="badge b-yellow">Pending</span></td><td><button class="btn btn-green btn-sm" onclick="toast('Chidera Obi approved!')">✓ Approve</button></td></tr>
+                <tr><td><strong>Fatima Bello</strong></td><td>Nursery 2</td><td>Mrs. Bello — 0802 345 6789</td><td>Mar 17</td><td><span class="badge b-green">Approved</span></td><td><button class="btn btn-outline-navy btn-sm">📄 Letter</button></td></tr>
+                <tr><td><strong>Emeka Johnson</strong></td><td>Primary 3</td><td>Mr. Johnson — 0803 456 7890</td><td>Mar 16</td><td><span class="badge b-red">Rejected</span></td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td><strong>Ngozi Adeleke</strong></td><td>Nursery 3</td><td>Dr. Adeleke — 0804 567 8901</td><td>Mar 14</td><td><span class="badge b-yellow">Pending</span></td><td><button class="btn btn-green btn-sm" onclick="toast('Ngozi Adeleke approved!')">✓ Approve</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMISSIONS TAB -->
+      <div id="ap-admissions" class="stab-pane">
+        <div class="card">
+          <h3>📋 All Admission Applications</h3>
+          <div class="filter-bar">
+            <input placeholder="🔍 Search by name..." />
+            <select><option>All Classes</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select>
+            <select><option>All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option></select>
+            <button class="btn btn-navy btn-sm">🔍 Search</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Parent/Guardian</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td>001</td><td><strong>Chidera Obi</strong></td><td>Primary 1</td><td>Mr. Obi</td><td>0801 234 5678</td><td>Mar 18</td><td><span class="badge b-yellow">Pending</span></td><td style="display:flex;gap:6px;"><button class="btn btn-green btn-sm" onclick="toast('Approved!')">✓</button><button class="btn btn-red btn-sm">✗</button><button class="btn btn-outline-navy btn-sm">👁</button></td></tr>
+                <tr><td>002</td><td><strong>Fatima Bello</strong></td><td>Nursery 2</td><td>Mrs. Bello</td><td>0802 345 6789</td><td>Mar 17</td><td><span class="badge b-green">Approved</span></td><td><button class="btn btn-outline-navy btn-sm">📄 Letter</button></td></tr>
+                <tr><td>003</td><td><strong>Emeka Johnson</strong></td><td>Primary 3</td><td>Mr. Johnson</td><td>0803 456 7890</td><td>Mar 16</td><td><span class="badge b-red">Rejected</span></td><td><button class="btn btn-outline-navy btn-sm">Details</button></td></tr>
+                <tr><td>004</td><td><strong>Ngozi Adeleke</strong></td><td>Nursery 3</td><td>Dr. Adeleke</td><td>0804 567 8901</td><td>Mar 14</td><td><span class="badge b-yellow">Pending</span></td><td style="display:flex;gap:6px;"><button class="btn btn-green btn-sm" onclick="toast('Approved!')">✓</button><button class="btn btn-red btn-sm">✗</button></td></tr>
+                <tr><td>005</td><td><strong>Amara Eze</strong></td><td>Nursery 1</td><td>Mrs. Eze</td><td>0805 678 9012</td><td>Mar 13</td><td><span class="badge b-green">Approved</span></td><td><button class="btn btn-outline-navy btn-sm">📄 Letter</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENTS TAB -->
+      <div id="ap-students" class="stab-pane">
+        <div class="card">
+          <h3>🎒 Student Management</h3>
+          <div class="filter-bar">
+            <input placeholder="🔍 Search student..." />
+            <select><option>All Classes</option><option>Nursery 1</option><option>Primary 1</option><option>Primary 6</option></select>
+            <button class="btn btn-yellow btn-sm">+ Add Student</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Student ID</th><th>Name</th><th>Class</th><th>Gender</th><th>Fees</th><th>Attendance</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td>BFS/2025/001</td><td><strong>Adaeze Nwosu</strong></td><td>Primary 4</td><td>Female</td><td><span class="badge b-green">Paid</span></td><td>98%</td><td><span class="badge b-green">Active</span></td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td>BFS/2025/002</td><td><strong>Tunde Afolabi</strong></td><td>Primary 2</td><td>Male</td><td><span class="badge b-red">Owing ₦45k</span></td><td>92%</td><td><span class="badge b-green">Active</span></td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td>BFS/2025/003</td><td><strong>Mary Ekwueme</strong></td><td>Nursery 3</td><td>Female</td><td><span class="badge b-green">Paid</span></td><td>100%</td><td><span class="badge b-green">Active</span></td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td>BFS/2025/004</td><td><strong>Samuel Ogunsi</strong></td><td>Primary 6</td><td>Male</td><td><span class="badge b-yellow">Partial</span></td><td>88%</td><td><span class="badge b-green">Active</span></td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEACHERS TAB -->
+      <div id="ap-teachers" class="stab-pane">
+        <div class="card">
+          <h3>👩‍🏫 Teaching Staff</h3>
+          <div class="filter-bar">
+            <input placeholder="🔍 Search teacher..." />
+            <button class="btn btn-yellow btn-sm">+ Add Teacher</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Class</th><th>Subject</th><th>Phone</th><th>Attendance</th><th>Results</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Mr. Emeka Chukwu</strong></td><td>Primary 6A</td><td>Mathematics</td><td>0801 111 2222</td><td>98%</td><td><span class="badge b-green">Uploaded</span></td><td><span class="badge b-green">Active</span></td></tr>
+                <tr><td><strong>Mrs. Kemi Adamu</strong></td><td>Primary 5B</td><td>English</td><td>0802 222 3333</td><td>95%</td><td><span class="badge b-yellow">Pending</span></td><td><span class="badge b-green">Active</span></td></tr>
+                <tr><td><strong>Miss Grace Okoye</strong></td><td>Nursery 2</td><td>Class Teacher</td><td>0803 333 4444</td><td>100%</td><td><span class="badge b-red">Not Done</span></td><td><span class="badge b-green">Active</span></td></tr>
+                <tr><td><strong>Mr. Femi Lawal</strong></td><td>Primary 3</td><td>Science</td><td>0804 444 5555</td><td>90%</td><td><span class="badge b-green">Uploaded</span></td><td><span class="badge b-yellow">On Leave</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS TAB -->
+      <div id="ap-payments" class="stab-pane">
+        <div class="stats-row">
+          <div class="stat-card" data-icon="✅"><div class="stat-num">₦4.2M</div><div class="stat-label">Total Collected</div></div>
+          <div class="stat-card" data-icon="⏳"><div class="stat-num">₦840K</div><div class="stat-label">Outstanding</div></div>
+          <div class="stat-card" data-icon="📦"><div class="stat-num">₦215K</div><div class="stat-label">Shop Revenue</div></div>
+          <div class="stat-card" data-icon="👥"><div class="stat-num">23</div><div class="stat-label">Owing Students</div></div>
+        </div>
+        <div class="card">
+          <h3>💳 Payment Records</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Ref No.</th><th>Student</th><th>Class</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><strong>PAY-0041</strong></td><td>Adaeze Nwosu</td><td>Primary 4</td><td>School Fees</td><td>₦45,000</td><td>Bank Transfer</td><td>Mar 18</td><td><span class="badge b-green">Confirmed</span></td></tr>
+                <tr><td><strong>PAY-0042</strong></td><td>Mary Ekwueme</td><td>Nursery 3</td><td>Development Levy</td><td>₦5,000</td><td>Card</td><td>Mar 17</td><td><span class="badge b-green">Confirmed</span></td></tr>
+                <tr><td><strong>PAY-0043</strong></td><td>Samuel Ogunsi</td><td>Primary 6</td><td>Shop — Uniform</td><td>₦3,500</td><td>USSD</td><td>Mar 16</td><td><span class="badge b-green">Confirmed</span></td></tr>
+                <tr><td><strong>PAY-0044</strong></td><td>Tunde Afolabi</td><td>Primary 2</td><td>School Fees</td><td>₦22,500</td><td>Card</td><td>Mar 15</td><td><span class="badge b-yellow">Partial</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS TAB -->
+      <div id="ap-results" class="stab-pane">
+        <div class="card">
+          <h3>📊 Results Management — 3rd Term 2024/2025</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Class</th><th>Class Teacher</th><th>Students</th><th>Upload Status</th><th>Uploaded</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Primary 6A</strong></td><td>Mr. Chukwu</td><td>42</td><td><span class="badge b-green">Published</span></td><td>Mar 18</td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td><strong>Primary 5B</strong></td><td>Mrs. Adamu</td><td>38</td><td><span class="badge b-yellow">Awaiting Approval</span></td><td>Mar 17</td><td><button class="btn btn-green btn-sm" onclick="toast('Results published for Primary 5B!')">Approve &amp; Publish</button></td></tr>
+                <tr><td><strong>Primary 3A</strong></td><td>Mr. Lawal</td><td>35</td><td><span class="badge b-green">Published</span></td><td>Mar 16</td><td><button class="btn btn-outline-navy btn-sm">View</button></td></tr>
+                <tr><td><strong>Nursery 2</strong></td><td>Miss Okoye</td><td>28</td><td><span class="badge b-red">Not Uploaded</span></td><td>—</td><td><button class="btn btn-outline-navy btn-sm" onclick="toast('Reminder sent to Miss Okoye!')">📢 Remind</button></td></tr>
+                <tr><td><strong>Nursery 1</strong></td><td>Mrs. Balogun</td><td>25</td><td><span class="badge b-yellow">Awaiting Approval</span></td><td>Mar 14</td><td><button class="btn btn-green btn-sm" onclick="toast('Results published for Nursery 1!')">Approve &amp; Publish</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANNOUNCEMENTS TAB -->
+      <div id="ap-announcements" class="stab-pane">
+        <div class="card">
+          <h3>📢 Create Announcement</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Target Audience</label>
+              <select><option>Everyone (Students, Teachers &amp; Parents)</option><option>All Students</option><option>All Teachers</option><option>All Parents</option><option>Specific Class</option></select>
+            </div>
+            <div class="form-group"><label>Priority Level</label>
+              <select><option>Normal</option><option>Important ⭐</option><option>Urgent 🚨</option></select>
+            </div>
+          </div>
+          <div class="form-group"><label>Announcement Title</label><input placeholder="e.g. Third Term Closing Date — March 28, 2025" /></div>
+          <div class="form-group"><label>Message Body</label><textarea rows="5" placeholder="Type your full announcement here..."></textarea></div>
+          <button class="btn btn-navy" onclick="toast('Announcement sent to all recipients!')">📢 Send Announcement</button>
+        </div>
+        <div class="card">
+          <h3>📄 Recent Announcements</h3>
+          <div class="notif info"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Sent to Everyone · Mar 10, 2025 · 892 recipients</p></div></div>
+          <div class="notif warn"><span>📚</span><div><h4>PTA Meeting — Saturday March 22</h4><p>Sent to All Parents · Mar 8, 2025 · 524 parents notified</p></div></div>
+          <div class="notif ok"><span>🏆</span><div><h4>Inter-House Sports Day — March 15</h4><p>Sent to Everyone · Mar 5, 2025 · 892 recipients</p></div></div>
+        </div>
+      </div>
+
+    </div><!-- /dash-main -->
+  </div><!-- /dash-body -->
+</div><!-- /dashboard -->
+
+<div id="toast">🔔 <span id="toast-text"></span></div>
+<script src="../js/auth.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  // ── Auth guard: must be admin ──
+  const _user = requireAuth('admin');
+  // Inject user info into header
+  injectUserInfo(_user);
+</script>
+</body>
+</html>
