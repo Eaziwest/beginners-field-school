@@ -146,22 +146,165 @@
         <div class="card">
           <h3>🛒 School Shop — Order Official Items</h3>
           <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">All items are official school-approved. Ready for pickup at school reception within 3 working days.</p>
-          <div class="shop-grid" style="max-width:unset;">
-            <div class="shop-item"><div class="item-icon">👕</div><h4>School Uniform</h4><p class="item-sub">All sizes available</p><select><option>Size 10</option><option>Size 12</option><option>Size 14</option><option>Size 16</option></select><div class="price">₦3,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Uniform ×1')">🛒 Add to Cart</button></div>
-            <div class="shop-item"><div class="item-icon">📚</div><h4>Textbook Set</h4><p class="item-sub">Primary 4 — complete set</p><div class="price">₦8,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('Primary 4 Textbook Set')">🛒 Add to Cart</button></div>
-            <div class="shop-item"><div class="item-icon">🎒</div><h4>School Bag</h4><p class="item-sub">Standard approved size</p><div class="price">₦5,000</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Bag')">🛒 Add to Cart</button></div>
-            <div class="shop-item"><div class="item-icon">✏️</div><h4>Stationery Pack</h4><p class="item-sub">Pens, pencils, ruler, eraser</p><div class="price">₦1,200</div><button class="btn btn-navy btn-sm" onclick="addToCart('Stationery Pack')">🛒 Add to Cart</button></div>
-            <div class="shop-item"><div class="item-icon">👟</div><h4>School Sandals</h4><p class="item-sub">Sizes 28–42</p><select><option>Size 36</option><option>Size 37</option><option>Size 38</option><option>Size 39</option></select><div class="price">₦4,000</div><button class="btn btn-navy btn-sm" onclick="addToCart('School Sandals')">🛒 Add to Cart</button></div>
-            <div class="shop-item"><div class="item-icon">🍱</div><h4>Lunch Box Set</h4><p class="item-sub">With insulated water bottle</p><div class="price">₦2,500</div><button class="btn btn-navy btn-sm" onclick="addToCart('Lunch Box Set')">🛒 Add to Cart</button></div>
+
+          <!-- Top row: Uniform + Stationery -->
+          <div class="shop-grid" style="max-width:unset;margin-bottom:24px;">
+
+            <div class="shop-item">
+              <div class="item-icon">👕</div>
+              <h4>School Uniform</h4>
+              <p class="item-sub">Official school colours</p>
+              <select id="uniform-size">
+                <option value="">— Pick size —</option>
+                <option>Size 2 (2–3 yrs)</option>
+                <option>Size 4 (4–5 yrs)</option>
+                <option>Size 6 (6–7 yrs)</option>
+                <option>Size 8 (8–9 yrs)</option>
+                <option>Size 10 (10–11 yrs)</option>
+                <option>Size 12 (12–13 yrs)</option>
+                <option>Size 14 (13–14 yrs)</option>
+                <option>Size 16 (14–15 yrs)</option>
+              </select>
+              <div class="price">₦3,500</div>
+              <button class="btn btn-navy btn-sm" onclick="addUniform()">🛒 Add to Cart</button>
+            </div>
+
+            <div class="shop-item">
+              <div class="item-icon">✏️</div>
+              <h4>Stationery Pack</h4>
+              <p class="item-sub">Pens, pencils, ruler, eraser</p>
+              <div class="price">₦1,200</div>
+              <button class="btn btn-navy btn-sm" style="margin-top:10px;" onclick="addToCart('Stationery Pack — ₦1,200')">🛒 Add to Cart</button>
+            </div>
+
           </div>
-          <div id="cart-box" class="cart-box">
-            <h4>🛒 Your Cart (<span id="cart-cnt">0</span> items)</h4>
-            <div id="cart-body"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-              <button class="btn btn-navy" onclick="placeOrder()">✅ Place Order</button>
-              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">Clear Cart</button>
+
+          <!-- Textbooks & Exercise Books -->
+          <div style="background:var(--off-white);border-radius:16px;padding:24px;border:1.5px solid var(--light-gray);">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+              <span style="font-size:28px;">📚</span>
+              <div>
+                <h4 style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:2px;">Textbooks &amp; Exercise Books</h4>
+                <p style="color:var(--gray);font-size:13px;">Select the exact books you need and add them to your cart</p>
+              </div>
+            </div>
+
+            <div style="height:1.5px;background:var(--light-gray);margin:16px 0;"></div>
+
+            <!-- Exercise Books -->
+            <p style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:4px;">📓 Exercise Books</p>
+            <p style="font-size:12px;color:var(--gray);margin-bottom:14px;">Available in A1 &amp; A2 sizes · 20, 40 or 60 leaves</p>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+
+              <div class="book-size-header">📏 A1 Exercise Books</div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 20 Leaves</span><span class="book-price">&#8358;150 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 20 Leaves',150)">Add</button>
+                </div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 40 Leaves</span><span class="book-price">&#8358;250 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 40 Leaves',250)">Add</button>
+                </div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 60 Leaves</span><span class="book-price">&#8358;380 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 60 Leaves',380)">Add</button>
+                </div>
+              </div>
+
+              <div class="book-size-header">📏 A2 Exercise Books</div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 20 Leaves</span><span class="book-price">&#8358;120 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 20 Leaves',120)">Add</button>
+                </div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 40 Leaves</span><span class="book-price">&#8358;200 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 40 Leaves',200)">Add</button>
+                </div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 60 Leaves</span><span class="book-price">&#8358;280 each</span></div>
+                <div class="book-controls">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
+                  <span class="qty-val">0</span>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                  <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 60 Leaves',280)">Add</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Subject Textbooks -->
+            <p style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:12px;">📖 Subject Textbooks</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">Mathematics Textbook</span><span class="book-price">₦1,800</span></div>
+                <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Mathematics Textbook — ₦1,800')">🛒 Add</button></div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">English Language Textbook</span><span class="book-price">₦1,800</span></div>
+                <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('English Language Textbook — ₦1,800')">🛒 Add</button></div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">Basic Science Textbook</span><span class="book-price">₦1,600</span></div>
+                <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Basic Science Textbook — ₦1,600')">🛒 Add</button></div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">Social Studies Textbook</span><span class="book-price">₦1,500</span></div>
+                <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Social Studies Textbook — ₦1,500')">🛒 Add</button></div>
+              </div>
+
+              <div class="book-row">
+                <div class="book-info"><span class="book-name">Yoruba Language Textbook</span><span class="book-price">₦1,400</span></div>
+                <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Yoruba Language Textbook — ₦1,400')">🛒 Add</button></div>
+              </div>
+
             </div>
           </div>
+
+          <!-- Cart -->
+          <div id="cart-box" class="cart-box" style="margin-top:24px;">
+            <h4 style="margin-bottom:14px;">🛒 Your Cart (<span id="cart-cnt">0</span> items)</h4>
+            <div id="cart-body"></div>
+            <div id="cart-total" style="font-size:15px;font-weight:800;color:var(--navy);padding-top:12px;border-top:2px solid var(--yellow);margin-top:4px;margin-bottom:16px;"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-navy" onclick="placeOrder()">✅ Place Order</button>
+              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">🗑 Clear Cart</button>
+            </div>
+          </div>
+
         </div>
       </div>
 
