@@ -248,7 +248,7 @@
             <div class="payment-section-title">Step 1 — Transfer Payment to School Account</div>
             <div class="fee-payment-info">
               Pay the total amount shown above to:<br><br>
-              <strong>Bank:</strong> Zenith Bank<br>
+              <strong>Bank:</strong> Moniepoint<br>
               <strong>Account Number:</strong> 1234567890<br>
               <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
               After payment, upload your bank teller, debit alert or screenshot below.
@@ -413,7 +413,7 @@
   /* School account details to verify against */
   const SCHOOL_ACCOUNT = '1234567890';
   const BANK_KEYWORDS  = [
-    'zenith','transfer','debit','credit','transaction','payment','receipt',
+    'moniepoint','transfer','debit','credit','transaction','payment','receipt',
     'account','balance','naira','ngn','teller','bank','swift','amount',
     'beneficiary','ref','reference','date','success','successful','approved'
   ];
@@ -443,7 +443,7 @@
       /* Heuristic: if filename contains amount numbers or "receipt"/"transfer" etc */
       let text = '[Image file: ' + file.name + ' | Size: ' + (size/1024).toFixed(1) + 'KB]';
       if (name.includes('receipt') || name.includes('transfer') || name.includes('debit') ||
-          name.includes('teller') || name.includes('payment') || name.includes('zenith') ||
+          name.includes('teller') || name.includes('payment') || name.includes('moniepoint') ||
           name.includes('bank') || name.includes('txn') || name.includes('trx')) {
         text += '\n[Filename suggests: bank receipt]';
       }

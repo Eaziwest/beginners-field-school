@@ -133,7 +133,7 @@
       <div class="form-group">
         <div class="fee-payment-info">
           Pay <strong>₦5,000</strong> application fee to:<br><br>
-          <strong>Bank:</strong> Zenith Bank<br>
+          <strong>Bank:</strong> Moniepoint<br>
           <strong>Account Number:</strong> 1234567890<br>
           <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
           After payment, upload your proof below to complete your application.
@@ -180,7 +180,7 @@
     }
 
     const SCHOOL_ACCOUNT = '1234567890';
-    const BANK_KEYWORDS  = ['zenith','transfer','debit','credit','transaction','payment','receipt',
+    const BANK_KEYWORDS  = ['moniepoint','transfer','debit','credit','transaction','payment','receipt',
       'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
       'ref','reference','date','success','successful','approved'];
 
@@ -200,7 +200,7 @@
       const name = file.name.toLowerCase();
       let text = '[Image file: ' + file.name + ' | Size: ' + (file.size/1024).toFixed(1) + 'KB]';
       if (name.includes('receipt') || name.includes('transfer') || name.includes('debit') ||
-          name.includes('teller') || name.includes('payment') || name.includes('zenith') ||
+          name.includes('teller') || name.includes('payment') || name.includes('moniepoint') ||
           name.includes('bank') || name.includes('txn') || name.includes('trx')) {
         text += '\n[Filename suggests: bank receipt]';
       }

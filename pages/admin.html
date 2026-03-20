@@ -302,7 +302,7 @@
           <div class="stat-card" data-icon="✅"><div class="stat-num" id="pay-stat-confirmed">3</div><div class="stat-label">Confirmed Payments</div></div>
           <div class="stat-card" data-icon="⏳"><div class="stat-num" id="pay-stat-pending">1</div><div class="stat-label">Awaiting Review</div></div>
           <div class="stat-card" data-icon="💰"><div class="stat-num">₦76,000</div><div class="stat-label">Total Collected</div></div>
-          <div class="stat-card" data-icon="🔢"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-top:6px;">1234567890<br>Zenith Bank</div><div class="stat-label">School Account</div></div>
+          <div class="stat-card" data-icon="🔢"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-top:6px;">1234567890<br>Moniepoint</div><div class="stat-label">School Account</div></div>
         </div>
 
         <div class="card">
@@ -795,7 +795,7 @@
      RECEIPT VERIFIER — shared logic
   ════════════════════════════════════════════════ */
   const SCHOOL_ACCOUNT = '1234567890';
-  const BANK_KEYWORDS  = ['zenith','transfer','debit','credit','transaction','payment','receipt',
+  const BANK_KEYWORDS  = ['moniepoint','transfer','debit','credit','transaction','payment','receipt',
     'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
     'ref','reference','date','success','successful','approved'];
 
@@ -816,7 +816,7 @@
   async function extractImageInfo(file) {
     const name = file.name.toLowerCase();
     let text = '[Image: ' + file.name + ' | ' + (file.size/1024).toFixed(1) + 'KB]';
-    if (['receipt','transfer','debit','teller','payment','zenith','bank','txn','trx']
+    if (['receipt','transfer','debit','teller','payment','moniepoint','bank','txn','trx']
         .some(kw => name.includes(kw))) text += '
 [Filename: bank receipt indicator]';
     return text;
@@ -917,7 +917,7 @@
     /* Simulate async read then render with realistic demo data */
     setTimeout(() => {
       const demoText = fileType === 'pdf'
-        ? 'ZENITH BANK PLC
+        ? 'MONIEPOINT MFB
 Transaction Receipt
 Date: ' + new Date().toLocaleDateString() +
           '
