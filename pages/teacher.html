@@ -6,32 +6,19 @@
   <title>Teacher Portal — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
-  <style>
-    /* Live score feedback in results table */
-    .score-total { font-weight: 800; font-size: 15px; color: var(--navy); }
-    .grade-cell  { font-family: 'Merriweather', serif; font-size: 18px; font-weight: 900; }
-    .grade-A { color: var(--green-ok); }
-    .grade-B { color: var(--navy-mid); }
-    .grade-C { color: #d97706; }
-    .grade-F { color: var(--red); }
-    /* Attendance validation highlight */
-    tr.att-missing td { background: #fef2f2; }
-    /* Message validation */
-    .field-error { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important; }
-  </style>
 </head>
 <body>
 
-<div class="dashboard" id="teacher-dashboard">
+<div class="dashboard">
 
   <!-- HEADER -->
   <div class="dash-header dash-header-blue">
     <div>
       <h1>👩‍🏫 Teacher Portal</h1>
-      <div class="sub" id="teacher-sub">Welcome — Beginner's Field School</div>
+      <div class="sub">Welcome, Mr. Emeka Chukwu — Primary 6A · Mathematics · Beginner's Field School</div>
     </div>
     <div class="user-badge">
-      <div class="user-avatar user-avatar-blue" data-user-initials>EC</div>
+      <div class="user-avatar user-avatar-blue">EC</div>
       <div>
         <div class="user-name" data-user-name>Mr. E. Chukwu</div>
         <div class="user-role" data-user-title>Class Teacher — P6A</div>
@@ -43,295 +30,131 @@
   <div class="dash-body">
 
     <!-- SIDEBAR -->
-    <div class="sidebar" id="teacher-sidebar">
+    <div class="sidebar">
       <div class="sidebar-section">Main</div>
-      <div class="sidebar-link active" onclick="teacherTab('overview', this)"><span class="icon">🏠</span> Dashboard</div>
-      <div class="sidebar-link"        onclick="teacherTab('attendance', this)"><span class="icon">📅</span> Attendance</div>
-      <div class="sidebar-link"        onclick="teacherTab('results', this)"><span class="icon">📊</span> Upload Results</div>
+      <div class="sidebar-link active" onclick="teacherTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
+      <div class="sidebar-link"        onclick="teacherTab('attendance',this)"><span class="icon">📅</span> Attendance</div>
+      <div class="sidebar-link"        onclick="teacherTab('results',this)"><span class="icon">📊</span> Upload Results</div>
       <div class="sidebar-section">Class</div>
-      <div class="sidebar-link"        onclick="teacherTab('students', this)"><span class="icon">🎒</span> My Students</div>
-      <div class="sidebar-link"        onclick="teacherTab('messages', this)"><span class="icon">💬</span> Messages</div>
+      <div class="sidebar-link"        onclick="teacherTab('students',this)"><span class="icon">🎒</span> My Students</div>
+      <div class="sidebar-link"        onclick="teacherTab('messages',this)"><span class="icon">💬</span> Messages</div>
     </div>
 
     <div class="dash-main">
 
-      <!-- ══════════ OVERVIEW ══════════ -->
+      <!-- OVERVIEW -->
       <div id="tp-overview" class="stab-pane active">
         <div class="stats-row">
           <div class="stat-card" data-icon="🎒"><div class="stat-num">42</div><div class="stat-label">Students in My Class</div></div>
           <div class="stat-card" data-icon="✅"><div class="stat-num">39</div><div class="stat-label">Present Today</div></div>
           <div class="stat-card" data-icon="📊"><div class="stat-num">85%</div><div class="stat-label">Results Uploaded</div></div>
         </div>
-
         <div class="card">
-          <h3>📅 Today's Snapshot — Primary 6A</h3>
+          <h3>📅 Today's Snapshot — Primary 6A, Friday Mar 20</h3>
           <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">39 present · 2 absent · 1 late · 93% attendance rate today</p>
           <div class="prog-bar"><div class="prog-fill" style="width:93%;"></div></div>
-          <!-- FIX: use switchToTab() helper instead of broken querySelector -->
-          <button class="btn btn-navy" style="margin-top:18px;" onclick="switchToTab('attendance')">
-            📅 Mark Today's Attendance
-          </button>
+          <button class="btn btn-navy" style="margin-top:18px;" onclick="teacherTab('attendance',document.querySelectorAll('#teacher-dashboard .sidebar-link')[1])">📅 Mark Today's Attendance</button>
         </div>
-
         <div class="card">
           <h3>📊 Results Upload Progress — 3rd Term 2024/2025</h3>
           <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>Mathematics</span><span style="color:var(--green-ok);font-weight:700;">✅ Uploaded &amp; Published</span>
-            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;"><span>Mathematics</span><span style="color:var(--green-ok);font-weight:700;">✅ Uploaded &amp; Published</span></div>
             <div class="prog-bar"><div class="prog-fill" style="width:100%;"></div></div>
           </div>
           <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>English Language</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span>
-            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;"><span>English Language</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span></div>
             <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow);"></div></div>
           </div>
           <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>Basic Science</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span>
-            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;"><span>Basic Science</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span></div>
             <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow);"></div></div>
           </div>
-          <!-- FIX: use switchToTab() helper -->
-          <button class="btn btn-yellow" onclick="switchToTab('results')">📊 Upload Results Now</button>
+          <button class="btn btn-yellow" onclick="teacherTab('results',null)">📊 Upload Results Now</button>
         </div>
       </div>
 
-      <!-- ══════════ ATTENDANCE ══════════ -->
+      <!-- ATTENDANCE -->
       <div id="tp-attendance" class="stab-pane">
         <div class="card">
           <h3>📅 Mark Attendance — Primary 6A</h3>
-
           <div class="form-row" style="margin-bottom:18px;">
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="att-date" value="2025-03-20" />
-            </div>
-            <div class="form-group">
-              <label>Period / Subject</label>
-              <select id="att-period">
-                <option>Morning Roll Call</option>
-                <option>Mathematics</option>
-                <option>English Language</option>
-                <option>Basic Science</option>
-                <option>Social Studies</option>
-              </select>
+            <div class="form-group"><label>Date</label><input type="date" value="2025-03-20" /></div>
+            <div class="form-group"><label>Period / Subject</label>
+              <select><option>Morning Roll Call</option><option>Mathematics</option><option>English Language</option></select>
             </div>
           </div>
-
-          <!-- FIX: added id to tbody so saveAttendance() can read it -->
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Student Name</th>
-                  <th>Present ✅</th>
-                  <th>Absent ❌</th>
-                  <th>Late 🕐</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
-              <tbody id="att-tbody">
-                <tr>
-                  <td>1</td><td>Adaeze Nwosu</td>
-                  <td><input type="radio" name="a1" value="present" checked /></td>
-                  <td><input type="radio" name="a1" value="absent" /></td>
-                  <td><input type="radio" name="a1" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>2</td><td>Babatunde Afolabi</td>
-                  <td><input type="radio" name="a2" value="present" checked /></td>
-                  <td><input type="radio" name="a2" value="absent" /></td>
-                  <td><input type="radio" name="a2" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>3</td><td>Chioma Eze</td>
-                  <td><input type="radio" name="a3" value="present" /></td>
-                  <td><input type="radio" name="a3" value="absent" checked /></td>
-                  <td><input type="radio" name="a3" value="late" /></td>
-                  <td><input class="att-note" value="Sick" /></td>
-                </tr>
-                <tr>
-                  <td>4</td><td>Daniel Okoye</td>
-                  <td><input type="radio" name="a4" value="present" checked /></td>
-                  <td><input type="radio" name="a4" value="absent" /></td>
-                  <td><input type="radio" name="a4" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>5</td><td>Esther Lawal</td>
-                  <td><input type="radio" name="a5" value="present" /></td>
-                  <td><input type="radio" name="a5" value="absent" /></td>
-                  <td><input type="radio" name="a5" value="late" checked /></td>
-                  <td><input class="att-note" value="Arrived 8:45AM" /></td>
-                </tr>
+              <thead><tr><th>#</th><th>Student Name</th><th>Present ✅</th><th>Absent ❌</th><th>Late 🕐</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Adaeze Nwosu</td><td><input type="radio" name="a1" checked /></td><td><input type="radio" name="a1" /></td><td><input type="radio" name="a1" /></td><td><input class="att-note" placeholder="Optional note" /></td></tr>
+                <tr><td>2</td><td>Babatunde Afolabi</td><td><input type="radio" name="a2" checked /></td><td><input type="radio" name="a2" /></td><td><input type="radio" name="a2" /></td><td><input class="att-note" placeholder="Optional note" /></td></tr>
+                <tr><td>3</td><td>Chioma Eze</td><td><input type="radio" name="a3" /></td><td><input type="radio" name="a3" checked /></td><td><input type="radio" name="a3" /></td><td><input class="att-note" value="Sick" /></td></tr>
+                <tr><td>4</td><td>Daniel Okoye</td><td><input type="radio" name="a4" checked /></td><td><input type="radio" name="a4" /></td><td><input type="radio" name="a4" /></td><td><input class="att-note" placeholder="Optional note" /></td></tr>
+                <tr><td>5</td><td>Esther Lawal</td><td><input type="radio" name="a5" /></td><td><input type="radio" name="a5" /></td><td><input type="radio" name="a5" checked /></td><td><input class="att-note" value="Arrived 8:45AM" /></td></tr>
               </tbody>
             </table>
           </div>
-
-          <!-- Attendance summary bar (updated on save) -->
-          <div id="att-summary" style="display:none;margin-top:14px;padding:12px 16px;background:var(--off-white);border-radius:10px;font-size:13.5px;color:var(--gray);"></div>
-
-          <button class="btn btn-navy" style="margin-top:18px;" onclick="saveAttendance()">💾 Save Attendance</button>
+          <button class="btn btn-navy" style="margin-top:18px;" onclick="toast('Attendance saved! Parents of absent students notified.')">💾 Save Attendance</button>
         </div>
       </div>
 
-      <!-- ══════════ RESULTS ══════════ -->
+      <!-- RESULTS -->
       <div id="tp-results" class="stab-pane">
         <div class="card">
           <h3>📊 Upload Student Results</h3>
-
           <div class="form-row" style="margin-bottom:4px;">
-            <div class="form-group">
-              <label>Class</label>
-              <select id="res-class"><option>Primary 6A</option></select>
-            </div>
-            <div class="form-group">
-              <label>Subject</label>
-              <select id="res-subject">
-                <option>Mathematics</option>
-                <option>English Language</option>
-                <option>Basic Science</option>
-                <option>Social Studies</option>
-                <option>Yoruba Language</option>
-              </select>
+            <div class="form-group"><label>Class</label><select><option>Primary 6A</option></select></div>
+            <div class="form-group"><label>Subject</label>
+              <select><option>Mathematics</option><option>English Language</option><option>Basic Science</option><option>Social Studies</option><option>Yoruba Language</option></select>
             </div>
           </div>
-
           <div class="form-row" style="margin-bottom:18px;">
-            <div class="form-group">
-              <label>Term</label>
-              <select id="res-term">
-                <option>3rd Term 2024/2025</option>
-                <option>2nd Term 2024/2025</option>
-                <option>1st Term 2024/2025</option>
-              </select>
+            <div class="form-group"><label>Term</label>
+              <select><option>3rd Term 2024/2025</option><option>2nd Term 2024/2025</option><option>1st Term 2024/2025</option></select>
             </div>
-            <div class="form-group">
-              <label>CA Max Score</label>
-              <!-- FIX: separate CA max and Exam max so grading is accurate -->
-              <input type="number" id="ca-max" value="30" min="1" max="100"
-                style="width:100%;padding:11px 15px;border:2px solid var(--light-gray);border-radius:11px;font-size:14px;font-family:'Nunito',sans-serif;"
-                oninput="recalcAllTotals()" />
+            <div class="form-group"><label>Max Total Score</label>
+              <input type="number" value="100" style="width:100%;padding:11px 15px;border:2px solid var(--light-gray);border-radius:11px;font-size:14px;font-family:'Nunito',sans-serif;" />
             </div>
           </div>
-
           <div class="tbl-wrap">
-            <table id="results-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>CA Score</th>
-                  <th>Exam Score</th>
-                  <th>Total (/100)</th>
-                  <th>Grade</th>
-                  <th>Remark</th>
-                </tr>
-              </thead>
+            <table>
+              <thead><tr><th>Student Name</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Remark</th></tr></thead>
               <tbody>
-                <!-- FIX: oninput on every score field recalculates total, grade and remark live -->
-                <tr data-student="Adaeze Nwosu">
-                  <td>Adaeze Nwosu</td>
-                  <td><input type="number" class="ca-score" value="28" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="65" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">93</span></td>
-                  <td><span class="grade-cell grade-A">A</span></td>
-                  <td class="remark-cell">Excellent</td>
-                </tr>
-                <tr data-student="Babatunde Afolabi">
-                  <td>Babatunde Afolabi</td>
-                  <td><input type="number" class="ca-score" value="22" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="55" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">77</span></td>
-                  <td><span class="grade-cell grade-B">B</span></td>
-                  <td class="remark-cell">Very Good</td>
-                </tr>
-                <tr data-student="Chioma Eze">
-                  <td>Chioma Eze</td>
-                  <td><input type="number" class="ca-score" value="18" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="48" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">66</span></td>
-                  <td><span class="grade-cell grade-C">C</span></td>
-                  <td class="remark-cell">Good</td>
-                </tr>
-                <tr data-student="Daniel Okoye">
-                  <td>Daniel Okoye</td>
-                  <td><input type="number" class="ca-score" value="29" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="62" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">91</span></td>
-                  <td><span class="grade-cell grade-A">A</span></td>
-                  <td class="remark-cell">Excellent</td>
-                </tr>
-                <tr data-student="Esther Lawal">
-                  <td>Esther Lawal</td>
-                  <td><input type="number" class="ca-score" value="15" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="40" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">55</span></td>
-                  <td><span class="grade-cell grade-C">C</span></td>
-                  <td class="remark-cell">Good</td>
-                </tr>
+                <tr><td>Adaeze Nwosu</td><td><input type="number" value="28" min="0" max="30" /></td><td><input type="number" value="65" min="0" max="70" /></td><td><strong>93</strong></td><td><span class="badge b-green">A</span></td><td>Excellent</td></tr>
+                <tr><td>Babatunde Afolabi</td><td><input type="number" value="22" min="0" max="30" /></td><td><input type="number" value="55" min="0" max="70" /></td><td><strong>77</strong></td><td><span class="badge b-blue">B</span></td><td>Very Good</td></tr>
+                <tr><td>Chioma Eze</td><td><input type="number" value="18" min="0" max="30" /></td><td><input type="number" value="48" min="0" max="70" /></td><td><strong>66</strong></td><td><span class="badge b-yellow">C</span></td><td>Good</td></tr>
+                <tr><td>Daniel Okoye</td><td><input type="number" value="29" min="0" max="30" /></td><td><input type="number" value="62" min="0" max="70" /></td><td><strong>91</strong></td><td><span class="badge b-green">A</span></td><td>Excellent</td></tr>
+                <tr><td>Esther Lawal</td><td><input type="number" value="15" min="0" max="30" /></td><td><input type="number" value="40" min="0" max="70" /></td><td><strong>55</strong></td><td><span class="badge b-yellow">C</span></td><td>Good</td></tr>
               </tbody>
             </table>
           </div>
-
-          <!-- Class average summary -->
-          <div id="results-summary" style="margin-top:14px;padding:12px 16px;background:var(--yellow-pale);border:1.5px solid var(--yellow);border-radius:10px;font-size:13.5px;color:var(--navy);font-weight:700;"></div>
-
           <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
-            <button class="btn btn-outline-navy" onclick="saveDraftResults()">💾 Save as Draft</button>
-            <button class="btn btn-navy" onclick="submitResults()">📤 Submit for Approval</button>
+            <button class="btn btn-outline-navy" onclick="toast('Draft saved successfully!')">💾 Save as Draft</button>
+            <button class="btn btn-navy" onclick="toast('Results submitted to Admin for approval!')">📤 Submit for Approval</button>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ MY STUDENTS ══════════ -->
+      <!-- STUDENTS -->
       <div id="tp-students" class="stab-pane">
         <div class="card">
           <h3>🎒 My Students — Primary 6A (42 students)</h3>
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Student ID</th><th>Name</th><th>Gender</th>
-                  <th>Attendance</th><th>Avg Score</th><th>Fees</th><th>Action</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Student ID</th><th>Name</th><th>Gender</th><th>Attendance</th><th>Avg Score</th><th>Fees</th><th>Action</th></tr></thead>
               <tbody>
-                <tr>
-                  <td>BFS/001</td><td><strong>Adaeze Nwosu</strong></td><td>Female</td>
-                  <td>98%</td><td><strong style="color:var(--green-ok);">88</strong></td>
-                  <td><span class="badge b-green">Paid</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/002</td><td><strong>Babatunde Afolabi</strong></td><td>Male</td>
-                  <td>92%</td><td><strong style="color:var(--navy-mid);">77</strong></td>
-                  <td><span class="badge b-red">Owing</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/003</td><td><strong>Chioma Eze</strong></td><td>Female</td>
-                  <td>85%</td><td><strong style="color:#d97706;">66</strong></td>
-                  <td><span class="badge b-green">Paid</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/004</td><td><strong>Daniel Okoye</strong></td><td>Male</td>
-                  <td>100%</td><td><strong style="color:var(--green-ok);">91</strong></td>
-                  <td><span class="badge b-yellow">Partial</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
+                <tr><td>BFS/001</td><td><strong>Adaeze Nwosu</strong></td><td>Female</td><td>98%</td><td><strong style="color:var(--green-ok);">88</strong></td><td><span class="badge b-green">Paid</span></td><td><button class="btn btn-outline-navy btn-sm">Profile</button></td></tr>
+                <tr><td>BFS/002</td><td><strong>Babatunde Afolabi</strong></td><td>Male</td><td>92%</td><td><strong style="color:var(--navy-mid);">77</strong></td><td><span class="badge b-red">Owing</span></td><td><button class="btn btn-outline-navy btn-sm">Profile</button></td></tr>
+                <tr><td>BFS/003</td><td><strong>Chioma Eze</strong></td><td>Female</td><td>85%</td><td><strong style="color:#d97706;">66</strong></td><td><span class="badge b-green">Paid</span></td><td><button class="btn btn-outline-navy btn-sm">Profile</button></td></tr>
+                <tr><td>BFS/004</td><td><strong>Daniel Okoye</strong></td><td>Male</td><td>100%</td><td><strong style="color:var(--green-ok);">91</strong></td><td><span class="badge b-yellow">Partial</span></td><td><button class="btn btn-outline-navy btn-sm">Profile</button></td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══════════ MESSAGES ══════════ -->
+      <!-- MESSAGES -->
       <div id="tp-messages" class="stab-pane">
         <div class="card">
           <h3>📢 School Announcements</h3>
@@ -339,245 +162,28 @@
           <div class="notif warn"><span>⚠️</span><div><h4>Results Deadline — Submit All by Friday 5PM</h4><p>From Principal's Office · Mar 15, 2025</p></div></div>
           <div class="notif ok"><span>✅</span><div><h4>Your Mathematics Results Have Been Approved &amp; Published</h4><p>From Admin · Mar 18, 2025</p></div></div>
         </div>
-
         <div class="card">
           <h3>💬 Message a Parent</h3>
-          <!-- FIX: added ids so sendMessage() can validate -->
-          <div class="form-group">
-            <label>Select Student *</label>
-            <select id="msg-student">
-              <option value="">— Select student —</option>
-              <option>Adaeze Nwosu</option>
-              <option>Babatunde Afolabi</option>
-              <option>Chioma Eze</option>
-              <option>Daniel Okoye</option>
-              <option>Esther Lawal</option>
-            </select>
+          <div class="form-group"><label>Select Student</label>
+            <select><option>— Select —</option><option>Adaeze Nwosu's Parent</option><option>Babatunde Afolabi's Parent</option><option>Chioma Eze's Parent</option></select>
           </div>
-          <div class="form-group">
-            <label>Subject *</label>
-            <input id="msg-subject" placeholder="e.g. Concern about attendance" />
-          </div>
-          <div class="form-group">
-            <label>Message *</label>
-            <textarea id="msg-body" rows="4" placeholder="Type your message to the parent..."></textarea>
-          </div>
-          <!-- FIX: calls sendMessage() which validates before sending -->
-          <button class="btn btn-navy" onclick="sendMessage()">📤 Send Message</button>
+          <div class="form-group"><label>Subject</label><input placeholder="e.g. Concern about attendance" /></div>
+          <div class="form-group"><label>Message</label><textarea rows="4" placeholder="Type your message to the parent..."></textarea></div>
+          <button class="btn btn-navy" onclick="toast('Message sent to parent successfully!')">📤 Send Message</button>
         </div>
       </div>
 
-    </div><!-- /dash-main -->
-  </div><!-- /dash-body -->
-</div><!-- /dashboard -->
+    </div>
+  </div>
+</div>
 
 <div id="toast">🔔 <span id="toast-text"></span></div>
-
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-
-  /* ── Auth guard ── */
+  // ── Auth guard: must be teacher ──
   const _user = requireAuth('teacher');
   injectUserInfo(_user);
-
-  /* ── Update subtitle with logged-in name ── */
-  document.getElementById('teacher-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
-
-
-  /* ══════════════════════════════════════════
-     FIX 1: switchToTab() — safe tab switcher
-     that correctly finds sidebar links by name
-     instead of fragile querySelector index
-     ══════════════════════════════════════════ */
-  function switchToTab(name) {
-    /* Hide all panes */
-    document.querySelectorAll('#teacher-dashboard .stab-pane')
-      .forEach(p => p.classList.remove('active'));
-    /* Deactivate all sidebar links */
-    document.querySelectorAll('#teacher-sidebar .sidebar-link')
-      .forEach(l => l.classList.remove('active'));
-    /* Show the target pane */
-    const pane = document.getElementById('tp-' + name);
-    if (pane) pane.classList.add('active');
-    /* Activate the matching sidebar link by its onclick text */
-    document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(link => {
-      if (link.getAttribute('onclick') && link.getAttribute('onclick').includes("'" + name + "'")) {
-        link.classList.add('active');
-      }
-    });
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 2: saveAttendance() — validates that
-     every student has a status, shows a
-     summary of present / absent / late counts
-     ══════════════════════════════════════════ */
-  function saveAttendance() {
-    const date    = document.getElementById('att-date').value;
-    const period  = document.getElementById('att-period').value;
-    const rows    = document.querySelectorAll('#att-tbody tr');
-
-    let present = 0, absent = 0, late = 0, missing = 0;
-
-    rows.forEach(row => {
-      row.classList.remove('att-missing');
-      const checked = row.querySelector('input[type="radio"]:checked');
-      if (!checked) {
-        row.classList.add('att-missing');
-        missing++;
-      } else {
-        if (checked.value === 'present') present++;
-        else if (checked.value === 'absent')  absent++;
-        else if (checked.value === 'late')    late++;
-      }
-    });
-
-    if (missing > 0) {
-      toast('⚠️ Please mark attendance for all ' + missing + ' highlighted student(s).');
-      return;
-    }
-
-    if (!date) { toast('⚠️ Please select a date.'); return; }
-
-    /* Show summary */
-    const summary = document.getElementById('att-summary');
-    summary.style.display = 'block';
-    summary.innerHTML =
-      '✅ Attendance saved for <strong>' + period + '</strong> on <strong>' + date + '</strong> — ' +
-      '<span style="color:var(--green-ok);">Present: ' + present + '</span> · ' +
-      '<span style="color:var(--red);">Absent: ' + absent + '</span> · ' +
-      '<span style="color:#d97706;">Late: ' + late + '</span>' +
-      (absent > 0 ? ' &nbsp;|&nbsp; 📱 Parents of absent students notified.' : '');
-
-    toast('Attendance saved! ' + (absent ? absent + ' parent(s) notified.' : 'All students present.'));
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 3: recalcRow() — recalculates total,
-     grade and remark live as teacher types
-     ══════════════════════════════════════════ */
-  function getGrade(total) {
-    if (total >= 75) return { grade: 'A', cls: 'grade-A', remark: 'Excellent' };
-    if (total >= 60) return { grade: 'B', cls: 'grade-B', remark: 'Very Good' };
-    if (total >= 50) return { grade: 'C', cls: 'grade-C', remark: 'Good' };
-    if (total >= 40) return { grade: 'D', cls: 'grade-C', remark: 'Fair' };
-    return               { grade: 'F', cls: 'grade-F', remark: 'Needs Improvement' };
-  }
-
-  function recalcRow(input) {
-    const row      = input.closest('tr');
-    const ca       = parseFloat(row.querySelector('.ca-score').value)   || 0;
-    const exam     = parseFloat(row.querySelector('.exam-score').value) || 0;
-    const caMax    = parseFloat(document.getElementById('ca-max').value) || 30;
-    const examMax  = 100 - caMax;
-
-    /* Clamp values to their max */
-    const caInput   = row.querySelector('.ca-score');
-    const examInput = row.querySelector('.exam-score');
-    caInput.max   = caMax;
-    examInput.max = examMax;
-    if (ca   > caMax)   caInput.value   = caMax;
-    if (exam > examMax) examInput.value = examMax;
-
-    const total = (parseFloat(caInput.value) || 0) + (parseFloat(examInput.value) || 0);
-    const { grade, cls, remark } = getGrade(total);
-
-    row.querySelector('.score-total').textContent = total;
-    const gradeEl = row.querySelector('.grade-cell');
-    gradeEl.textContent = grade;
-    gradeEl.className   = 'grade-cell ' + cls;
-    row.querySelector('.remark-cell').textContent = remark;
-
-    updateResultsSummary();
-  }
-
-  function recalcAllTotals() {
-    document.querySelectorAll('#results-table tbody tr').forEach(row => {
-      const input = row.querySelector('.ca-score');
-      if (input) recalcRow(input);
-    });
-  }
-
-  function updateResultsSummary() {
-    const totals = Array.from(
-      document.querySelectorAll('#results-table .score-total')
-    ).map(el => parseFloat(el.textContent) || 0);
-
-    if (!totals.length) return;
-    const avg    = (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1);
-    const highest = Math.max(...totals);
-    const lowest  = Math.min(...totals);
-
-    const el = document.getElementById('results-summary');
-    if (el) el.innerHTML =
-      '📊 Class Average: <strong>' + avg + '%</strong> &nbsp;·&nbsp; ' +
-      'Highest: <strong>' + highest + '</strong> &nbsp;·&nbsp; ' +
-      'Lowest: <strong>' + lowest + '</strong> &nbsp;·&nbsp; ' +
-      'Students: <strong>' + totals.length + '</strong>';
-  }
-
-  /* Initialise summary on page load */
-  updateResultsSummary();
-
-
-  /* ══════════════════════════════════════════
-     FIX 4: saveDraftResults() and
-     submitResults() — validate before acting
-     ══════════════════════════════════════════ */
-  function validateScores() {
-    let valid = true;
-    document.querySelectorAll('#results-table tbody tr').forEach(row => {
-      const ca   = parseFloat(row.querySelector('.ca-score').value);
-      const exam = parseFloat(row.querySelector('.exam-score').value);
-      if (isNaN(ca) || isNaN(exam)) valid = false;
-    });
-    return valid;
-  }
-
-  function saveDraftResults() {
-    if (!validateScores()) { toast('⚠️ Please fill in all score fields before saving.'); return; }
-    toast('💾 Draft saved successfully!');
-  }
-
-  function submitResults() {
-    if (!validateScores()) { toast('⚠️ Please fill in all score fields before submitting.'); return; }
-    const subject = document.getElementById('res-subject').value;
-    const term    = document.getElementById('res-term').value;
-    toast('📤 ' + subject + ' results submitted to Admin for approval!');
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 5: sendMessage() — validates that
-     student, subject and message are all filled
-     ══════════════════════════════════════════ */
-  function sendMessage() {
-    const studentEl  = document.getElementById('msg-student');
-    const subjectEl  = document.getElementById('msg-subject');
-    const bodyEl     = document.getElementById('msg-body');
-
-    let valid = true;
-
-    [studentEl, subjectEl, bodyEl].forEach(el => el.classList.remove('field-error'));
-
-    if (!studentEl.value) { studentEl.classList.add('field-error'); valid = false; }
-    if (!subjectEl.value.trim()) { subjectEl.classList.add('field-error'); valid = false; }
-    if (!bodyEl.value.trim())    { bodyEl.classList.add('field-error');    valid = false; }
-
-    if (!valid) { toast('⚠️ Please fill in all required fields before sending.'); return; }
-
-    toast('✅ Message sent to ' + studentEl.value + "'s parent successfully!");
-
-    /* Clear form after send */
-    studentEl.value  = '';
-    subjectEl.value  = '';
-    bodyEl.value     = '';
-  }
-
 </script>
 </body>
 </html>

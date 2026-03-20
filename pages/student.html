@@ -6,49 +6,19 @@
   <title>Student Portal — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
-  <style>
-    /* Grade colours (student read-only view) */
-    .grade { font-family:'Merriweather',serif; font-size:22px; font-weight:900; }
-    .grade-A { color:var(--green-ok); }
-    .grade-B { color:var(--navy-mid); }
-    .grade-C { color:#d97706; }
-    .grade-F { color:var(--red); }
-    /* Payment amount input */
-    .pay-amount-wrap { position:relative; margin-bottom:16px; }
-    .pay-amount-wrap .currency-prefix {
-      position:absolute; left:14px; top:50%; transform:translateY(-50%);
-      font-weight:800; color:var(--navy); font-size:15px;
-    }
-    .pay-amount-wrap input {
-      padding-left:36px !important;
-      font-size:18px !important; font-weight:700 !important;
-    }
-    /* Cart item row */
-    .cart-item {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:7px 0; border-bottom:1px solid rgba(0,0,0,0.07); font-size:14px;
-    }
-    .cart-item:last-child { border-bottom:none; }
-    .cart-remove {
-      background:none; border:none; cursor:pointer; color:var(--red);
-      font-size:16px; padding:0 4px; line-height:1;
-    }
-    /* Quick results highlight today */
-    .today-highlight { background:var(--yellow-pale); }
-  </style>
 </head>
 <body>
 
-<div class="dashboard" id="student-dashboard">
+<div class="dashboard">
 
   <!-- HEADER -->
   <div class="dash-header dash-header-amber">
     <div>
       <h1>🎒 Student Portal</h1>
-      <div class="sub" id="student-sub">Welcome — Beginner's Field School</div>
+      <div class="sub">Welcome, Adaeze Nwosu — Primary 4 · Student ID: BFS/2025/001</div>
     </div>
     <div class="user-badge">
-      <div class="user-avatar user-avatar-amber" data-user-initials>AN</div>
+      <div class="user-avatar user-avatar-amber">AN</div>
       <div>
         <div class="user-name" data-user-name>Adaeze Nwosu</div>
         <div class="user-role" data-user-title>Primary 4 · 2024/2025</div>
@@ -60,21 +30,19 @@
   <div class="dash-body">
 
     <!-- SIDEBAR -->
-    <div class="sidebar" id="student-sidebar">
+    <div class="sidebar">
       <div class="sidebar-section">My Portal</div>
-      <div class="sidebar-link active" onclick="switchToTab('overview', this)"><span class="icon">🏠</span> Dashboard</div>
-      <div class="sidebar-link"        onclick="switchToTab('results',  this)"><span class="icon">📊</span> My Results</div>
-      <div class="sidebar-link"        onclick="switchToTab('payments', this)"><span class="icon">💳</span> Pay Fees</div>
+      <div class="sidebar-link active" onclick="studentTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
+      <div class="sidebar-link"        onclick="studentTab('results',this)"><span class="icon">📊</span> My Results</div>
+      <div class="sidebar-link"        onclick="studentTab('payments',this)"><span class="icon">💳</span> Pay Fees</div>
       <div class="sidebar-section">Shop &amp; Schedule</div>
-      <div class="sidebar-link"        onclick="switchToTab('shop',      this)"><span class="icon">🛒</span> School Shop</div>
-      <div class="sidebar-link"        onclick="switchToTab('timetable', this)"><span class="icon">📅</span> Timetable</div>
+      <div class="sidebar-link"        onclick="studentTab('shop',this)"><span class="icon">🛒</span> School Shop</div>
+      <div class="sidebar-link"        onclick="studentTab('timetable',this)"><span class="icon">📅</span> Timetable</div>
     </div>
 
     <div class="dash-main">
 
-      <!-- ══════════════════════════════════════
-           OVERVIEW
-           ══════════════════════════════════════ -->
+      <!-- OVERVIEW -->
       <div id="sp-overview" class="stab-pane active">
         <div class="stats-row">
           <div class="stat-card" data-icon="📊"><div class="stat-num">88%</div><div class="stat-label">Term Average Score</div></div>
@@ -82,14 +50,12 @@
           <div class="stat-card" data-icon="🏆"><div class="stat-num">3rd</div><div class="stat-label">Class Position</div></div>
           <div class="stat-card" data-icon="💳"><div class="stat-num">₦0</div><div class="stat-label">Outstanding Fees</div></div>
         </div>
-
         <div class="card">
           <h3>📢 School Announcements</h3>
-          <div class="notif warn"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Report cards will be available to download after the closing date</p></div></div>
+          <div class="notif warn"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Report cards will be available to download after closing date</p></div></div>
           <div class="notif info"><span>🏆</span><div><h4>Inter-House Sports Day — March 15</h4><p>Wear your house colours. Events begin at 8:00AM sharp</p></div></div>
           <div class="notif ok"><span>✅</span><div><h4>Your 3rd Term Results Are Now Available</h4><p>Visit the Results tab to view and download your report card</p></div></div>
         </div>
-
         <div class="card">
           <h3>📊 Quick Results — 3rd Term 2024/2025</h3>
           <div class="tbl-wrap">
@@ -103,39 +69,27 @@
               </tbody>
             </table>
           </div>
-          <!-- FIX: was studentTab('results', null) — null broke sidebar highlight -->
-          <button class="btn btn-navy btn-sm" style="margin-top:14px;"
-            onclick="switchToTab('results')">View Full Results →</button>
+          <button class="btn btn-navy btn-sm" style="margin-top:14px;" onclick="studentTab('results',null)">View Full Results →</button>
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════
-           RESULTS
-           ══════════════════════════════════════ -->
+      <!-- RESULTS -->
       <div id="sp-results" class="stab-pane">
         <div class="card">
           <h3>📊 My Academic Results</h3>
-          <!-- FIX: subtabs now use switchResultTab correctly scoped to this card -->
           <div class="subtabs">
             <div class="stab active" onclick="switchResultTab(this,'sr1')">3rd Term 2024/25</div>
             <div class="stab"        onclick="switchResultTab(this,'sr2')">2nd Term 2024/25</div>
             <div class="stab"        onclick="switchResultTab(this,'sr3')">1st Term 2024/25</div>
           </div>
-
-          <!-- 3rd Term -->
           <div id="sr1" class="stab-pane active">
             <div class="result-banner">
-              <strong>Term Average: 86.75% &nbsp;
-                <span class="badge b-green">🏆 3rd Position of 42 Students</span>
-              </strong>
-              <!-- FIX: download was just a toast — now opens a printable result window -->
-              <button class="btn btn-navy btn-sm" onclick="downloadReport()">⬇️ Download Report Card</button>
+              <strong>Term Average: 86.75% &nbsp; <span class="badge b-green">🏆 3rd Position of 42 Students</span></strong>
+              <button class="btn btn-navy btn-sm" onclick="toast('Report card downloading...')">⬇️ Download Report Card</button>
             </div>
             <div class="tbl-wrap">
               <table>
-                <thead>
-                  <tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Teacher's Remark</th></tr>
-                </thead>
+                <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Teacher's Remark</th></tr></thead>
                 <tbody>
                   <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td><span class="grade grade-A">A</span></td><td>Excellent performance</td></tr>
                   <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td><span class="grade grade-B">B</span></td><td>Very good work</td></tr>
@@ -146,142 +100,56 @@
               </table>
             </div>
             <div class="principal-comment">
-              <strong>Principal's Comment:</strong> Adaeze has shown remarkable dedication this term.
-              She is encouraged to maintain this excellent standard. Well done! — Mrs. A. Okafor
+              <strong>Principal's Comment:</strong> Adaeze has shown remarkable dedication this term. She is encouraged to maintain this excellent standard. Well done! — Mrs. A. Okafor
             </div>
           </div>
-
-          <!-- 2nd Term -->
-          <div id="sr2" class="stab-pane">
-            <p style="color:var(--gray);padding:30px;text-align:center;">2nd Term results have not been published yet. Check back after closing day.</p>
-          </div>
-
-          <!-- 1st Term -->
-          <div id="sr3" class="stab-pane">
-            <p style="color:var(--gray);padding:30px;text-align:center;">1st Term results have not been published yet. Check back after closing day.</p>
-          </div>
+          <div id="sr2" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">2nd Term results not yet available.</p></div>
+          <div id="sr3" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">1st Term results not yet available.</p></div>
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════
-           PAYMENTS
-           ══════════════════════════════════════ -->
+      <!-- PAYMENTS -->
       <div id="sp-payments" class="stab-pane">
         <div class="card">
           <h3>💳 Pay School Fees</h3>
-
-          <!-- Fee breakdown -->
           <div class="fee-summary">
             <div class="fee-row"><span>School Fees — 3rd Term 2025</span><span>₦45,000</span></div>
             <div class="fee-row"><span>Development Levy</span><span>₦5,000</span></div>
-            <div class="fee-row"><span style="color:var(--gray);font-size:13px;">Amount Already Paid</span><span style="color:var(--green-ok);">−₦50,000</span></div>
+            <div class="fee-row"><span style="color:var(--gray);font-size:13px;">Amount Already Paid</span><span style="color:var(--green-ok);">— ₦50,000</span></div>
             <div class="fee-row total"><span>Outstanding Balance</span><span style="color:var(--green-ok);">₦0.00 ✅</span></div>
           </div>
-
-          <div class="notif ok">
-            <span>✅</span>
-            <div><h4>All Fees Paid for 3rd Term 2024/2025</h4>
-              <p>Payment confirmed on March 5, 2025 — Ref: PAY-0041</p></div>
-          </div>
-
-          <h4 style="margin:22px 0 6px;font-size:15px;">Make a New Payment</h4>
-          <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">Enter the amount you wish to pay, select a payment method, then proceed.</p>
-
-          <!-- FIX: payment amount field — was missing entirely, user had no way to enter amount -->
-          <div class="form-group">
-            <label>Payment Description</label>
-            <select id="pay-description">
-              <option value="">— Select what you are paying for —</option>
-              <option value="45000">School Fees — 3rd Term 2025 (₦45,000)</option>
-              <option value="5000">Development Levy (₦5,000)</option>
-              <option value="50000">School Fees + Development Levy (₦50,000)</option>
-              <option value="custom">Other / Custom Amount</option>
-            </select>
-          </div>
-          <div class="form-group" id="custom-amount-group" style="display:none;">
-            <label>Enter Amount (₦)</label>
-            <div class="pay-amount-wrap">
-              <span class="currency-prefix">₦</span>
-              <input type="number" id="pay-custom-amount" placeholder="0.00" min="100" />
-            </div>
-          </div>
-
-          <!-- Payment methods -->
-          <div id="pay-method-bank" class="pay-opt sel" onclick="selectPayMethod(this)">
-            <div class="pi">🏦</div>
-            <div>
-              <h4>Bank Transfer</h4>
-              <p>Zenith Bank · 1234567890 · Beginner's Field Nursery &amp; Primary School</p>
-            </div>
-          </div>
-          <div class="pay-opt" onclick="selectPayMethod(this)">
-            <div class="pi">💳</div>
-            <div>
-              <h4>Debit / Credit Card</h4>
-              <p>Visa, Mastercard, Verve accepted. Instant confirmation.</p>
-            </div>
-          </div>
-          <div class="pay-opt" onclick="selectPayMethod(this)">
-            <div class="pi">📱</div>
-            <div>
-              <h4>USSD</h4>
-              <p>Dial *966*1234567890*AMOUNT# from any mobile phone</p>
-            </div>
-          </div>
-
-          <!-- FIX: button now calls proceedPayment() which validates before proceeding -->
-          <button class="btn btn-yellow" style="width:100%;margin-top:16px;" onclick="proceedPayment()">
-            💳 Proceed to Payment
-          </button>
+          <div class="notif ok"><span>✅</span><div><h4>All Fees Paid for 3rd Term 2024/2025</h4><p>Payment confirmed on March 5, 2025 — Ref: PAY-0041</p></div></div>
+          <h4 style="margin:22px 0 14px;font-size:15px;">Make a New Payment</h4>
+          <div class="pay-opt sel" onclick="selectPayMethod(this)"><div class="pi">🏦</div><div><h4>Bank Transfer</h4><p>Zenith Bank · 1234567890 · Beginner's Field Nursery &amp; Primary School</p></div></div>
+          <div class="pay-opt"     onclick="selectPayMethod(this)"><div class="pi">💳</div><div><h4>Debit / Credit Card</h4><p>Visa, Mastercard, Verve accepted. Instant confirmation.</p></div></div>
+          <div class="pay-opt"     onclick="selectPayMethod(this)"><div class="pi">📱</div><div><h4>USSD</h4><p>Dial *966*1234567890*AMOUNT# from any mobile phone</p></div></div>
+          <button class="btn btn-yellow" style="width:100%;margin-top:16px;" onclick="toast('Payment initiated! You will receive a confirmation SMS shortly.')">💳 Proceed to Payment</button>
         </div>
-
-        <!-- Payment History -->
         <div class="card">
           <h3>📄 Payment History</h3>
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr><th>Ref No.</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr>
-              </thead>
+              <thead><tr><th>Ref No.</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
               <tbody>
-                <tr>
-                  <td>PAY-0041</td><td>Mar 5, 2025</td><td>School Fees — 3rd Term</td><td>₦45,000</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0041','School Fees — 3rd Term','₦45,000')">⬇️ Receipt</button></td>
-                </tr>
-                <tr>
-                  <td>PAY-0042</td><td>Mar 5, 2025</td><td>Development Levy</td><td>₦5,000</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0042','Development Levy','₦5,000')">⬇️ Receipt</button></td>
-                </tr>
-                <tr>
-                  <td>PAY-0028</td><td>Nov 8, 2024</td><td>School Fees — 2nd Term</td><td>₦45,000</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0028','School Fees — 2nd Term','₦45,000')">⬇️ Receipt</button></td>
-                </tr>
-                <tr>
-                  <td>PAY-0015</td><td>Aug 12, 2024</td><td>School Uniform × 2</td><td>₦7,000</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0015','School Uniform x2','₦7,000')">⬇️ Receipt</button></td>
-                </tr>
+                <tr><td>PAY-0041</td><td>Mar 5, 2025</td><td>School Fees — 3rd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0042</td><td>Mar 5, 2025</td><td>Development Levy</td><td>₦5,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0028</td><td>Nov 8, 2024</td><td>School Fees — 2nd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
+                <tr><td>PAY-0015</td><td>Aug 12, 2024</td><td>School Uniform × 2</td><td>₦7,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="toast('Receipt downloaded!')">⬇️</button></td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════
-           SHOP
-           ══════════════════════════════════════ -->
+      <!-- SHOP -->
       <div id="sp-shop" class="stab-pane">
         <div class="card">
           <h3>🛒 School Shop — Order Official Items</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">
-            All items are official school-approved. Ready for pickup at school reception within 3 working days.
-          </p>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">All items are official school-approved. Ready for pickup at school reception within 3 working days.</p>
 
-          <!-- Uniform + Stationery -->
+          <!-- Top row: Uniform + Stationery -->
           <div class="shop-grid" style="max-width:unset;margin-bottom:24px;">
+
             <div class="shop-item">
               <div class="item-icon">👕</div>
               <h4>School Uniform</h4>
@@ -306,12 +174,12 @@
               <h4>Stationery Pack</h4>
               <p class="item-sub">Pens, pencils, ruler, eraser</p>
               <div class="price">₦1,200</div>
-              <button class="btn btn-navy btn-sm" style="margin-top:10px;"
-                onclick="addToCart('Stationery Pack — ₦1,200')">🛒 Add to Cart</button>
+              <button class="btn btn-navy btn-sm" style="margin-top:10px;" onclick="addToCart('Stationery Pack — ₦1,200')">🛒 Add to Cart</button>
             </div>
+
           </div>
 
-          <!-- Books section -->
+          <!-- Textbooks & Exercise Books -->
           <div style="background:var(--off-white);border-radius:16px;padding:24px;border:1.5px solid var(--light-gray);">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
               <span style="font-size:28px;">📚</span>
@@ -320,6 +188,7 @@
                 <p style="color:var(--gray);font-size:13px;">Select the exact books you need and add them to your cart</p>
               </div>
             </div>
+
             <div style="height:1.5px;background:var(--light-gray);margin:16px 0;"></div>
 
             <!-- Exercise Books -->
@@ -330,9 +199,9 @@
               <div class="book-size-header">📏 A1 Exercise Books</div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A1 Exercise Book — 20 Leaves</span><span class="book-price">₦150 each</span></div>
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 20 Leaves</span><span class="book-price">&#8358;150 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 20 Leaves',150)">Add</button>
@@ -340,9 +209,9 @@
               </div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A1 Exercise Book — 40 Leaves</span><span class="book-price">₦250 each</span></div>
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 40 Leaves</span><span class="book-price">&#8358;250 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 40 Leaves',250)">Add</button>
@@ -350,9 +219,9 @@
               </div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A1 Exercise Book — 60 Leaves</span><span class="book-price">₦380 each</span></div>
+                <div class="book-info"><span class="book-name">A1 Exercise Book &mdash; 60 Leaves</span><span class="book-price">&#8358;380 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A1 Exercise Book - 60 Leaves',380)">Add</button>
@@ -362,9 +231,9 @@
               <div class="book-size-header">📏 A2 Exercise Books</div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A2 Exercise Book — 20 Leaves</span><span class="book-price">₦120 each</span></div>
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 20 Leaves</span><span class="book-price">&#8358;120 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 20 Leaves',120)">Add</button>
@@ -372,9 +241,9 @@
               </div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A2 Exercise Book — 40 Leaves</span><span class="book-price">₦200 each</span></div>
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 40 Leaves</span><span class="book-price">&#8358;200 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 40 Leaves',200)">Add</button>
@@ -382,9 +251,9 @@
               </div>
 
               <div class="book-row">
-                <div class="book-info"><span class="book-name">A2 Exercise Book — 60 Leaves</span><span class="book-price">₦280 each</span></div>
+                <div class="book-info"><span class="book-name">A2 Exercise Book &mdash; 60 Leaves</span><span class="book-price">&#8358;280 each</span></div>
                 <div class="book-controls">
-                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <button class="qty-btn" onclick="changeQty(this,-1)">&#8722;</button>
                   <span class="qty-val">0</span>
                   <button class="qty-btn" onclick="changeQty(this,1)">+</button>
                   <button class="btn btn-navy btn-sm" onclick="addBook(this,'A2 Exercise Book - 60 Leaves',280)">Add</button>
@@ -396,26 +265,32 @@
             <!-- Subject Textbooks -->
             <p style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:12px;">📖 Subject Textbooks</p>
             <div style="display:flex;flex-direction:column;gap:10px;">
+
               <div class="book-row">
                 <div class="book-info"><span class="book-name">Mathematics Textbook</span><span class="book-price">₦1,800</span></div>
                 <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Mathematics Textbook — ₦1,800')">🛒 Add</button></div>
               </div>
+
               <div class="book-row">
                 <div class="book-info"><span class="book-name">English Language Textbook</span><span class="book-price">₦1,800</span></div>
                 <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('English Language Textbook — ₦1,800')">🛒 Add</button></div>
               </div>
+
               <div class="book-row">
                 <div class="book-info"><span class="book-name">Basic Science Textbook</span><span class="book-price">₦1,600</span></div>
                 <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Basic Science Textbook — ₦1,600')">🛒 Add</button></div>
               </div>
+
               <div class="book-row">
                 <div class="book-info"><span class="book-name">Social Studies Textbook</span><span class="book-price">₦1,500</span></div>
                 <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Social Studies Textbook — ₦1,500')">🛒 Add</button></div>
               </div>
+
               <div class="book-row">
                 <div class="book-info"><span class="book-name">Yoruba Language Textbook</span><span class="book-price">₦1,400</span></div>
                 <div class="book-controls"><button class="btn btn-navy btn-sm" onclick="addToCart('Yoruba Language Textbook — ₦1,400')">🛒 Add</button></div>
               </div>
+
             </div>
           </div>
 
@@ -429,20 +304,17 @@
               <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">🗑 Clear Cart</button>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════
-           TIMETABLE
-           ══════════════════════════════════════ -->
+      <!-- TIMETABLE -->
       <div id="sp-timetable" class="stab-pane">
         <div class="card">
           <h3>📅 Class Timetable — Primary 4 (2024/2025 Session)</h3>
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>
-              </thead>
+              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
               <tbody>
                 <tr><td><strong>8:00 – 9:00</strong></td><td>Mathematics</td><td>English</td><td>Mathematics</td><td>Science</td><td>Social Studies</td></tr>
                 <tr><td><strong>9:00 – 10:00</strong></td><td>English</td><td>Mathematics</td><td>Science</td><td>English</td><td>Mathematics</td></tr>
@@ -458,219 +330,17 @@
         </div>
       </div>
 
-    </div><!-- /dash-main -->
-  </div><!-- /dash-body -->
-</div><!-- /dashboard -->
+    </div>
+  </div>
+</div>
 
 <div id="toast">🔔 <span id="toast-text"></span></div>
-
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-
-  /* ── Auth guard ── */
+  // ── Auth guard: must be student ──
   const _user = requireAuth('student');
   injectUserInfo(_user);
-  document.getElementById('student-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
-
-
-  /* ══════════════════════════════════════════
-     FIX 1: switchToTab() — safe tab switcher
-     works by matching onclick attribute text
-     so sidebar highlight always works correctly
-     ══════════════════════════════════════════ */
-  function switchToTab(name) {
-    document.querySelectorAll('#student-dashboard .stab-pane')
-      .forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('#student-sidebar .sidebar-link')
-      .forEach(l => l.classList.remove('active'));
-    const pane = document.getElementById('sp-' + name);
-    if (pane) pane.classList.add('active');
-    document.querySelectorAll('#student-sidebar .sidebar-link').forEach(link => {
-      const oc = link.getAttribute('onclick') || '';
-      if (oc.includes("'" + name + "'")) link.classList.add('active');
-    });
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 2: Result sub-tabs — was using a global
-     switchResultTab that could collide with other
-     pages. Now properly scoped to the card.
-     ══════════════════════════════════════════ */
-  function switchResultTab(el, id) {
-    const card = el.closest('.card');
-    card.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
-    card.querySelectorAll('.stab-pane').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    const pane = card.querySelector('#' + id);
-    if (pane) pane.classList.add('active');
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 3: downloadReport() — "Download Report
-     Card" was just a toast. Now opens a real
-     printable report card in a new window.
-     ══════════════════════════════════════════ */
-  function downloadReport() {
-    const name  = document.querySelector('[data-user-name]').textContent || 'Student';
-    const title = document.querySelector('[data-user-title]').textContent || '';
-    const win   = window.open('', '_blank');
-    win.document.write(`
-      <!DOCTYPE html><html><head>
-      <title>Report Card — ${name}</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #0d1b35; }
-        h1 { text-align:center; color:#0a1f44; font-size:22px; margin-bottom:4px; }
-        .school { text-align:center; color:#6b7280; font-size:13px; margin-bottom:24px; }
-        .info { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:24px; padding:16px; background:#fffbea; border-radius:8px; }
-        .info div { font-size:13px; } .info strong { color:#0a1f44; }
-        table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:24px; }
-        th { background:#0a1f44; color:#fff; padding:10px 12px; text-align:left; }
-        td { padding:10px 12px; border-bottom:1px solid #e5e7eb; }
-        .comment { padding:16px; background:#f7f8fc; border-radius:8px; font-size:13px; border-left:4px solid #f5c200; }
-        .footer { text-align:center; font-size:11px; color:#9ca3af; margin-top:32px; }
-        @media print { button { display:none; } }
-      </style></head><body>
-      <h1>🌱 Beginner's Field Nursery &amp; Primary School</h1>
-      <p class="school">12 Education Avenue, Lekki, Lagos · info@beginnersfieldschool.edu.ng</p>
-      <h2 style="text-align:center;font-size:16px;margin-bottom:16px;">Student Report Card — 3rd Term 2024/2025</h2>
-      <div class="info">
-        <div><strong>Name:</strong> ${name}</div>
-        <div><strong>Class:</strong> ${title.split('·')[0].trim()}</div>
-        <div><strong>Student ID:</strong> BFS/2025/001</div>
-        <div><strong>Term:</strong> 3rd Term 2024/2025</div>
-        <div><strong>Position:</strong> 3rd of 42 Students</div>
-        <div><strong>Average:</strong> 86.75%</div>
-      </div>
-      <table>
-        <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total</th><th>Grade</th><th>Remark</th></tr></thead>
-        <tbody>
-          <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td>A</td><td>Excellent performance</td></tr>
-          <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td>B</td><td>Very good work</td></tr>
-          <tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td>B</td><td>Very good, keep it up</td></tr>
-          <tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td>A</td><td>Outstanding</td></tr>
-          <tr><td>Yoruba Language</td><td>20</td><td>50</td><td><strong>70</strong></td><td>C</td><td>Good, needs improvement</td></tr>
-        </tbody>
-      </table>
-      <div class="comment"><strong>Principal's Comment:</strong> ${name.split(' ')[0]} has shown remarkable dedication this term. She is encouraged to maintain this excellent standard. Well done! — Mrs. A. Okafor</div>
-      <p class="footer">Generated by Beginner's Field School Portal · ${new Date().toLocaleDateString()}</p>
-      <br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Print / Save as PDF</button>
-      </body></html>`);
-    win.document.close();
-    toast('Report card opened in new tab — use Print to save as PDF.');
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 4: proceedPayment() — "Proceed to
-     Payment" button had no validation. Now
-     checks description is selected, amount is
-     valid, and a payment method is chosen.
-     ══════════════════════════════════════════ */
-  document.getElementById('pay-description').addEventListener('change', function () {
-    const customGroup = document.getElementById('custom-amount-group');
-    customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
-  });
-
-  function proceedPayment() {
-    const descEl   = document.getElementById('pay-description');
-    const methodEl = document.querySelector('.pay-opt.sel');
-
-    if (!descEl.value) {
-      descEl.style.border = '2px solid var(--red)';
-      toast('⚠️ Please select what you are paying for.');
-      setTimeout(() => descEl.style.border = '', 2500);
-      return;
-    }
-
-    let amount = descEl.value === 'custom'
-      ? parseFloat(document.getElementById('pay-custom-amount').value)
-      : parseFloat(descEl.value);
-
-    if (!amount || amount < 100) {
-      toast('⚠️ Please enter a valid payment amount (minimum ₦100).');
-      return;
-    }
-
-    if (!methodEl) {
-      toast('⚠️ Please select a payment method.');
-      return;
-    }
-
-    const method    = methodEl.querySelector('h4').textContent;
-    const descText  = descEl.options[descEl.selectedIndex].text.split(' (')[0];
-
-    toast('✅ Payment of ₦' + amount.toLocaleString() + ' via ' + method + ' initiated! You will receive a confirmation SMS shortly.');
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 5: printReceipt() — receipt buttons
-     just showed a toast. Now open a printable
-     receipt in a new tab.
-     ══════════════════════════════════════════ */
-  function printReceipt(ref, desc, amount) {
-    const name = document.querySelector('[data-user-name]').textContent || 'Student';
-    const win  = window.open('', '_blank');
-    win.document.write(`
-      <!DOCTYPE html><html><head>
-      <title>Receipt ${ref}</title>
-      <style>
-        body { font-family:Arial,sans-serif; padding:32px; max-width:480px; margin:0 auto; color:#0d1b35; }
-        h1 { text-align:center; color:#0a1f44; font-size:18px; margin-bottom:2px; }
-        .sub { text-align:center; font-size:12px; color:#6b7280; margin-bottom:24px; }
-        .receipt-box { border:2px solid #e9edf5; border-radius:12px; padding:24px; }
-        .row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #f1f3f8; font-size:13.5px; }
-        .row:last-child { border-bottom:none; }
-        .row.total { font-weight:800; font-size:16px; color:#0a1f44; padding-top:14px; margin-top:4px; border-top:2px solid #f5c200; }
-        .stamp { text-align:center; margin-top:20px; padding:12px; background:#dcfce7; border-radius:8px; color:#15803d; font-weight:700; font-size:14px; }
-        .footer { text-align:center; font-size:11px; color:#9ca3af; margin-top:20px; }
-        @media print { button { display:none; } }
-      </style></head><body>
-      <h1>🌱 Beginner's Field School</h1>
-      <p class="sub">Official Payment Receipt</p>
-      <div class="receipt-box">
-        <div class="row"><span>Receipt No.</span><span><strong>${ref}</strong></span></div>
-        <div class="row"><span>Student Name</span><span>${name}</span></div>
-        <div class="row"><span>Description</span><span>${desc}</span></div>
-        <div class="row"><span>Payment Date</span><span>${new Date().toLocaleDateString()}</span></div>
-        <div class="row total"><span>Amount Paid</span><span>${amount}</span></div>
-      </div>
-      <div class="stamp">✅ Payment Confirmed</div>
-      <p class="footer">Beginner's Field Nursery &amp; Primary School · Lagos, Nigeria</p>
-      <br><button onclick="window.print()" style="display:block;width:100%;padding:10px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Print Receipt</button>
-      </body></html>`);
-    win.document.close();
-    toast('Receipt opened in new tab — use Print to save.');
-  }
-
-
-  /* ══════════════════════════════════════════
-     FIX 6: addBook() — qty of 0 was silently
-     added to cart. Now warns user to set qty > 0.
-     ══════════════════════════════════════════ */
-  function addBook(btn, bookName, unitPrice) {
-    const row    = btn.closest('.book-row');
-    const qtyEl  = row ? row.querySelector('.qty-val') : null;
-    const qty    = qtyEl ? parseInt(qtyEl.textContent, 10) : 0;
-
-    if (qty < 1) {
-      toast('⚠️ Please set a quantity greater than 0 first.');
-      return;
-    }
-
-    const existing = cart.find(i => i.label === bookName);
-    if (existing) { existing.qty += qty; }
-    else          { cart.push({ label: bookName, price: unitPrice, qty }); }
-
-    if (qtyEl) qtyEl.textContent = '0';
-    renderCart();
-    toast(qty + '× ' + bookName + ' added to cart!');
-  }
-
 </script>
 </body>
 </html>
