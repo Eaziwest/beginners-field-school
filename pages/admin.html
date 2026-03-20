@@ -6,6 +6,7 @@
   <title>Admin Portal — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     .admin-modal-overlay {
       display:none; position:fixed; inset:0;
@@ -35,6 +36,25 @@
     .field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(220,38,38,0.12) !important; }
     .receipt-detail { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f3f8; font-size:13.5px; }
     .receipt-detail:last-child { border-bottom:none; }
+    .receipt-verifier { border:2px solid var(--light-gray); border-radius:12px; padding:16px; margin-top:10px; background:var(--off-white); transition:border-color 0.3s; }
+    .receipt-verifier.verifying { border-color:var(--yellow); }
+    .receipt-verifier.ok   { border-color:var(--green-ok); background:#f0fdf4; }
+    .receipt-verifier.fail { border-color:var(--red); background:#fef2f2; }
+    .verify-status { display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:700; margin-bottom:10px; }
+    .verify-rows   { display:flex; flex-direction:column; gap:6px; }
+    .verify-row    { display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:6px 10px; border-radius:7px; background:rgba(255,255,255,0.7); }
+    .verify-row .vr-label { color:var(--gray); }
+    .verify-row .vr-value { font-weight:700; color:var(--navy); font-size:12px; }
+    .verify-row .vr-pass  { color:var(--green-ok); }
+    .verify-row .vr-fail  { color:var(--red); }
+    .receipt-preview { margin-top:10px; max-height:160px; overflow-y:auto; background:#fff; border:1px solid var(--light-gray); border-radius:7px; padding:10px; font-size:11px; color:var(--gray); font-family:monospace; line-height:1.6; white-space:pre-wrap; }
+    .preview-toggle { font-size:11.5px; color:var(--navy-light); cursor:pointer; font-weight:700; margin-top:6px; display:inline-block; }
+    .spinner { display:inline-block; width:14px; height:14px; border:2px solid var(--yellow); border-top-color:var(--navy); border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .adm-pay-row { background:var(--white); border:1.5px solid var(--light-gray); border-radius:14px; padding:18px 20px; margin-bottom:16px; }
+    .adm-pay-row h4 { font-size:14px; font-weight:800; color:var(--navy); margin-bottom:4px; }
+    .adm-pay-row .meta { font-size:12px; color:var(--gray); margin-bottom:12px; }
+    .adm-pay-row .proof-label { font-size:12px; font-weight:700; color:var(--navy); margin-bottom:6px; }
   </style>
 </head>
 <body>
@@ -66,6 +86,7 @@
       <div class="sidebar-section">Management</div>
       <div class="sidebar-link"        onclick="switchToTab('teachers',this)"><span class="icon">👩‍🏫</span> Teachers</div>
 
+      <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💳</span> Payments</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> Results</div>
       <div class="sidebar-section">Communication</div>
       <div class="sidebar-link"        onclick="switchToTab('announcements',this)"><span class="icon">📢</span> Announcements</div>
@@ -275,6 +296,104 @@
       </div>
 
 
+            <!-- ═══ PAYMENTS — RECEIPT REVIEW ═══ -->
+      <div id="ap-payments" class="stab-pane">
+        <div class="stats-row">
+          <div class="stat-card" data-icon="✅"><div class="stat-num" id="pay-stat-confirmed">3</div><div class="stat-label">Confirmed Payments</div></div>
+          <div class="stat-card" data-icon="⏳"><div class="stat-num" id="pay-stat-pending">1</div><div class="stat-label">Awaiting Review</div></div>
+          <div class="stat-card" data-icon="💰"><div class="stat-num">₦76,000</div><div class="stat-label">Total Collected</div></div>
+          <div class="stat-card" data-icon="🔢"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-top:6px;">1234567890<br>Zenith Bank</div><div class="stat-label">School Account</div></div>
+        </div>
+
+        <div class="card">
+          <h3>📥 Payment Receipt Submissions</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">
+            Students submit bank receipts through their portal. Click <strong>Verify Receipt</strong> on each submission to read and analyse the document, then Confirm or Reject accordingly.
+          </p>
+          <div class="filter-bar" style="margin-bottom:16px;">
+            <input id="pay-search" placeholder="🔍 Search by student..." oninput="filterPaymentsList()" />
+            <select id="pay-status-filter" onchange="filterPaymentsList()">
+              <option value="">All Status</option>
+              <option>Confirmed</option><option>Pending Review</option>
+            </select>
+          </div>
+
+          <div id="payments-list">
+            <!-- Pending: Tunde Afolabi -->
+            <div class="adm-pay-row" data-student="Tunde Afolabi" data-status="Pending Review">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                <div>
+                  <h4>PAY-0044 — Tunde Afolabi &nbsp; <span class="badge b-yellow">Pending Review</span></h4>
+                  <div class="meta">Primary 2 &nbsp;·&nbsp; School Fees (Partial) &nbsp;·&nbsp; ₦22,500 &nbsp;·&nbsp; Submitted Mar 15</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-green btn-sm" id="pay-confirm-0044" onclick="confirmPayment('0044','Tunde Afolabi')">✓ Confirm</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectPayment('0044','Tunde Afolabi')">✗ Reject</button>
+                </div>
+              </div>
+              <div class="proof-label">📎 Submitted: <em>bank_receipt_tunde.pdf</em></div>
+              <button class="btn btn-navy btn-sm" style="margin-top:8px;" onclick="simulateVerify('adm-verify-0044', 22500, 'pdf')">🔍 Verify Receipt</button>
+              <div class="receipt-verifier" id="adm-verify-0044" style="display:none;"></div>
+            </div>
+
+            <!-- Confirmed: Adaeze Nwosu -->
+            <div class="adm-pay-row" data-student="Adaeze Nwosu" data-status="Confirmed">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                <div>
+                  <h4>PAY-0041 — Adaeze Nwosu &nbsp; <span class="badge b-green">Confirmed</span></h4>
+                  <div class="meta">Primary 4 &nbsp;·&nbsp; School Fees &nbsp;·&nbsp; ₦45,000 &nbsp;·&nbsp; Confirmed Mar 18</div>
+                </div>
+                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0041', 45000, 'pdf')">🔍 View Receipt Analysis</button>
+              </div>
+              <div class="receipt-verifier" id="adm-verify-0041" style="display:none;"></div>
+            </div>
+
+            <!-- Confirmed: Mary Ekwueme -->
+            <div class="adm-pay-row" data-student="Mary Ekwueme" data-status="Confirmed">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                <div>
+                  <h4>PAY-0042 — Mary Ekwueme &nbsp; <span class="badge b-green">Confirmed</span></h4>
+                  <div class="meta">Nursery 3 &nbsp;·&nbsp; Development Levy &nbsp;·&nbsp; ₦5,000 &nbsp;·&nbsp; Confirmed Mar 17</div>
+                </div>
+                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0042', 5000, 'pdf')">🔍 View Receipt Analysis</button>
+              </div>
+              <div class="receipt-verifier" id="adm-verify-0042" style="display:none;"></div>
+            </div>
+
+            <!-- Confirmed: Samuel Ogunsi -->
+            <div class="adm-pay-row" data-student="Samuel Ogunsi" data-status="Confirmed">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                <div>
+                  <h4>PAY-0043 — Samuel Ogunsi &nbsp; <span class="badge b-green">Confirmed</span></h4>
+                  <div class="meta">Primary 6 &nbsp;·&nbsp; Shop — Uniform &nbsp;·&nbsp; ₦3,500 &nbsp;·&nbsp; Confirmed Mar 16</div>
+                </div>
+                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0043', 3500, 'pdf')">🔍 View Receipt Analysis</button>
+              </div>
+              <div class="receipt-verifier" id="adm-verify-0043" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual upload verifier -->
+        <div class="card">
+          <h3>🔍 Verify a Receipt Manually</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">
+            Upload any bank receipt (PDF or image) to verify it against the school account number and check the amount.
+          </p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expected Amount (₦)</label>
+              <input type="number" id="manual-expected-amt" placeholder="e.g. 45000" min="100" />
+            </div>
+            <div class="form-group">
+              <label>Upload Receipt (PDF or Image)</label>
+              <input type="file" id="manual-receipt-file" accept="image/*,.pdf" onchange="verifyAdminReceipt()" />
+            </div>
+          </div>
+          <div class="receipt-verifier" id="admin-manual-verify" style="display:none;"></div>
+        </div>
+      </div>
+
             <!-- ═══ RESULTS ═══ -->
       <div id="ap-results" class="stab-pane">
         <div class="card">
@@ -351,6 +470,10 @@
 <script src="../js/main.js"></script>
 <script>
 
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
   const _user = requireAuth('admin');
   injectUserInfo(_user);
   document.getElementById('admin-sub').textContent =
@@ -630,14 +753,186 @@
       row.style.display = (!s || (row.dataset.name||'').toLowerCase().includes(s)) ? '' : 'none';
     });
   }
-  function filterPayments() {
-    const s  = document.getElementById('pay-search').value.toLowerCase();
-    const st = document.getElementById('pay-status-filter').value;
-    document.querySelectorAll('#payments-tbody tr').forEach(row => {
+  /* ── filter payment rows ── */
+  function filterPaymentsList() {
+    const s  = (document.getElementById('pay-search') || {value:''}).value.toLowerCase();
+    const st = (document.getElementById('pay-status-filter') || {value:''}).value;
+    document.querySelectorAll('#payments-list .adm-pay-row').forEach(row => {
       const show = (!s  || (row.dataset.student||'').toLowerCase().includes(s))
                 && (!st || row.dataset.status === st);
       row.style.display = show ? '' : 'none';
     });
+  }
+  /* Keep old filterPayments as alias */
+  function filterPayments() { filterPaymentsList(); }
+
+  /* ── confirmPayment / rejectPayment ── */
+  function confirmPayment(ref, name) {
+    if (!confirm('Confirm payment for ' + name + '?')) return;
+    const row  = document.getElementById('payrow-' + ref);
+    const btn  = document.getElementById('pay-confirm-' + ref);
+    if (row) {
+      row.setAttribute('data-status','Confirmed');
+      const badge = row.querySelector('.badge');
+      if (badge) { badge.textContent = 'Confirmed'; badge.className = 'badge b-green'; }
+      /* remove confirm/reject buttons */
+      if (btn) btn.closest('div[style]') && btn.closest('div[style]').remove();
+    }
+    toast('✅ Payment confirmed for ' + name + '!');
+  }
+  function rejectPayment(ref, name) {
+    if (!confirm('Reject this payment from ' + name + '?')) return;
+    const row   = document.getElementById('payrow-' + ref);
+    if (row) {
+      row.setAttribute('data-status','Rejected');
+      const badge = row.querySelector('.badge');
+      if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
+    }
+    toast('Payment from ' + name + ' rejected. Student will be notified.');
+  }
+
+  /* ════════════════════════════════════════════════
+     RECEIPT VERIFIER — shared logic
+  ════════════════════════════════════════════════ */
+  const SCHOOL_ACCOUNT = '1234567890';
+  const BANK_KEYWORDS  = ['zenith','transfer','debit','credit','transaction','payment','receipt',
+    'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
+    'ref','reference','date','success','successful','approved'];
+
+  async function extractPdfText(file) {
+    if (typeof pdfjsLib === 'undefined') return '[PDF.js not loaded]';
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const cnt  = await page.getTextContent();
+      text += cnt.items.map(t => t.str).join(' ') + '
+';
+    }
+    return text;
+  }
+
+  async function extractImageInfo(file) {
+    const name = file.name.toLowerCase();
+    let text = '[Image: ' + file.name + ' | ' + (file.size/1024).toFixed(1) + 'KB]';
+    if (['receipt','transfer','debit','teller','payment','zenith','bank','txn','trx']
+        .some(kw => name.includes(kw))) text += '
+[Filename: bank receipt indicator]';
+    return text;
+  }
+
+  function parseAmounts(text) {
+    const amounts = [];
+    [/(?:NGN|₦|naira)\s*([0-9][0-9,\s]*(?:\.[0-9]{2})?)/gi,
+     /([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/g,
+     /([0-9]{4,8}(?:\.[0-9]{2})?)/g
+    ].forEach(pat => {
+      let m;
+      while ((m = pat.exec(text)) !== null) {
+        const val = parseFloat(m[1].replace(/[\s,]/g,''));
+        if (val >= 100 && val <= 10000000) amounts.push(val);
+      }
+    });
+    return [...new Set(amounts)];
+  }
+
+  function isBankReceipt(text) {
+    const lower = text.toLowerCase();
+    const hits  = BANK_KEYWORDS.filter(kw => lower.includes(kw));
+    return { ok: hits.length >= 2, hits };
+  }
+
+  function renderVerifyResult(el, extractedText, expectedAmt, isPdf) {
+    const receiptCheck = isBankReceipt(extractedText);
+    const amounts      = parseAmounts(extractedText);
+    const acctCheck    = extractedText.includes(SCHOOL_ACCOUNT);
+    const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) / Math.max(expectedAmt,1) < 0.015);
+    const amountStatus = amounts.length === 0 ? 'unverifiable' : amountMatch ? 'match' : 'mismatch';
+    const overallOk    = receiptCheck.ok && (amountStatus !== 'mismatch');
+
+    el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
+
+    const amtLabel = amountStatus === 'match'
+      ? 'Matches ₦' + expectedAmt.toLocaleString()
+      : amountStatus === 'unverifiable'
+      ? 'Cannot verify in image — check manually'
+      : 'Expected ₦' + expectedAmt.toLocaleString() + ', found: ' + amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ');
+
+    const statusMsg = overallOk
+      ? (amountStatus === 'unverifiable' ? '⚠️ Receipt looks valid — amount requires manual check' : '✅ Receipt verified and amount matches')
+      : (receiptCheck.ok ? '⚠️ Document found but amount does not match — verify manually' : '❌ Does not appear to be a valid bank receipt');
+
+    const statusColor = overallOk && amountStatus !== 'unverifiable' ? 'var(--green-ok)'
+                      : overallOk ? '#d97706' : 'var(--red)';
+
+    let preview = extractedText.substring(0,300).trim();
+    if (preview.startsWith('[')) preview = '';
+
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div class="verify-status" style="color:${statusColor};">
+        <span>${overallOk ? (amountStatus==='unverifiable'?'⚠️':'✅') : '❌'}</span>
+        <span>${statusMsg}</span>
+      </div>
+      <div class="verify-rows">
+        <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf?'PDF':'Image'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
+        <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'None found'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
+        <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:11.5px;">${amtLabel}</span><span class="${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
+        <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">${acctCheck?SCHOOL_ACCOUNT+' ✓':'Not found in file'}</span><span class="${acctCheck?'vr-pass':''}">${acctCheck?'✅':'⚠️'}</span></div>
+      </div>
+      ${preview?`<span class="preview-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('▼')?'▲ Hide text':'▼ Show text'">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">${preview}</div>`:''}`;
+    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  /* For admin: verify a real uploaded file */
+  async function verifyAdminReceipt() {
+    const fileEl = document.getElementById('manual-receipt-file');
+    const amtEl  = document.getElementById('manual-expected-amt');
+    const el     = document.getElementById('admin-manual-verify');
+    if (!fileEl.files || fileEl.files.length === 0) return;
+    const file   = fileEl.files[0];
+    const expAmt = parseFloat((amtEl||{value:'0'}).value) || 0;
+    el.style.display = 'block';
+    el.className = 'receipt-verifier verifying';
+    el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading receipt…</span></div>';
+    let text = '', isPdf = false;
+    try {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        isPdf = true; text = await extractPdfText(file);
+      } else {
+        text = await extractImageInfo(file);
+      }
+    } catch(e) { text = '[Error: ' + e.message + ']'; }
+    renderVerifyResult(el, text, expAmt, isPdf);
+  }
+
+  /* For admin: simulate verifying a pre-submitted receipt (demo data) */
+  function simulateVerify(containerId, expectedAmt, fileType) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.style.display = 'block';
+    el.className = 'receipt-verifier verifying';
+    el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading submitted receipt…</span></div>';
+    /* Simulate async read then render with realistic demo data */
+    setTimeout(() => {
+      const demoText = fileType === 'pdf'
+        ? 'ZENITH BANK PLC
+Transaction Receipt
+Date: ' + new Date().toLocaleDateString() +
+          '
+Transaction Type: Transfer
+Account: 1234567890
+Beneficiary: BEGINNERS FIELD NURSERY PRIMARY SCHOOL
+' +
+          'Amount: NGN ' + expectedAmt.toLocaleString() + '.00
+Narration: School Payment
+' +
+          'Status: Successful
+Reference: ZB' + Math.floor(Math.random()*999999999)
+        : '[Image receipt — manual verification required]';
+      renderVerifyResult(el, demoText, expectedAmt, fileType === 'pdf');
+    }, 1200);
   }
 
 </script>

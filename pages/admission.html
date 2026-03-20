@@ -6,6 +6,7 @@
   <title>Admission — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     body { padding: 0; }
     .adm-hero {
@@ -18,6 +19,22 @@
     .adm-body { max-width: 680px; margin: 0 auto; padding: 60px 24px; }
     .form-section-title { font-family: 'Merriweather', serif; font-size: 16px; color: var(--navy); border-left: 4px solid var(--yellow); padding-left: 12px; margin: 28px 0 18px; }
     .submit-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .receipt-verifier { border:2px solid var(--light-gray); border-radius:14px; padding:18px; margin-top:12px; background:var(--off-white); transition:border-color 0.3s; }
+    .receipt-verifier.verifying { border-color:var(--yellow); }
+    .receipt-verifier.ok   { border-color:var(--green-ok); background:#f0fdf4; }
+    .receipt-verifier.fail { border-color:var(--red); background:#fef2f2; }
+    .verify-status { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:700; margin-bottom:12px; }
+    .verify-icon   { font-size:22px; }
+    .verify-rows   { display:flex; flex-direction:column; gap:8px; }
+    .verify-row    { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:7px 10px; border-radius:8px; background:rgba(255,255,255,0.7); }
+    .verify-row .vr-label { color:var(--gray); }
+    .verify-row .vr-value { font-weight:700; color:var(--navy); }
+    .verify-row .vr-pass  { color:var(--green-ok); font-size:16px; }
+    .verify-row .vr-fail  { color:var(--red); font-size:16px; }
+    .receipt-preview { margin-top:12px; max-height:180px; overflow-y:auto; background:#fff; border:1px solid var(--light-gray); border-radius:8px; padding:12px; font-size:11.5px; color:var(--gray); font-family:monospace; line-height:1.6; white-space:pre-wrap; }
+    .preview-toggle { font-size:12px; color:var(--navy-light); cursor:pointer; font-weight:700; margin-top:8px; display:inline-block; }
+    .spinner { display:inline-block; width:16px; height:16px; border:2.5px solid var(--yellow); border-top-color:var(--navy); border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -124,8 +141,13 @@
       </div>
       <div class="form-group">
         <label>Upload Proof of Payment *</label>
-        <input type="file" accept="image/*,.pdf" />
-        <p style="font-size:12px;color:var(--gray);margin-top:5px;">Accepted formats: JPG, PNG, PDF (Max 5MB)</p>
+        <input type="file" id="adm-pay-proof" accept="image/*,.pdf"
+               onchange="verifyReceipt(this,'adm-verify',false)" />
+        <p style="font-size:12px;color:var(--gray);margin-top:5px;">Accepted: JPG, PNG, PDF (Max 5MB) — we will automatically check your receipt</p>
+      </div>
+      <!-- Receipt verifier output -->
+      <div class="receipt-verifier" id="adm-verify" style="display:none;"></div>
+      <div class="form-group" style="display:none">
       </div>
       <div class="form-group">
         <label>Additional Notes (optional)</label>
@@ -150,5 +172,127 @@
 
   <div id="toast"><span id="toast-text"></span></div>
   <script src="../js/main.js"></script>
+  <script>
+    /* PDF.js worker */
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const SCHOOL_ACCOUNT = '1234567890';
+    const BANK_KEYWORDS  = ['zenith','transfer','debit','credit','transaction','payment','receipt',
+      'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
+      'ref','reference','date','success','successful','approved'];
+
+    async function extractPdfText(file) {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page    = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\n';
+      }
+      return text;
+    }
+
+    async function extractImageInfo(file) {
+      const name = file.name.toLowerCase();
+      let text = '[Image file: ' + file.name + ' | Size: ' + (file.size/1024).toFixed(1) + 'KB]';
+      if (name.includes('receipt') || name.includes('transfer') || name.includes('debit') ||
+          name.includes('teller') || name.includes('payment') || name.includes('zenith') ||
+          name.includes('bank') || name.includes('txn') || name.includes('trx')) {
+        text += '\n[Filename suggests: bank receipt]';
+      }
+      return text;
+    }
+
+    function parseAmounts(text) {
+      const amounts = [];
+      const patterns = [
+        /(?:NGN|₦|naira)\s*([0-9][0-9,\s]*(?:\.[0-9]{2})?)/gi,
+        /([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/g,
+        /\b([0-9]{4,8}(?:\.[0-9]{2})?)\b/g
+      ];
+      patterns.forEach(pat => {
+        let m;
+        while ((m = pat.exec(text)) !== null) {
+          const val = parseFloat(m[1].replace(/[\s,]/g,''));
+          if (val >= 100 && val <= 10000000) amounts.push(val);
+        }
+      });
+      return [...new Set(amounts)];
+    }
+
+    function isBankReceipt(text) {
+      const lower = text.toLowerCase();
+      const hits  = BANK_KEYWORDS.filter(kw => lower.includes(kw));
+      return { ok: hits.length >= 2, hits, score: hits.length };
+    }
+
+    function hasAccountNumber(text) { return text.includes(SCHOOL_ACCOUNT); }
+
+    async function verifyReceipt(input, containerId, isShop) {
+      const el = document.getElementById(containerId);
+      if (!el || !input.files || input.files.length === 0) { if(el) el.style.display='none'; return; }
+      const file = input.files[0];
+      el.style.display = 'block';
+      el.className = 'receipt-verifier verifying';
+      el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading receipt — please wait…</span></div>';
+
+      let extractedText = '', isPdf = false;
+      try {
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          isPdf = true;
+          extractedText = typeof pdfjsLib !== 'undefined' ? await extractPdfText(file) : '[PDF — reader not available]';
+        } else {
+          extractedText = await extractImageInfo(file);
+        }
+      } catch(err) { extractedText = '[Error: ' + err.message + ']'; }
+
+      const expectedAmt  = isShop ? (typeof cart !== 'undefined' ? cart.reduce((s,i)=>s+i.price*i.qty,0) : 0) : 5000;
+      const receiptCheck = isBankReceipt(extractedText);
+      const amounts      = parseAmounts(extractedText);
+      const acctCheck    = hasAccountNumber(extractedText);
+      const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) / Math.max(expectedAmt,1) < 0.015);
+      const canVerifyAmt = isPdf || !extractedText.startsWith('[Image');
+      const amountStatus = amounts.length === 0 ? 'unverifiable' : amountMatch ? 'match' : 'mismatch';
+      const overallOk    = receiptCheck.ok && (amountStatus === 'match' || amountStatus === 'unverifiable');
+
+      el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
+      const amtLabel = amountStatus === 'match'
+        ? 'Matches ₦' + expectedAmt.toLocaleString()
+        : amountStatus === 'unverifiable'
+        ? 'Ensure amount is ₦' + expectedAmt.toLocaleString()
+        : 'Expected ₦' + expectedAmt.toLocaleString() + ' · found: ' + amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ');
+      const statusMsg = overallOk
+        ? (amountStatus==='unverifiable' ? '⚠️ Receipt uploaded — admin will verify amount' : '✅ Receipt looks valid and amount matches!')
+        : (receiptCheck.ok ? '⚠️ Receipt found but amount may not match — double-check' : '❌ This does not look like a valid bank receipt');
+      const statusColor = overallOk && amountStatus!=='unverifiable' ? 'var(--green-ok)' : overallOk ? '#d97706' : 'var(--red)';
+      let previewShort = extractedText.substring(0,300).trim();
+      if (previewShort.startsWith('[')) previewShort = '';
+
+      el.innerHTML = \`
+        <div class="verify-status" style="color:\${statusColor};">
+          <span class="verify-icon">\${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
+          <span>\${statusMsg}</span>
+        </div>
+        <div class="verify-rows">
+          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">\${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">\${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">\${amtLabel}</span><span class="\${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">\${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">\${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="\${acctCheck?'vr-pass':''}">\${acctCheck?'✅':'⚠️'}</span></div>
+        </div>
+        \${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
+      \`;
+      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+
+    function togglePreview(btn) {
+      const pre = btn.nextElementSibling;
+      if (pre.style.display==='none') { pre.style.display='block'; btn.textContent='▲ Hide text'; }
+      else { pre.style.display='none'; btn.textContent='▼ Show extracted text'; }
+    }
+  </script>
 </body>
 </html>
