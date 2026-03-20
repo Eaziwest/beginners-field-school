@@ -92,8 +92,29 @@
       <a href="#contact">Contact</a>
       <a class="btn btn-yellow btn-sm" href="pages/admission.html">📋 Apply Now</a>
       <a class="btn btn-navy btn-sm" href="pages/login.html">🔐 Login</a>
+      <button class="mobile-menu-btn" onclick="openMobileNav()" aria-label="Open menu">&#9776;</button>
     </div>
   </nav>
+
+  <!-- Mobile slide-in navigation drawer -->
+  <div class="mobile-nav-drawer" id="mobile-nav">
+    <div class="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
+    <div class="mobile-nav-panel">
+      <div class="mobile-nav-header">
+        <h2>&#127807; Menu</h2>
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&#10005;</button>
+      </div>
+      <a class="mobile-nav-link" href="index.html"><span class="mn-icon">&#127968;</span> Home</a>
+      <a class="mobile-nav-link" href="#about" onclick="closeMobileNav()"><span class="mn-icon">&#127981;</span> About Us</a>
+      <a class="mobile-nav-link" href="#portal" onclick="closeMobileNav()"><span class="mn-icon">&#128421;</span> Portal</a>
+      <a class="mobile-nav-link" href="#shop" onclick="closeMobileNav()"><span class="mn-icon">&#128722;</span> School Shop</a>
+      <a class="mobile-nav-link" href="#contact" onclick="closeMobileNav()"><span class="mn-icon">&#128205;</span> Contact</a>
+      <div class="mobile-nav-ctas">
+        <a class="btn btn-yellow" href="pages/admission.html" style="justify-content:center;">&#128203; Apply for Admission</a>
+        <a class="btn btn-navy" href="pages/login.html" style="justify-content:center;">&#128274; Login to Portal</a>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== HERO ===== -->
   <section class="hero">
@@ -291,5 +312,10 @@
     </div>
   </footer>
 
+
+<script>
+  function openMobileNav()  { document.getElementById('mobile-nav').classList.add('open'); }
+  function closeMobileNav() { document.getElementById('mobile-nav').classList.remove('open'); }
+</script>
 </body>
 </html>

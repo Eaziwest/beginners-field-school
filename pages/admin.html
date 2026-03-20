@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div class="dashboard">
+<div class="dashboard" id="admin-dashboard">
 
   <!-- HEADER -->
   <div class="dash-header">
@@ -30,7 +30,7 @@
   <div class="dash-body">
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Main</div>
       <div class="sidebar-link active"  onclick="adminTab('overview',this)"><span class="icon">📊</span> Overview</div>
       <div class="sidebar-link"         onclick="adminTab('admissions',this)"><span class="icon">📋</span> Admissions</div>
@@ -225,6 +225,34 @@
   const _user = requireAuth('admin');
   // Inject user info into header
   injectUserInfo(_user);
+</script>
+
+<nav class="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)">
+      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Overview</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('admissions');setMbn(this)">
+      <span class="mbn-icon">&#128203;</span><span class="mbn-label">Admissions</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('students');setMbn(this)">
+      <span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('payments');setMbn(this)">
+      <span class="mbn-icon">&#128179;</span><span class="mbn-label">Payments</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('announcements');setMbn(this)">
+      <span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span>
+    </button>
+  </div>
+</nav>
+<script>
+function setMbn(btn) {
+  const nav = btn.closest('.mobile-bottom-nav');
+  if (!nav) return;
+  nav.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 </script>
 </body>
 </html>

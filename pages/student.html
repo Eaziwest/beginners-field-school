@@ -672,5 +672,33 @@
   }
 
 </script>
+
+<nav class="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)">
+      <span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('results');setMbn(this)">
+      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('payments');setMbn(this)">
+      <span class="mbn-icon">&#128179;</span><span class="mbn-label">Pay Fees</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('shop');setMbn(this)">
+      <span class="mbn-icon">&#128722;</span><span class="mbn-label">Shop</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)">
+      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span>
+    </button>
+  </div>
+</nav>
+<script>
+function setMbn(btn) {
+  const nav = btn.closest('.mobile-bottom-nav');
+  if (!nav) return;
+  nav.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
 </body>
 </html>

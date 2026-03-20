@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ===== ADMIN TABS ===== */
 function adminTab(name, el) {
   document.querySelectorAll('#admin-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('#admin-dashboard .sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
   const pane = document.getElementById('ap-' + name);
   if (pane) pane.classList.add('active');
   if (el && el.classList) el.classList.add('active');
@@ -61,7 +61,7 @@ function adminTab(name, el) {
 /* ===== TEACHER TABS ===== */
 function teacherTab(name, el) {
   document.querySelectorAll('#teacher-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('#teacher-dashboard .sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
   const pane = document.getElementById('tp-' + name);
   if (pane) pane.classList.add('active');
   if (el && el.classList) el.classList.add('active');
@@ -70,7 +70,7 @@ function teacherTab(name, el) {
 /* ===== STUDENT TABS ===== */
 function studentTab(name, el) {
   document.querySelectorAll('#student-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('#student-dashboard .sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('#student-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
   const pane = document.getElementById('sp-' + name);
   if (pane) pane.classList.add('active');
   if (el && el.classList) el.classList.add('active');
