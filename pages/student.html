@@ -61,7 +61,7 @@
       <div class="sidebar-section">My Portal</div>
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> My Results</div>
-      <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💳</span> Pay Fees</div>
+
       <div class="sidebar-section">Shop &amp; Schedule</div>
       <div class="sidebar-link"        onclick="switchToTab('shop',this)"><span class="icon">🛒</span> School Shop</div>
       <div class="sidebar-link"        onclick="switchToTab('timetable',this)"><span class="icon">📅</span> Timetable</div>
@@ -75,7 +75,7 @@
           <div class="stat-card" data-icon="📊"><div class="stat-num">88%</div><div class="stat-label">Term Average Score</div></div>
           <div class="stat-card" data-icon="📅"><div class="stat-num">98%</div><div class="stat-label">Attendance Rate</div></div>
           <div class="stat-card" data-icon="🏆"><div class="stat-num">3rd</div><div class="stat-label">Class Position</div></div>
-          <div class="stat-card" data-icon="💳"><div class="stat-num">₦0</div><div class="stat-label">Outstanding Fees</div></div>
+
         </div>
         <div class="card">
           <h3>📢 School Announcements</h3>
@@ -135,79 +135,8 @@
         </div>
       </div>
 
-      <!-- ═══ PAYMENTS ═══ -->
-      <div id="sp-payments" class="stab-pane">
-        <div class="card">
-          <h3>💳 School Fees Payment</h3>
 
-          <!-- Fee breakdown -->
-          <div class="fee-summary">
-            <div class="fee-row"><span>School Fees — 3rd Term 2025</span><span>₦45,000</span></div>
-            <div class="fee-row"><span>Development Levy</span><span>₦5,000</span></div>
-            <div class="fee-row"><span style="color:var(--gray);font-size:13px;">Amount Already Paid</span><span style="color:var(--green-ok);">−₦50,000</span></div>
-            <div class="fee-row total"><span>Outstanding Balance</span><span style="color:var(--green-ok);">₦0.00 ✅</span></div>
-          </div>
-
-          <div class="notif ok"><span>✅</span><div><h4>All Fees Paid for 3rd Term 2024/2025</h4><p>Confirmed March 5, 2025 — Ref: PAY-0041</p></div></div>
-
-          <!-- Admission-style payment section -->
-          <div class="payment-section-title">Make a Payment</div>
-
-          <div class="form-group">
-            <label>What are you paying for? *</label>
-            <select id="pay-description">
-              <option value="">— Select payment type —</option>
-              <option value="45000">School Fees — 3rd Term 2025 (₦45,000)</option>
-              <option value="5000">Development Levy (₦5,000)</option>
-              <option value="50000">School Fees + Development Levy (₦50,000)</option>
-              <option value="custom">Other / Custom Amount</option>
-            </select>
-          </div>
-          <div class="form-group" id="custom-amount-group" style="display:none;">
-            <label>Enter Amount (₦) *</label>
-            <input type="number" id="pay-custom-amount" placeholder="Enter amount e.g. 10000" min="100" />
-          </div>
-
-          <!-- Bank info box — same style as admission page -->
-          <div class="payment-info-box">
-            Transfer payment to:<br><br>
-            <strong>Bank:</strong> Zenith Bank<br>
-            <strong>Account Number:</strong> 1234567890<br>
-            <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
-            After payment, upload your bank teller or screenshot below as proof of payment.
-          </div>
-
-          <div class="form-group">
-            <label>Upload Proof of Payment *</label>
-            <input type="file" id="pay-proof" accept="image/*,.pdf" />
-            <p style="font-size:12px;color:var(--gray);margin-top:5px;">Accepted: JPG, PNG, PDF (Max 5MB)</p>
-          </div>
-
-          <button class="btn btn-navy" style="width:100%;" onclick="submitPayment()">📤 Submit Payment</button>
-
-          <div id="pay-success" class="notif ok" style="display:none;margin-top:16px;">
-            <span>✅</span><div><h4 id="pay-success-msg">Payment submitted!</h4><p>Admin will confirm your payment within 1 working day.</p></div>
-          </div>
-        </div>
-
-        <!-- Payment History -->
-        <div class="card">
-          <h3>📄 Payment History</h3>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Ref No.</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
-              <tbody>
-                <tr><td>PAY-0041</td><td>Mar 5, 2025</td><td>School Fees — 3rd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0041','School Fees — 3rd Term','₦45,000')">⬇️ Receipt</button></td></tr>
-                <tr><td>PAY-0042</td><td>Mar 5, 2025</td><td>Development Levy</td><td>₦5,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0042','Development Levy','₦5,000')">⬇️ Receipt</button></td></tr>
-                <tr><td>PAY-0028</td><td>Nov 8, 2024</td><td>School Fees — 2nd Term</td><td>₦45,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0028','School Fees — 2nd Term','₦45,000')">⬇️ Receipt</button></td></tr>
-                <tr><td>PAY-0015</td><td>Aug 12, 2024</td><td>School Uniform × 2</td><td>₦7,000</td><td><span class="badge b-green">Confirmed</span></td><td><button class="btn btn-sm btn-outline-navy" onclick="printReceipt('PAY-0015','School Uniform ×2','₦7,000')">⬇️ Receipt</button></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ SHOP ═══ -->
+            <!-- ═══ SHOP ═══ -->
       <div id="sp-shop" class="stab-pane">
         <div class="card">
           <h3>🛒 School Shop — Order Official Items</h3>
@@ -415,89 +344,6 @@
     toast('Report card opened — use Print to save as PDF.');
   }
 
-  /* ── Pay description change ── */
-  document.getElementById('pay-description').addEventListener('change', function () {
-    document.getElementById('custom-amount-group').style.display =
-      this.value === 'custom' ? 'block' : 'none';
-  });
-
-  /* ── Submit fee payment (admission-style) ── */
-  function submitPayment() {
-    const descEl  = document.getElementById('pay-description');
-    const proofEl = document.getElementById('pay-proof');
-
-    let valid = true;
-    descEl.style.border = '';
-    proofEl.style.border = '';
-
-    if (!descEl.value) {
-      descEl.style.border = '2px solid var(--red)';
-      toast('⚠️ Please select what you are paying for.');
-      valid = false;
-    }
-    if (descEl.value === 'custom') {
-      const amt = parseFloat(document.getElementById('pay-custom-amount').value);
-      if (!amt || amt < 100) {
-        toast('⚠️ Please enter a valid amount (minimum ₦100).');
-        valid = false;
-      }
-    }
-    if (!proofEl.files || proofEl.files.length === 0) {
-      proofEl.style.border = '2px solid var(--red)';
-      toast('⚠️ Please upload your proof of payment.');
-      valid = false;
-    }
-    if (!valid) return;
-
-    const descText = descEl.value !== 'custom'
-      ? descEl.options[descEl.selectedIndex].text.split(' (')[0]
-      : 'Custom Payment';
-    const amount = descEl.value === 'custom'
-      ? '₦' + parseFloat(document.getElementById('pay-custom-amount').value).toLocaleString()
-      : '₦' + parseFloat(descEl.value).toLocaleString();
-
-    document.getElementById('pay-success-msg').textContent =
-      descText + ' — ' + amount + ' submitted successfully!';
-    document.getElementById('pay-success').style.display = 'flex';
-    toast('✅ Payment proof submitted! Admin will confirm within 1 working day.');
-    descEl.value = '';
-    proofEl.value = '';
-    document.getElementById('custom-amount-group').style.display = 'none';
-  }
-
-  /* ── Print receipt ── */
-  function printReceipt(ref, desc, amount) {
-    const name = document.querySelector('[data-user-name]').textContent || 'Student';
-    const win  = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html><html><head><title>Receipt ${ref}</title>
-    <style>
-      body{font-family:Arial,sans-serif;padding:32px;max-width:480px;margin:0 auto;color:#0d1b35;}
-      h1{text-align:center;color:#0a1f44;font-size:18px;margin-bottom:2px;}
-      .sub{text-align:center;font-size:12px;color:#6b7280;margin-bottom:24px;}
-      .receipt-box{border:2px solid #e9edf5;border-radius:12px;padding:24px;}
-      .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f3f8;font-size:13.5px;}
-      .row:last-child{border-bottom:none;}
-      .row.total{font-weight:800;font-size:16px;color:#0a1f44;padding-top:14px;border-top:2px solid #f5c200;}
-      .stamp{text-align:center;margin-top:20px;padding:12px;background:#dcfce7;border-radius:8px;color:#15803d;font-weight:700;}
-      .footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:20px;}
-      @media print{button{display:none;}}
-    </style></head><body>
-    <h1>🌱 Beginner's Field School</h1><p class="sub">Official Payment Receipt</p>
-    <div class="receipt-box">
-      <div class="row"><span>Receipt No.</span><strong>${ref}</strong></div>
-      <div class="row"><span>Student</span><span>${name}</span></div>
-      <div class="row"><span>Description</span><span>${desc}</span></div>
-      <div class="row"><span>Date</span><span>${new Date().toLocaleDateString()}</span></div>
-      <div class="row total"><span>Amount Paid</span><span>${amount}</span></div>
-    </div>
-    <div class="stamp">✅ Payment Confirmed</div>
-    <p class="footer">Beginner's Field Nursery &amp; Primary School · Lagos</p>
-    <br><button onclick="window.print()" style="display:block;width:100%;padding:10px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Print Receipt</button>
-    </body></html>`);
-    win.document.close();
-    toast('Receipt opened — use Print to save.');
-  }
-
   /* ── Add book (validates qty > 0) ── */
   function addBook(btn, bookName, unitPrice) {
     const row   = btn.closest('.book-row');
@@ -534,7 +380,7 @@
   <div class="mobile-bottom-nav-inner">
     <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)"><span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span></button>
     <button class="mbn-item" onclick="switchToTab('results');setMbn(this)"><span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span></button>
-    <button class="mbn-item" onclick="switchToTab('payments');setMbn(this)"><span class="mbn-icon">&#128179;</span><span class="mbn-label">Pay Fees</span></button>
+
     <button class="mbn-item" onclick="switchToTab('shop');setMbn(this)"><span class="mbn-icon">&#128722;</span><span class="mbn-label">Shop</span></button>
     <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)"><span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span></button>
   </div>

@@ -35,16 +35,6 @@
     .field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(220,38,38,0.12) !important; }
     .receipt-detail { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f3f8; font-size:13.5px; }
     .receipt-detail:last-child { border-bottom:none; }
-    /* Admission-style payment info box */
-    .payment-info-box {
-      background:var(--yellow-pale); border:1.5px solid var(--yellow);
-      border-radius:12px; padding:18px 20px; font-size:14px; line-height:1.9; margin-bottom:16px;
-    }
-    .payment-info-box strong { color:var(--navy); }
-    .payment-section-title {
-      font-family:'Merriweather',serif; font-size:15px; color:var(--navy);
-      border-left:4px solid var(--yellow); padding-left:12px; margin:24px 0 16px;
-    }
   </style>
 </head>
 <body>
@@ -75,7 +65,7 @@
       <div class="sidebar-link"        onclick="switchToTab('students',this)"><span class="icon">🎒</span> Students</div>
       <div class="sidebar-section">Management</div>
       <div class="sidebar-link"        onclick="switchToTab('teachers',this)"><span class="icon">👩‍🏫</span> Teachers</div>
-      <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💳</span> Payments</div>
+
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> Results</div>
       <div class="sidebar-section">Communication</div>
       <div class="sidebar-link"        onclick="switchToTab('announcements',this)"><span class="icon">📢</span> Announcements</div>
@@ -89,7 +79,7 @@
           <div class="stat-card" data-icon="🎒"><div class="stat-num">847</div><div class="stat-label">Total Students</div></div>
           <div class="stat-card" data-icon="👩‍🏫"><div class="stat-num">45</div><div class="stat-label">Teaching Staff</div></div>
           <div class="stat-card" data-icon="📋"><div class="stat-num">38</div><div class="stat-label">Pending Admissions</div></div>
-          <div class="stat-card" data-icon="💰"><div class="stat-num">₦4.2M</div><div class="stat-label">Fees Collected (Term)</div></div>
+          <div class="stat-card" data-icon="📅"><div class="stat-num">89%</div><div class="stat-label">Attendance Rate</div></div>
         </div>
         <div class="card">
           <h3>🔔 Recent Alerts</h3>
@@ -284,71 +274,8 @@
         </div>
       </div>
 
-      <!-- ═══ PAYMENTS ═══ -->
-      <div id="ap-payments" class="stab-pane">
-        <div class="stats-row">
-          <div class="stat-card" data-icon="✅"><div class="stat-num">₦4.2M</div><div class="stat-label">Total Collected</div></div>
-          <div class="stat-card" data-icon="⏳"><div class="stat-num">₦840K</div><div class="stat-label">Outstanding</div></div>
-          <div class="stat-card" data-icon="📦"><div class="stat-num">₦215K</div><div class="stat-label">Shop Revenue</div></div>
-          <div class="stat-card" data-icon="👥"><div class="stat-num">23</div><div class="stat-label">Owing Students</div></div>
-        </div>
 
-        <!-- Payment submissions (proofs sent by students) -->
-        <div class="card">
-          <h3>📥 Payment Proof Submissions — Awaiting Confirmation</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">These are payments submitted by students with proof of transfer. Verify and confirm each one.</p>
-          <div class="filter-bar" style="margin-bottom:16px;">
-            <input id="pay-search" placeholder="🔍 Search by student or ref..." oninput="filterPayments()" />
-            <select id="pay-status-filter" onchange="filterPayments()">
-              <option value="">All Status</option>
-              <option>Confirmed</option><option>Pending Confirmation</option><option>Partial</option>
-            </select>
-          </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Ref No.</th><th>Student</th><th>Class</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody id="payments-tbody">
-                <tr data-student="Adaeze Nwosu" data-status="Confirmed">
-                  <td><strong>PAY-0041</strong></td><td>Adaeze Nwosu</td><td>Primary 4</td><td>School Fees</td><td>₦45,000</td><td>Bank Transfer</td><td>Mar 18</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewReceipt('PAY-0041','Adaeze Nwosu','School Fees','₦45,000','Bank Transfer','Mar 18','Confirmed')">📄 Receipt</button></td>
-                </tr>
-                <tr data-student="Mary Ekwueme" data-status="Confirmed">
-                  <td><strong>PAY-0042</strong></td><td>Mary Ekwueme</td><td>Nursery 3</td><td>Development Levy</td><td>₦5,000</td><td>Bank Transfer</td><td>Mar 17</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewReceipt('PAY-0042','Mary Ekwueme','Development Levy','₦5,000','Bank Transfer','Mar 17','Confirmed')">📄 Receipt</button></td>
-                </tr>
-                <tr data-student="Samuel Ogunsi" data-status="Confirmed">
-                  <td><strong>PAY-0043</strong></td><td>Samuel Ogunsi</td><td>Primary 6</td><td>Shop — Uniform</td><td>₦3,500</td><td>Bank Transfer</td><td>Mar 16</td>
-                  <td><span class="badge b-green">Confirmed</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewReceipt('PAY-0043','Samuel Ogunsi','Shop Uniform','₦3,500','Bank Transfer','Mar 16','Confirmed')">📄 Receipt</button></td>
-                </tr>
-                <tr data-student="Tunde Afolabi" data-status="Pending Confirmation" id="pay-row-0044">
-                  <td><strong>PAY-0044</strong></td><td>Tunde Afolabi</td><td>Primary 2</td><td>School Fees (Partial)</td><td>₦22,500</td><td>Bank Transfer</td><td>Mar 15</td>
-                  <td><span class="badge b-yellow" id="pay-badge-0044">Pending Confirmation</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewReceipt('PAY-0044','Tunde Afolabi','School Fees (Partial)','₦22,500','Bank Transfer','Mar 15','Pending')">📄 Receipt</button>
-                    <button class="btn btn-green btn-sm" id="pay-confirm-0044" onclick="confirmPayment('0044','Tunde Afolabi')">✓ Confirm</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- School bank details for reference -->
-        <div class="card">
-          <h3>🏦 School Bank Details</h3>
-          <div class="payment-info-box">
-            <strong>Bank:</strong> Zenith Bank<br>
-            <strong>Account Number:</strong> 1234567890<br>
-            <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
-            All payments from parents and students should be transferred to this account. Students upload proof of payment through their portal.
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ RESULTS ═══ -->
+            <!-- ═══ RESULTS ═══ -->
       <div id="ap-results" class="stab-pane">
         <div class="card">
           <h3>📊 Results Management — 3rd Term 2024/2025</h3>
@@ -410,7 +337,7 @@
 <div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">✕</button><h2>📋 Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
 <div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">✕</button><h2>🎒 Student Profile</h2><div id="modal-student-body"></div></div></div>
 <div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">✕</button><h2>👩‍🏫 Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
-<div class="admin-modal-overlay" id="modal-receipt"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-receipt')">✕</button><h2>📄 Payment Receipt</h2><div id="modal-receipt-body"></div><button class="btn btn-navy" style="margin-top:16px;" onclick="toast('Receipt printed!')">🖨️ Print</button></div></div>
+
 <div class="admin-modal-overlay" id="modal-results"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-results')">✕</button><h2>📊 Results Preview</h2><div id="modal-results-body"></div></div></div>
 <div class="admin-modal-overlay" id="modal-contact"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-contact')">✕</button><h2>💬 Send Message</h2><div id="modal-contact-name" style="font-weight:700;color:var(--navy);margin-bottom:16px;font-size:15px;"></div><div class="form-group"><label>Subject *</label><input id="contact-subject" placeholder="e.g. Results submission reminder" /></div><div class="form-group"><label>Message *</label><textarea id="contact-body" rows="4" placeholder="Type your message..."></textarea></div><button class="btn btn-navy" onclick="sendContactMessage()">📤 Send</button></div></div>
 
@@ -586,33 +513,6 @@
     closeAdminModal('modal-contact');
   }
 
-  /* ── Payment receipt modal ── */
-  function viewReceipt(ref, student, type, amount, method, date, status) {
-    const sc = status === 'Confirmed' ? 'var(--green-ok)' : '#d97706';
-    document.getElementById('modal-receipt-body').innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;">
-        <div class="receipt-detail"><span>Reference No.</span><strong>${ref}</strong></div>
-        <div class="receipt-detail"><span>Student</span><strong>${student}</strong></div>
-        <div class="receipt-detail"><span>Payment Type</span><strong>${type}</strong></div>
-        <div class="receipt-detail"><span>Amount</span><strong>${amount}</strong></div>
-        <div class="receipt-detail"><span>Method</span><strong>${method}</strong></div>
-        <div class="receipt-detail"><span>Date</span><strong>${date}</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong style="color:${sc}">${status}</strong></div>
-      </div>`;
-    openAdminModal('modal-receipt');
-  }
-
-  function confirmPayment(ref, name) {
-    if (!confirm('Confirm payment for ' + name + '?')) return;
-    const badge = document.getElementById('pay-badge-' + ref);
-    const btn   = document.getElementById('pay-confirm-' + ref);
-    if (badge) { badge.textContent = 'Confirmed'; badge.className = 'badge b-green'; }
-    if (btn)   btn.remove();
-    const row = document.getElementById('pay-row-' + ref);
-    if (row)   row.setAttribute('data-status', 'Confirmed');
-    toast('✅ Payment confirmed for ' + name + '.');
-  }
-
   /* ── Results publish/view ── */
   function viewResults(cls, teacher, status) {
     document.getElementById('modal-results-body').innerHTML = `
@@ -747,7 +647,7 @@
     <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)"><span class="mbn-icon">&#128202;</span><span class="mbn-label">Overview</span></button>
     <button class="mbn-item" onclick="switchToTab('admissions');setMbn(this)"><span class="mbn-icon">&#128203;</span><span class="mbn-label">Admissions</span></button>
     <button class="mbn-item" onclick="switchToTab('students');setMbn(this)"><span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span></button>
-    <button class="mbn-item" onclick="switchToTab('payments');setMbn(this)"><span class="mbn-icon">&#128179;</span><span class="mbn-label">Payments</span></button>
+
     <button class="mbn-item" onclick="switchToTab('announcements');setMbn(this)"><span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span></button>
   </div>
 </nav>
