@@ -73,8 +73,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
-  <!-- PDF.js for reading PDF receipts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -101,6 +99,7 @@
       <div class="sidebar-section">My Portal</div>
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> My Results</div>
+      <div class="sidebar-link"        onclick="switchToTab('fees',this)"><span class="icon">💰</span> School Fees</div>
       <div class="sidebar-section">Shop &amp; Schedule</div>
       <div class="sidebar-link"        onclick="switchToTab('shop',this)"><span class="icon">🛒</span> School Shop</div>
       <div class="sidebar-link"        onclick="switchToTab('timetable',this)"><span class="icon">📅</span> Timetable</div>
@@ -173,6 +172,69 @@
         </div>
       </div>
 
+      <!-- ═══ SCHOOL FEES ═══ -->
+      <div id="sp-fees" class="stab-pane">
+        <div class="card">
+          <h3>&#128176; School Fees — 3rd Term 2025</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">
+            Below are all the fees applicable to your class for this term. Please make payment at the school bursar office or reception. Contact the school if you need a payment plan.
+          </p>
+
+          <!-- Student fee breakdown -->
+          <div class="fee-summary" style="margin-bottom:20px;">
+            <div class="fee-row"><span>School Fees — 3rd Term 2025</span><span><strong>&#x20a6;45,000</strong></span></div>
+            <div class="fee-row"><span>Development Levy</span><span><strong>&#x20a6;5,000</strong></span></div>
+            <div class="fee-row"><span>PTA Dues (Annual)</span><span><strong>&#x20a6;2,000</strong></span></div>
+            <div class="fee-row"><span>Sports / Cultural Levy</span><span><strong>&#x20a6;1,500</strong></span></div>
+            <div class="fee-row"><span>Medical / Health Check</span><span><strong>&#x20a6;1,000</strong></span></div>
+            <div class="fee-row"><span>ICT / Computer Levy</span><span><strong>&#x20a6;3,000</strong></span></div>
+            <div class="fee-row total"><span>Total Amount Due</span><span><strong>&#x20a6;57,500</strong></span></div>
+          </div>
+
+          <!-- Payment deadline notice -->
+          <div class="notif warn">
+            <span>&#128197;</span>
+            <div>
+              <h4>Payment Deadline — 14th February 2025</h4>
+              <p>All fees must be paid in full before or on the resumption date. Late payment attracts a penalty of &#x20a6;2,000. Please contact the school bursar for payment arrangements.</p>
+            </div>
+          </div>
+
+          <!-- How to pay instructions -->
+          <div style="margin-top:20px;">
+            <h4 style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;">&#127981; How to Pay</h4>
+            <div class="notif info">
+              <span>&#128205;</span>
+              <div>
+                <h4>Visit the School Bursar</h4>
+                <p>Bring cash or a bank transfer confirmation to the bursar&#39;s office during school hours (<strong>Mon–Fri, 8:00AM–3:00PM</strong>). You will receive an official receipt on the spot.</p>
+              </div>
+            </div>
+            <div class="notif info" style="margin-top:10px;">
+              <span>&#128222;</span>
+              <div>
+                <h4>Contact the School</h4>
+                <p>Call <strong>+234 800 000 0000</strong> or email <strong>info@beginnersfieldschool.edu.ng</strong> to discuss payment plans or for any fee-related queries.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional items -->
+          <div style="margin-top:24px;">
+            <h4 style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;">&#128722; Optional Items (Pay at Office)</h4>
+            <div class="fee-summary">
+              <div class="fee-row"><span>School Uniform (per set)</span><span><strong>&#x20a6;3,500</strong></span></div>
+              <div class="fee-row"><span>Stationery Pack</span><span><strong>&#x20a6;1,200</strong></span></div>
+              <div class="fee-row"><span>Textbooks — from</span><span><strong>&#x20a6;1,400</strong></span></div>
+              <div class="fee-row"><span>Exercise Books — from</span><span><strong>&#x20a6;120</strong></span></div>
+            </div>
+            <p style="font-size:12px;color:var(--gray);margin-top:10px;">
+              You can also browse and select items in the <strong>School Shop</strong> tab, then bring your cart list to the reception desk for collection.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ SHOP ═══ -->
       <div id="sp-shop" class="stab-pane">
         <div class="card">
@@ -238,44 +300,26 @@
             </div>
           </div>
 
-          <!-- ═══ CART + PAYMENT SECTION ═══ -->
+          <!-- CART (no payment — contact office) -->
           <div id="cart-box" class="cart-box" style="margin-top:24px;">
-            <h4 style="margin-bottom:14px;">🛒 Your Cart (<span id="cart-cnt">0</span> items)</h4>
+            <h4 style="margin-bottom:14px;">&#128722; Your Cart (<span id="cart-cnt">0</span> items)</h4>
             <div id="cart-body"></div>
-            <div id="cart-total" style="font-size:15px;font-weight:800;color:var(--navy);padding-top:12px;border-top:2px solid var(--yellow);margin-top:4px;margin-bottom:20px;"></div>
+            <div id="cart-total" style="font-size:15px;font-weight:800;color:var(--navy);padding-top:12px;border-top:2px solid var(--yellow);margin-top:4px;margin-bottom:16px;"></div>
 
-            <!-- Step 1: Bank details (same as admission) -->
-            <div class="payment-section-title">Step 1 — Transfer Payment to School Account</div>
-            <div class="fee-payment-info">
-              Pay the total amount shown above to:<br><br>
-              <strong>Bank:</strong> Moniepoint<br>
-              <strong>Account Number:</strong> 1234567890<br>
-              <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
-              After payment, upload your bank teller, debit alert or screenshot below.
+            <div class="notif info">
+              <span>&#128205;</span>
+              <div>
+                <h4>How to collect your items</h4>
+                <p>Show this cart to the <strong>school bursar or reception desk</strong> and make payment there. Items will be prepared for you on the same day or within 24 hours.</p>
+              </div>
             </div>
 
-            <!-- Step 2: Upload receipt -->
-            <div class="payment-section-title">Step 2 — Upload Your Bank Receipt</div>
-            <div class="form-group">
-              <label>Bank Receipt / Proof of Payment *</label>
-              <input type="file" id="shop-pay-proof" accept="image/*,.pdf"
-                     onchange="verifyReceipt(this, 'shop-verify', true)" />
-              <p style="font-size:12px;color:var(--gray);margin-top:5px;">
-                Accepted: JPG, PNG, PDF (Max 5MB) — we will automatically read your receipt to verify the amount
-              </p>
-            </div>
-
-            <!-- Receipt verifier output -->
-            <div class="receipt-verifier" id="shop-verify" style="display:none;"></div>
-
-            <!-- Step 3: Place order -->
-            <div class="payment-section-title">Step 3 — Submit Your Order</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <button class="btn btn-navy" id="shop-place-btn" onclick="placeOrder()">✅ Place Order</button>
-              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">🗑 Clear Cart</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn btn-navy" onclick="printCart()">&#128197; Print / Show Cart</button>
+              <button class="btn btn-outline-navy btn-sm" onclick="clearCart()">&#128465; Clear Cart</button>
             </div>
             <p style="font-size:12px;color:var(--gray);margin-top:10px;">
-              Items will be ready for pickup at school reception within 3 working days after payment is confirmed by admin.
+              Items are available for collection at the school reception Monday to Friday, 8:00AM – 3:00PM.
             </p>
           </div>
         </div>
@@ -311,12 +355,6 @@
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-  /* ── PDF.js worker ── */
-  if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
-
   /* ── Auth ── */
   const _user = requireAuth('student');
   injectUserInfo(_user);
@@ -402,239 +440,6 @@
     toast(qty + '× ' + bookName + ' added to cart!');
   }
 
-  /* ══════════════════════════════════════════════════════
-     RECEIPT VERIFIER
-     Reads PDF or image file, extracts text, then checks:
-     1. Is it a bank receipt? (looks for bank keywords)
-     2. Does the amount match? (looks for the cart total)
-     3. Is the account number correct?
-  ══════════════════════════════════════════════════════ */
-
-  /* School account details to verify against */
-  const SCHOOL_ACCOUNT = '1234567890';
-  const BANK_KEYWORDS  = [
-    'moniepoint','transfer','debit','credit','transaction','payment','receipt',
-    'account','balance','naira','ngn','teller','bank','swift','amount',
-    'beneficiary','ref','reference','date','success','successful','approved'
-  ];
-
-  /* Extract text from PDF using PDF.js */
-  async function extractPdfText(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(' ') + '\n';
-    }
-    return text;
-  }
-
-  /* Extract text from image using Canvas OCR simulation
-     (reads EXIF/metadata + filenames for clues, checks image visually) */
-  async function extractImageInfo(file) {
-    return new Promise(resolve => {
-      /* For images we can read the filename and file metadata,
-         then render a preview. Real OCR requires a server.
-         We simulate with filename checks + user-confirmed amount. */
-      const name  = file.name.toLowerCase();
-      const size  = file.size;
-      /* Heuristic: if filename contains amount numbers or "receipt"/"transfer" etc */
-      let text = '[Image file: ' + file.name + ' | Size: ' + (size/1024).toFixed(1) + 'KB]';
-      if (name.includes('receipt') || name.includes('transfer') || name.includes('debit') ||
-          name.includes('teller') || name.includes('payment') || name.includes('moniepoint') ||
-          name.includes('bank') || name.includes('txn') || name.includes('trx')) {
-        text += '\n[Filename suggests: bank receipt]';
-      }
-      resolve(text);
-    });
-  }
-
-  /* Parse amount from text — finds all NGN/₦ amounts */
-  function parseAmounts(text) {
-    const amounts = [];
-    /* Match patterns like: 5,000.00 or 5000 or ₦5,000 or NGN5000 or 5 000 */
-    const patterns = [
-      /(?:NGN|₦|naira)\s*([0-9][0-9,\s]*(?:\.[0-9]{2})?)/gi,
-      /([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/g,
-      /\b([0-9]{4,8}(?:\.[0-9]{2})?)\b/g
-    ];
-    patterns.forEach(pat => {
-      let m;
-      while ((m = pat.exec(text)) !== null) {
-        const raw = m[1].replace(/[\s,]/g, '');
-        const val = parseFloat(raw);
-        if (val >= 100 && val <= 10000000) amounts.push(val);
-      }
-    });
-    return [...new Set(amounts)];
-  }
-
-  /* Check if text looks like a bank receipt */
-  function isBankReceipt(text) {
-    const lower = text.toLowerCase();
-    const hits  = BANK_KEYWORDS.filter(kw => lower.includes(kw));
-    return { ok: hits.length >= 2, hits, score: hits.length };
-  }
-
-  /* Check if account number is present */
-  function hasAccountNumber(text) {
-    return text.includes(SCHOOL_ACCOUNT);
-  }
-
-  /* Main verifier — called on file input change */
-  async function verifyReceipt(input, containerId, isShop) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-
-    if (!input.files || input.files.length === 0) {
-      el.style.display = 'none';
-      return;
-    }
-
-    const file = input.files[0];
-
-    /* Show loading state */
-    el.style.display = 'block';
-    el.className = 'receipt-verifier verifying';
-    el.innerHTML = `
-      <div class="verify-status">
-        <div class="spinner"></div>
-        <span style="color:var(--navy);">Reading receipt — please wait…</span>
-      </div>`;
-
-    let extractedText = '';
-    let isPdf = false;
-
-    try {
-      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-        isPdf = true;
-        if (typeof pdfjsLib !== 'undefined') {
-          extractedText = await extractPdfText(file);
-        } else {
-          extractedText = '[PDF — PDF.js not loaded, filename: ' + file.name + ']';
-        }
-      } else {
-        extractedText = await extractImageInfo(file);
-      }
-    } catch (err) {
-      extractedText = '[Error reading file: ' + err.message + ']';
-    }
-
-    /* Run checks */
-    const cartTotal   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const admTotal    = 5000; /* admission fee */
-    const expectedAmt = isShop ? cartTotal : admTotal;
-
-    const receiptCheck = isBankReceipt(extractedText);
-    const amounts      = parseAmounts(extractedText);
-    const acctCheck    = hasAccountNumber(extractedText);
-
-    /* Amount match: check if any extracted amount is within 1% of expected */
-    const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) / expectedAmt < 0.015);
-    /* For images without OCR, we can't verify amount — mark as manual review */
-    const canVerifyAmt = isPdf || extractedText.includes('[');
-    const amountStatus = !canVerifyAmt || amounts.length === 0 ? 'unverifiable'
-                       : amountMatch ? 'match' : 'mismatch';
-
-    /* Overall pass: receipt looks valid + amount matches (or is unverifiable for images) */
-    const overallOk = receiptCheck.ok && (amountStatus === 'match' || amountStatus === 'unverifiable');
-
-    el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
-
-    /* Build result HTML */
-    const receiptIcon = receiptCheck.ok ? '✅' : '❌';
-    const amtIcon     = amountStatus === 'match' ? '✅' : amountStatus === 'unverifiable' ? '⚠️' : '❌';
-    const acctIcon    = acctCheck ? '✅' : '⚠️';
-
-    const foundAmtsStr = amounts.length
-      ? amounts.slice(0,5).map(a => '₦' + a.toLocaleString()).join(', ')
-      : 'None detected';
-
-    const amtLabel = amountStatus === 'match'
-      ? 'Matches expected (₦' + expectedAmt.toLocaleString() + ')'
-      : amountStatus === 'unverifiable'
-      ? 'Image file — please ensure amount is ₦' + expectedAmt.toLocaleString()
-      : 'Expected ₦' + expectedAmt.toLocaleString() + ' · found: ' + foundAmtsStr;
-
-    const statusMsg = overallOk
-      ? (amountStatus === 'unverifiable'
-          ? '⚠️ Receipt uploaded — amount unverifiable in image (admin will confirm)'
-          : '✅ Receipt looks valid and amount matches!')
-      : (receiptCheck.ok
-          ? '⚠️ Receipt found but amount mismatch — please re-check'
-          : '❌ This does not appear to be a valid bank receipt');
-
-    const statusColor = overallOk && amountStatus !== 'unverifiable' ? 'var(--green-ok)'
-                      : overallOk ? '#d97706' : 'var(--red)';
-
-    let previewShort = extractedText.substring(0, 300).trim();
-    if (previewShort.startsWith('[')) previewShort = '';
-
-    el.innerHTML = `
-      <div class="verify-status" style="color:${statusColor};">
-        <span class="verify-icon">${overallOk ? (amountStatus === 'unverifiable' ? '⚠️' : '✅') : '❌'}</span>
-        <span>${statusMsg}</span>
-      </div>
-      <div class="verify-rows">
-        <div class="verify-row">
-          <span class="vr-label">📄 File type</span>
-          <span class="vr-value">${isPdf ? 'PDF document' : 'Image file (' + file.type.split('/')[1].toUpperCase() + ')'}</span>
-          <span class="${receiptCheck.ok ? 'vr-pass' : 'vr-fail'}">${receiptCheck.ok ? '✅' : '❌'}</span>
-        </div>
-        <div class="verify-row">
-          <span class="vr-label">🏦 Bank receipt keywords</span>
-          <span class="vr-value">${receiptCheck.ok ? receiptCheck.hits.slice(0,4).join(', ') : 'Not found'}</span>
-          <span class="${receiptCheck.ok ? 'vr-pass' : 'vr-fail'}">${receiptIcon}</span>
-        </div>
-        <div class="verify-row">
-          <span class="vr-label">💰 Amount check</span>
-          <span class="vr-value" style="font-size:12px;">${amtLabel}</span>
-          <span class="${amountStatus === 'match' ? 'vr-pass' : amountStatus === 'unverifiable' ? '' : 'vr-fail'}">${amtIcon}</span>
-        </div>
-        <div class="verify-row">
-          <span class="vr-label">🔢 Account number</span>
-          <span class="vr-value">${acctCheck ? SCHOOL_ACCOUNT + ' found ✓' : 'Not detected in file'}</span>
-          <span class="${acctCheck ? 'vr-pass' : ''}">${acctIcon}</span>
-        </div>
-      </div>
-      ${previewShort ? `
-      <span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span>
-      <div class="receipt-preview" style="display:none;">${previewShort}${extractedText.length > 300 ? '\n… [truncated]' : ''}</div>
-      ` : ''}`;
-
-    /* Scroll verifier into view */
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function togglePreview(btn) {
-    const pre = btn.nextElementSibling;
-    if (pre.style.display === 'none') { pre.style.display = 'block'; btn.textContent = '▲ Hide text'; }
-    else { pre.style.display = 'none'; btn.textContent = '▼ Show extracted text'; }
-  }
-
-  /* ── Place shop order ── */
-  function placeOrder() {
-    if (cart.length === 0) { toast('⚠️ Your cart is empty.'); return; }
-    const proofEl = document.getElementById('shop-pay-proof');
-    if (!proofEl.files || proofEl.files.length === 0) {
-      proofEl.style.border = '2px solid var(--red)';
-      toast('⚠️ Please upload your bank receipt before placing your order.');
-      return;
-    }
-    proofEl.style.border = '';
-    /* Warn if verifier shows fail but don't block — admin reviews anyway */
-    const verifyEl = document.getElementById('shop-verify');
-    if (verifyEl && verifyEl.classList.contains('fail')) {
-      if (!confirm('⚠️ Our receipt checker found issues with this file.\n\nYou can still submit, but admin will need to manually verify your payment.\n\nContinue anyway?')) return;
-    }
-    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-    toast('✅ Order placed! Total ₦' + total.toLocaleString() + '. Admin will confirm within 1 working day.');
-    clearCart();
-    proofEl.value = '';
-    document.getElementById('shop-verify').style.display = 'none';
-  }
 
 </script>
 
@@ -642,6 +447,7 @@
   <div class="mobile-bottom-nav-inner">
     <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)"><span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span></button>
     <button class="mbn-item" onclick="switchToTab('results');setMbn(this)"><span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span></button>
+    <button class="mbn-item" onclick="switchToTab('fees');setMbn(this)"><span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span></button>
     <button class="mbn-item" onclick="switchToTab('shop');setMbn(this)"><span class="mbn-icon">&#128722;</span><span class="mbn-label">Shop</span></button>
     <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)"><span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span></button>
   </div>

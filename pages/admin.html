@@ -6,7 +6,6 @@
   <title>Admin Portal — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     .admin-modal-overlay {
       display:none; position:fixed; inset:0;
@@ -36,25 +35,40 @@
     .field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(220,38,38,0.12) !important; }
     .receipt-detail { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f3f8; font-size:13.5px; }
     .receipt-detail:last-child { border-bottom:none; }
-    .receipt-verifier { border:2px solid var(--light-gray); border-radius:12px; padding:16px; margin-top:10px; background:var(--off-white); transition:border-color 0.3s; }
-    .receipt-verifier.verifying { border-color:var(--yellow); }
-    .receipt-verifier.ok   { border-color:var(--green-ok); background:#f0fdf4; }
-    .receipt-verifier.fail { border-color:var(--red); background:#fef2f2; }
-    .verify-status { display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:700; margin-bottom:10px; }
-    .verify-rows   { display:flex; flex-direction:column; gap:6px; }
-    .verify-row    { display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:6px 10px; border-radius:7px; background:rgba(255,255,255,0.7); }
-    .verify-row .vr-label { color:var(--gray); }
-    .verify-row .vr-value { font-weight:700; color:var(--navy); font-size:12px; }
-    .verify-row .vr-pass  { color:var(--green-ok); }
-    .verify-row .vr-fail  { color:var(--red); }
-    .receipt-preview { margin-top:10px; max-height:160px; overflow-y:auto; background:#fff; border:1px solid var(--light-gray); border-radius:7px; padding:10px; font-size:11px; color:var(--gray); font-family:monospace; line-height:1.6; white-space:pre-wrap; }
-    .preview-toggle { font-size:11.5px; color:var(--navy-light); cursor:pointer; font-weight:700; margin-top:6px; display:inline-block; }
-    .spinner { display:inline-block; width:14px; height:14px; border:2px solid var(--yellow); border-top-color:var(--navy); border-radius:50%; animation:spin 0.7s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .adm-pay-row { background:var(--white); border:1.5px solid var(--light-gray); border-radius:14px; padding:18px 20px; margin-bottom:16px; }
-    .adm-pay-row h4 { font-size:14px; font-weight:800; color:var(--navy); margin-bottom:4px; }
-    .adm-pay-row .meta { font-size:12px; color:var(--gray); margin-bottom:12px; }
-    .adm-pay-row .proof-label { font-size:12px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+    /* Fee management styles */
+    .fee-edit-card {
+      background: var(--white); border: 1.5px solid var(--light-gray);
+      border-radius: 14px; padding: 20px 22px; margin-bottom: 14px;
+    }
+    .fee-edit-card h4 {
+      font-size: 14px; font-weight: 800; color: var(--navy);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .fee-edit-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--light-gray); gap: 12px; flex-wrap: wrap;
+    }
+    .fee-edit-row:last-child { border-bottom: none; }
+    .fee-edit-label { font-size: 13.5px; color: var(--navy); font-weight: 600; flex: 1; min-width: 140px; }
+    .fee-edit-label span { font-size: 11.5px; color: var(--gray); font-weight: 400; display: block; }
+    .fee-amount-wrap { display: flex; align-items: center; gap: 6px; }
+    .fee-prefix { font-weight: 800; color: var(--navy); font-size: 15px; }
+    .fee-amount-wrap input {
+      width: 110px; padding: 8px 10px; border: 1.5px solid var(--light-gray);
+      border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--navy);
+      font-family: inherit; text-align: right;
+    }
+    .fee-amount-wrap input:focus { border-color: var(--navy); outline: none; }
+    .fee-save-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-top: 6px;
+    }
+    .fee-last-saved { font-size: 12px; color: var(--gray); }
+    .fee-summary-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+    .fee-summary-table th { background: var(--navy); color: #fff; padding: 9px 12px; text-align: left; font-weight: 700; }
+    .fee-summary-table td { padding: 9px 12px; border-bottom: 1px solid var(--light-gray); }
+    .fee-summary-table tr:last-child td { border-bottom: none; }
+    .fee-summary-table .total-row td { font-weight: 800; color: var(--navy); background: var(--yellow-pale); }
   </style>
 </head>
 <body>
@@ -78,6 +92,7 @@
 
   <div class="dash-body">
 
+    <!-- FIX 12: removed extra blank line between Teachers and Payments sidebar links -->
     <div class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Main</div>
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">📊</span> Overview</div>
@@ -85,8 +100,7 @@
       <div class="sidebar-link"        onclick="switchToTab('students',this)"><span class="icon">🎒</span> Students</div>
       <div class="sidebar-section">Management</div>
       <div class="sidebar-link"        onclick="switchToTab('teachers',this)"><span class="icon">👩‍🏫</span> Teachers</div>
-
-      <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💳</span> Payments</div>
+      <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💰</span> School Fees</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> Results</div>
       <div class="sidebar-section">Communication</div>
       <div class="sidebar-link"        onclick="switchToTab('announcements',this)"><span class="icon">📢</span> Announcements</div>
@@ -138,7 +152,7 @@
               </tbody>
             </table>
           </div>
-          <button class="btn btn-outline-navy btn-sm" style="margin-top:14px;" onclick="switchToTab('admissions')">View All Applications →</button>
+          <button class="btn btn-outline-navy btn-sm" style="margin-top:14px;" onclick="switchToTab('admissions',null)">View All Applications →</button>
         </div>
       </div>
 
@@ -226,8 +240,8 @@
                 </tr>
                 <tr data-name="Tunde Afolabi" data-class="Primary 2">
                   <td>BFS/2025/002</td><td><strong>Tunde Afolabi</strong></td><td>Primary 2</td><td>Male</td>
-                  <td><span class="badge b-red">Owing ₦45k</span></td><td>92%</td><td><span class="badge b-green">Active</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Tunde Afolabi','Primary 2','Male','BFS/2025/002','92%','Owing ₦45k','Active')">View</button></td>
+                  <td><span class="badge b-red">Owing &#x20a6;45k</span></td><td>92%</td><td><span class="badge b-green">Active</span></td>
+                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Tunde Afolabi','Primary 2','Male','BFS/2025/002','92%','Owing','Active')">View</button></td>
                 </tr>
                 <tr data-name="Mary Ekwueme" data-class="Nursery 3">
                   <td>BFS/2025/003</td><td><strong>Mary Ekwueme</strong></td><td>Nursery 3</td><td>Female</td>
@@ -295,109 +309,136 @@
         </div>
       </div>
 
-
-            <!-- ═══ PAYMENTS — RECEIPT REVIEW ═══ -->
+      <!-- ═══ SCHOOL FEES MANAGEMENT ═══ -->
       <div id="ap-payments" class="stab-pane">
+
+        <!-- Summary stats -->
         <div class="stats-row">
-          <div class="stat-card" data-icon="✅"><div class="stat-num" id="pay-stat-confirmed">3</div><div class="stat-label">Confirmed Payments</div></div>
-          <div class="stat-card" data-icon="⏳"><div class="stat-num" id="pay-stat-pending">1</div><div class="stat-label">Awaiting Review</div></div>
-          <div class="stat-card" data-icon="💰"><div class="stat-num">₦76,000</div><div class="stat-label">Total Collected</div></div>
-          <div class="stat-card" data-icon="🔢"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-top:6px;">1234567890<br>Moniepoint</div><div class="stat-label">School Account</div></div>
+          <div class="stat-card" data-icon="🎒"><div class="stat-num" id="fee-stat-nursery">&#x20a6;35,000</div><div class="stat-label">Nursery Term Fee</div></div>
+          <div class="stat-card" data-icon="📚"><div class="stat-num" id="fee-stat-primary">&#x20a6;45,000</div><div class="stat-label">Primary Term Fee</div></div>
+          <div class="stat-card" data-icon="🏫"><div class="stat-num" id="fee-stat-levy">&#x20a6;5,000</div><div class="stat-label">Development Levy</div></div>
+          <div class="stat-card" data-icon="📋"><div class="stat-num">3rd Term</div><div class="stat-label">Current Term</div></div>
         </div>
 
+        <!-- Edit school fees -->
         <div class="card">
-          <h3>📥 Payment Receipt Submissions</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">
-            Students submit bank receipts through their portal. Click <strong>Verify Receipt</strong> on each submission to read and analyse the document, then Confirm or Reject accordingly.
+          <h3>&#128176; Edit School Fees — 3rd Term 2025</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">
+            Update fee amounts below and click <strong>Save Changes</strong>. Students will see the updated amounts in their portal.
           </p>
-          <div class="filter-bar" style="margin-bottom:16px;">
-            <input id="pay-search" placeholder="🔍 Search by student..." oninput="filterPaymentsList()" />
-            <select id="pay-status-filter" onchange="filterPaymentsList()">
-              <option value="">All Status</option>
-              <option>Confirmed</option><option>Pending Review</option>
-            </select>
+
+          <!-- Nursery Fees -->
+          <div class="fee-edit-card">
+            <h4>&#127968; Nursery School (Nursery 1 – 3)</h4>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">School Fees — Per Term<span>Covers tuition, learning materials &amp; activities</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-nursery-tuition" value="35000" min="0" step="500" onchange="updateFeeStats()" /></div>
+            </div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Creche / Extra Hours<span>Optional extended care programme</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-nursery-creche" value="8000" min="0" step="500" /></div>
+            </div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Uniform (per set)<span>Official school uniform — purchased once</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-uniform" value="3500" min="0" step="100" /></div>
+            </div>
           </div>
 
-          <div id="payments-list">
-            <!-- Pending: Tunde Afolabi -->
-            <div class="adm-pay-row" data-student="Tunde Afolabi" data-status="Pending Review">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                <div>
-                  <h4>PAY-0044 — Tunde Afolabi &nbsp; <span class="badge b-yellow">Pending Review</span></h4>
-                  <div class="meta">Primary 2 &nbsp;·&nbsp; School Fees (Partial) &nbsp;·&nbsp; ₦22,500 &nbsp;·&nbsp; Submitted Mar 15</div>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                  <button class="btn btn-green btn-sm" id="pay-confirm-0044" onclick="confirmPayment('0044','Tunde Afolabi')">✓ Confirm</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectPayment('0044','Tunde Afolabi')">✗ Reject</button>
-                </div>
-              </div>
-              <div class="proof-label">📎 Submitted: <em>bank_receipt_tunde.pdf</em></div>
-              <button class="btn btn-navy btn-sm" style="margin-top:8px;" onclick="simulateVerify('adm-verify-0044', 22500, 'pdf')">🔍 Verify Receipt</button>
-              <div class="receipt-verifier" id="adm-verify-0044" style="display:none;"></div>
+          <!-- Primary Fees -->
+          <div class="fee-edit-card">
+            <h4>&#127979; Primary School (Primary 1 – 6)</h4>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">School Fees — Per Term<span>Covers tuition, learning materials &amp; activities</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-primary-tuition" value="45000" min="0" step="500" onchange="updateFeeStats()" /></div>
             </div>
-
-            <!-- Confirmed: Adaeze Nwosu -->
-            <div class="adm-pay-row" data-student="Adaeze Nwosu" data-status="Confirmed">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                <div>
-                  <h4>PAY-0041 — Adaeze Nwosu &nbsp; <span class="badge b-green">Confirmed</span></h4>
-                  <div class="meta">Primary 4 &nbsp;·&nbsp; School Fees &nbsp;·&nbsp; ₦45,000 &nbsp;·&nbsp; Confirmed Mar 18</div>
-                </div>
-                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0041', 45000, 'pdf')">🔍 View Receipt Analysis</button>
-              </div>
-              <div class="receipt-verifier" id="adm-verify-0041" style="display:none;"></div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Computer / ICT Levy<span>Lab usage and software licences</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-ict" value="3000" min="0" step="500" /></div>
             </div>
-
-            <!-- Confirmed: Mary Ekwueme -->
-            <div class="adm-pay-row" data-student="Mary Ekwueme" data-status="Confirmed">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                <div>
-                  <h4>PAY-0042 — Mary Ekwueme &nbsp; <span class="badge b-green">Confirmed</span></h4>
-                  <div class="meta">Nursery 3 &nbsp;·&nbsp; Development Levy &nbsp;·&nbsp; ₦5,000 &nbsp;·&nbsp; Confirmed Mar 17</div>
-                </div>
-                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0042', 5000, 'pdf')">🔍 View Receipt Analysis</button>
-              </div>
-              <div class="receipt-verifier" id="adm-verify-0042" style="display:none;"></div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Exam Fees (Primary 6)<span>External examinations and registration</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-exam" value="10000" min="0" step="500" /></div>
             </div>
+          </div>
 
-            <!-- Confirmed: Samuel Ogunsi -->
-            <div class="adm-pay-row" data-student="Samuel Ogunsi" data-status="Confirmed">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                <div>
-                  <h4>PAY-0043 — Samuel Ogunsi &nbsp; <span class="badge b-green">Confirmed</span></h4>
-                  <div class="meta">Primary 6 &nbsp;·&nbsp; Shop — Uniform &nbsp;·&nbsp; ₦3,500 &nbsp;·&nbsp; Confirmed Mar 16</div>
-                </div>
-                <button class="btn btn-outline-navy btn-sm" onclick="simulateVerify('adm-verify-0043', 3500, 'pdf')">🔍 View Receipt Analysis</button>
-              </div>
-              <div class="receipt-verifier" id="adm-verify-0043" style="display:none;"></div>
+          <!-- Compulsory levies (apply to all) -->
+          <div class="fee-edit-card">
+            <h4>&#128203; Other Compulsory Fees (All Classes)</h4>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Development Levy — Per Term<span>School infrastructure &amp; maintenance</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-dev-levy" value="5000" min="0" step="500" onchange="updateFeeStats()" /></div>
+            </div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">PTA Dues — Per Session<span>Parent-Teacher Association annual dues</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-pta" value="2000" min="0" step="500" /></div>
+            </div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Sports / Cultural Levy<span>Annual inter-house sports and cultural day</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-sports" value="1500" min="0" step="500" /></div>
+            </div>
+            <div class="fee-edit-row">
+              <div class="fee-edit-label">Medical / Health Check<span>Annual school health screening</span></div>
+              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-medical" value="1000" min="0" step="500" /></div>
+            </div>
+          </div>
+
+          <!-- Save bar -->
+          <div class="fee-save-bar">
+            <span class="fee-last-saved" id="fee-last-saved">Last saved: not yet saved this session</span>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-outline-navy btn-sm" onclick="resetFees()">&#8635; Reset to Default</button>
+              <button class="btn btn-navy" onclick="saveFees()">&#128190; Save Changes</button>
             </div>
           </div>
         </div>
 
-        <!-- Manual upload verifier -->
+        <!-- Fee summary table (auto-generated from inputs) -->
         <div class="card">
-          <h3>🔍 Verify a Receipt Manually</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">
-            Upload any bank receipt (PDF or image) to verify it against the school account number and check the amount.
-          </p>
+          <h3>&#128203; Current Fee Summary — What Students See</h3>
+          <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">This is a preview of the fees as they appear to students in their portal.</p>
+          <div class="tbl-wrap">
+            <table class="fee-summary-table">
+              <thead><tr><th>Fee Item</th><th>Nursery 1–3</th><th>Primary 1–5</th><th>Primary 6</th></tr></thead>
+              <tbody id="fee-summary-tbody">
+                <!-- Populated by renderFeeSummary() -->
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:14px;" class="notif info">
+            <span>ℹ️</span>
+            <div><h4>How students are notified</h4>
+              <p>Updated fees are immediately visible in the student portal under the <strong>School Fees</strong> tab. To formally notify parents, send an announcement from the Announcements section.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Late payment and penalty settings -->
+        <div class="card">
+          <h3>&#9200; Payment Deadline &amp; Remarks</h3>
           <div class="form-row">
             <div class="form-group">
-              <label>Expected Amount (₦)</label>
-              <input type="number" id="manual-expected-amt" placeholder="e.g. 45000" min="100" />
+              <label>Payment Deadline — 3rd Term 2025</label>
+              <input type="date" id="fee-deadline" value="2025-02-14" />
             </div>
             <div class="form-group">
-              <label>Upload Receipt (PDF or Image)</label>
-              <input type="file" id="manual-receipt-file" accept="image/*,.pdf" onchange="verifyAdminReceipt()" />
+              <label>Late Payment Penalty (&#x20a6;)</label>
+              <input type="number" id="fee-penalty" value="2000" min="0" step="500" placeholder="e.g. 2000" />
             </div>
           </div>
-          <div class="receipt-verifier" id="admin-manual-verify" style="display:none;"></div>
+          <div class="form-group">
+            <label>Payment Note to Students / Parents</label>
+            <textarea id="fee-note" rows="3" placeholder="e.g. All fees must be paid before the resumption date to avoid disruption to your child&#39;s schooling.">All fees must be paid in full before or on the resumption date. Late payment attracts a penalty as stated above. Please contact the school bursar for payment arrangements.</textarea>
+          </div>
+          <button class="btn btn-navy btn-sm" onclick="saveDeadline()">&#128190; Save Deadline &amp; Note</button>
         </div>
+
       </div>
 
-            <!-- ═══ RESULTS ═══ -->
+
+      <!-- ═══ RESULTS ═══ -->
       <div id="ap-results" class="stab-pane">
         <div class="card">
-          <h3>📊 Results Management — 3rd Term 2024/2025</h3>
+          <h3>&#128202; Results Management &mdash; 3rd Term 2024/2025</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Class</th><th>Class Teacher</th><th>Students</th><th>Upload Status</th><th>Uploaded</th><th>Action</th></tr></thead>
@@ -405,7 +446,7 @@
                 <tr><td><strong>Primary 6A</strong></td><td>Mr. Chukwu</td><td>42</td><td><span class="badge b-green" id="res-badge-p6a">Published</span></td><td>Mar 18</td><td><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 6A','Mr. Chukwu','Published')">View</button></td></tr>
                 <tr><td><strong>Primary 5B</strong></td><td>Mrs. Adamu</td><td>38</td><td><span class="badge b-yellow" id="res-badge-p5b">Awaiting Approval</span></td><td>Mar 17</td><td><button class="btn btn-green btn-sm" id="res-btn-p5b" onclick="publishResults('p5b','Primary 5B')">Approve &amp; Publish</button></td></tr>
                 <tr><td><strong>Primary 3A</strong></td><td>Mr. Lawal</td><td>35</td><td><span class="badge b-green" id="res-badge-p3a">Published</span></td><td>Mar 16</td><td><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 3A','Mr. Lawal','Published')">View</button></td></tr>
-                <tr><td><strong>Nursery 2</strong></td><td>Miss Okoye</td><td>28</td><td><span class="badge b-red" id="res-badge-n2">Not Uploaded</span></td><td>—</td><td><button class="btn btn-outline-navy btn-sm" onclick="sendReminder('Miss Okoye','Nursery 2')">📢 Remind</button></td></tr>
+                <tr><td><strong>Nursery 2</strong></td><td>Miss Okoye</td><td>28</td><td><span class="badge b-red" id="res-badge-n2">Not Uploaded</span></td><td>&mdash;</td><td><button class="btn btn-outline-navy btn-sm" onclick="sendReminder('Miss Okoye','Nursery 2')">&#128226; Remind</button></td></tr>
                 <tr><td><strong>Nursery 1</strong></td><td>Mrs. Balogun</td><td>25</td><td><span class="badge b-yellow" id="res-badge-n1">Awaiting Approval</span></td><td>Mar 14</td><td><button class="btn btn-green btn-sm" id="res-btn-n1" onclick="publishResults('n1','Nursery 1')">Approve &amp; Publish</button></td></tr>
               </tbody>
             </table>
@@ -416,11 +457,11 @@
       <!-- ═══ ANNOUNCEMENTS ═══ -->
       <div id="ap-announcements" class="stab-pane">
         <div class="card">
-          <h3>📢 Create Announcement</h3>
+          <h3>&#128226; Create Announcement</h3>
           <div class="form-row">
             <div class="form-group"><label>Target Audience *</label>
               <select id="ann-audience">
-                <option value="">— Select audience —</option>
+                <option value="">&#8212; Select audience &#8212;</option>
                 <option>Everyone (Students, Teachers &amp; Parents)</option>
                 <option>All Students</option><option>All Teachers</option>
                 <option>All Parents</option><option>Specific Class</option>
@@ -429,21 +470,21 @@
             <div class="form-group"><label>Priority Level</label>
               <select id="ann-priority">
                 <option value="normal">Normal</option>
-                <option value="important">Important ⭐</option>
-                <option value="urgent">Urgent 🚨</option>
+                <option value="important">Important &#11088;</option>
+                <option value="urgent">Urgent &#128680;</option>
               </select>
             </div>
           </div>
           <div class="form-group"><label>Announcement Title *</label><input id="ann-title" placeholder="e.g. Third Term Closing Date — March 28, 2025" /></div>
           <div class="form-group"><label>Message Body *</label><textarea id="ann-body" rows="5" placeholder="Type your full announcement here..."></textarea></div>
-          <button class="btn btn-navy" onclick="sendAnnouncement()">📢 Send Announcement</button>
+          <button class="btn btn-navy" onclick="sendAnnouncement()">&#128226; Send Announcement</button>
         </div>
         <div class="card">
-          <h3>📄 Recent Announcements</h3>
+          <h3>&#128196; Recent Announcements</h3>
           <div id="announcements-list">
-            <div class="ann-item normal"><h4>School Closes March 28, 2025 — Third Term</h4><p>Sent to Everyone · Mar 10, 2025 · 892 recipients</p></div>
-            <div class="ann-item important"><h4>PTA Meeting — Saturday March 22</h4><p>Sent to All Parents · Mar 8, 2025 · 524 parents notified</p></div>
-            <div class="ann-item normal"><h4>Inter-House Sports Day — March 15</h4><p>Sent to Everyone · Mar 5, 2025 · 892 recipients</p></div>
+            <div class="ann-item normal"><h4>School Closes March 28, 2025 &mdash; Third Term</h4><p>Sent to Everyone &middot; Mar 10, 2025 &middot; 892 recipients</p></div>
+            <div class="ann-item important"><h4>PTA Meeting &mdash; Saturday March 22</h4><p>Sent to All Parents &middot; Mar 8, 2025 &middot; 524 parents notified</p></div>
+            <div class="ann-item normal"><h4>Inter-House Sports Day &mdash; March 15</h4><p>Sent to Everyone &middot; Mar 5, 2025 &middot; 892 recipients</p></div>
           </div>
         </div>
       </div>
@@ -453,31 +494,31 @@
 </div>
 
 <!-- ═══ MODALS ═══ -->
-<div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">✕</button><h2>📋 Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
-<div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">✕</button><h2>🎒 Student Profile</h2><div id="modal-student-body"></div></div></div>
-<div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">✕</button><h2>👩‍🏫 Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
+<div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">&#10005;</button><h2>&#128203; Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
+<div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">&#10005;</button><h2>&#127952; Student Profile</h2><div id="modal-student-body"></div></div></div>
+<div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">&#10005;</button><h2>&#128105;&#8205;&#127979; Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
+<div class="admin-modal-overlay" id="modal-results"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-results')">&#10005;</button><h2>&#128202; Results Preview</h2><div id="modal-results-body"></div></div></div>
+<div class="admin-modal-overlay" id="modal-contact"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-contact')">&#10005;</button><h2>&#128172; Send Message</h2><div id="modal-contact-name" style="font-weight:700;color:var(--navy);margin-bottom:16px;font-size:15px;"></div><div class="form-group"><label>Subject *</label><input id="contact-subject" placeholder="e.g. Results submission reminder" /></div><div class="form-group"><label>Message *</label><textarea id="contact-body" rows="4" placeholder="Type your message..."></textarea></div><button class="btn btn-navy" onclick="sendContactMessage()">&#128228; Send</button></div></div>
+<div class="admin-modal-overlay" id="modal-add-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-student')">&#10005;</button><h2>&#10133; Add New Student</h2><div class="form-row"><div class="form-group"><label>First Name *</label><input id="new-stu-fname" placeholder="First name" /></div><div class="form-group"><label>Last Name *</label><input id="new-stu-lname" placeholder="Last name" /></div></div><div class="form-row"><div class="form-group"><label>Class *</label><select id="new-stu-class"><option value="">&#8212; Select &#8212;</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Gender *</label><select id="new-stu-gender"><option value="">&#8212; Select &#8212;</option><option>Male</option><option>Female</option></select></div></div><div class="form-group"><label>Parent/Guardian Name *</label><input id="new-stu-parent" placeholder="Full name" /></div><div class="form-group"><label>Parent Phone *</label><input id="new-stu-phone" placeholder="080X XXX XXXX" /></div><button class="btn btn-navy" onclick="saveNewStudent()">&#128190; Save Student</button></div></div>
+<div class="admin-modal-overlay" id="modal-add-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-teacher')">&#10005;</button><h2>&#10133; Add New Teacher</h2><div class="form-row"><div class="form-group"><label>Full Name *</label><input id="new-tch-name" placeholder="e.g. Mrs. Ada Nwosu" /></div><div class="form-group"><label>Phone *</label><input id="new-tch-phone" placeholder="080X XXX XXXX" /></div></div><div class="form-row"><div class="form-group"><label>Class Assigned *</label><select id="new-tch-class"><option value="">&#8212; Select &#8212;</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Subject *</label><input id="new-tch-subject" placeholder="e.g. Mathematics" /></div></div><div class="form-group"><label>Email Address *</label><input id="new-tch-email" type="email" placeholder="teacher@beginnersfieldschool.edu.ng" /></div><button class="btn btn-navy" onclick="saveNewTeacher()">&#128190; Save Teacher</button></div></div>
 
-<div class="admin-modal-overlay" id="modal-results"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-results')">✕</button><h2>📊 Results Preview</h2><div id="modal-results-body"></div></div></div>
-<div class="admin-modal-overlay" id="modal-contact"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-contact')">✕</button><h2>💬 Send Message</h2><div id="modal-contact-name" style="font-weight:700;color:var(--navy);margin-bottom:16px;font-size:15px;"></div><div class="form-group"><label>Subject *</label><input id="contact-subject" placeholder="e.g. Results submission reminder" /></div><div class="form-group"><label>Message *</label><textarea id="contact-body" rows="4" placeholder="Type your message..."></textarea></div><button class="btn btn-navy" onclick="sendContactMessage()">📤 Send</button></div></div>
-
-<div class="admin-modal-overlay" id="modal-add-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-student')">✕</button><h2>➕ Add New Student</h2><div class="form-row"><div class="form-group"><label>First Name *</label><input id="new-stu-fname" placeholder="First name" /></div><div class="form-group"><label>Last Name *</label><input id="new-stu-lname" placeholder="Last name" /></div></div><div class="form-row"><div class="form-group"><label>Class *</label><select id="new-stu-class"><option value="">— Select —</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Gender *</label><select id="new-stu-gender"><option value="">— Select —</option><option>Male</option><option>Female</option></select></div></div><div class="form-group"><label>Parent/Guardian Name *</label><input id="new-stu-parent" placeholder="Full name" /></div><div class="form-group"><label>Parent Phone *</label><input id="new-stu-phone" placeholder="080X XXX XXXX" /></div><button class="btn btn-navy" onclick="saveNewStudent()">💾 Save Student</button></div></div>
-
-<div class="admin-modal-overlay" id="modal-add-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-teacher')">✕</button><h2>➕ Add New Teacher</h2><div class="form-row"><div class="form-group"><label>Full Name *</label><input id="new-tch-name" placeholder="e.g. Mrs. Ada Nwosu" /></div><div class="form-group"><label>Phone *</label><input id="new-tch-phone" placeholder="080X XXX XXXX" /></div></div><div class="form-row"><div class="form-group"><label>Class Assigned *</label><select id="new-tch-class"><option value="">— Select —</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Subject *</label><input id="new-tch-subject" placeholder="e.g. Mathematics" /></div></div><div class="form-group"><label>Email Address *</label><input id="new-tch-email" type="email" placeholder="teacher@beginnersfieldschool.edu.ng" /></div><button class="btn btn-navy" onclick="saveNewTeacher()">💾 Save Teacher</button></div></div>
-
-<div id="toast">🔔 <span id="toast-text"></span></div>
+<div id="toast">&#128276; <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
 
+  /* ── PDF.js worker ── */
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
+
+  /* ── Auth ── */
   const _user = requireAuth('admin');
   injectUserInfo(_user);
   document.getElementById('admin-sub').textContent =
-    'Welcome back, ' + _user.name + ' — ' + _user.title + ' · Beginner\'s Field School';
+    'Welcome back, ' + _user.name + ' \u2014 ' + _user.title + ' \u00b7 Beginner\'s Field School';
 
   /* ── Tab switcher ── */
   function switchToTab(name, el) {
@@ -488,6 +529,7 @@
     if (el && el.classList) {
       el.classList.add('active');
     } else {
+      /* FIX 13: fallback highlights matching sidebar link when called without el (e.g. from mobile nav) */
       document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(link => {
         if ((link.getAttribute('onclick') || '').includes("'" + name + "'")) link.classList.add('active');
       });
@@ -506,8 +548,8 @@
     const badge = document.getElementById('ov-badge-' + key);
     const btn   = document.getElementById('ov-btn-' + key);
     if (badge) { badge.textContent = 'Approved'; badge.className = 'badge b-green'; }
-    if (btn)   { btn.disabled = true; btn.textContent = '✓ Approved'; btn.style.opacity = '0.5'; }
-    toast('✅ ' + name + ' approved!');
+    if (btn)   { btn.disabled = true; btn.textContent = '\u2713 Approved'; btn.style.opacity = '0.5'; }
+    toast('\u2705 ' + name + ' approved!');
   }
 
   /* ── Admissions table approve/reject ── */
@@ -516,8 +558,8 @@
     const badge = row.querySelector('.adm-badge');
     if (badge) { badge.textContent = 'Approved'; badge.className = 'adm-badge badge b-green'; }
     row.setAttribute('data-status', 'Approved');
-    btn.closest('td').innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter(\'' + name + '\',\'\',\'\')">📄 Letter</button>';
-    toast('✅ ' + name + ' approved! Letter is ready.');
+    btn.closest('td').innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter(\'' + name + '\',\'\',\'\')">&#128196; Letter</button>';
+    toast('\u2705 ' + name + ' approved! Letter is ready.');
   }
 
   function rejectAdmission(btn, name) {
@@ -530,88 +572,98 @@
     toast('Application for ' + name + ' rejected.');
   }
 
-  /* ── View application modal ── */
+  /* ── View application modal ──
+     FIX 8: Use string concatenation instead of template literals with
+     embedded onclick handlers to avoid quote-clash issues */
   function viewApplication(name, cls, parent, phone, status) {
     const col = status === 'Approved' ? '#15803d' : status === 'Rejected' ? '#dc2626' : '#92400e';
-    document.getElementById('modal-application-body').innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">
-        <div class="receipt-detail"><span>Student Name</span><strong>${name}</strong></div>
-        <div class="receipt-detail"><span>Class Applied</span><strong>${cls||'—'}</strong></div>
-        <div class="receipt-detail"><span>Parent/Guardian</span><strong>${parent||'—'}</strong></div>
-        <div class="receipt-detail"><span>Phone</span><strong>${phone||'—'}</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong style="color:${col}">${status}</strong></div>
-      </div>`;
+    document.getElementById('modal-application-body').innerHTML =
+      '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
+        '<div class="receipt-detail"><span>Student Name</span><strong>' + name + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls || '\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent || '\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone || '\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
+      '</div>';
     const actEl = document.getElementById('modal-application-actions');
-    actEl.innerHTML = status === 'Pending'
-      ? `<button class="btn btn-green" onclick="toast('${name} approved!');closeAdminModal('modal-application')">✓ Approve</button>
-         <button class="btn btn-red"   onclick="toast('${name} rejected.');closeAdminModal('modal-application')">✗ Reject</button>`
-      : '';
+    if (status === 'Pending') {
+      actEl.innerHTML =
+        '<button class="btn btn-green" onclick="toast(\'' + name + ' approved!\');closeAdminModal(\'modal-application\')">\u2713 Approve</button>' +
+        '<button class="btn btn-red" onclick="toast(\'' + name + ' rejected.\');closeAdminModal(\'modal-application\')">\u2717 Reject</button>';
+    } else {
+      actEl.innerHTML = '';
+    }
     openAdminModal('modal-application');
   }
 
   /* ── Print admission letter ── */
   function printAdmissionLetter(name, cls, parent) {
-    const win = window.open('', '_blank');
+    const win   = window.open('', '_blank');
     const today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
-    win.document.write(`<!DOCTYPE html><html><head><title>Admission Letter — ${name}</title>
-    <style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}
-    .header{text-align:center;border-bottom:3px solid #0a1f44;padding-bottom:20px;margin-bottom:30px;}
-    h1{color:#0a1f44;font-size:20px;margin-bottom:4px;}.sub{color:#6b7280;font-size:12px;}
-    .body-text{font-size:14px;line-height:1.9;}
-    .highlight{background:#fffbea;border-left:4px solid #f5c200;padding:14px 18px;border-radius:6px;margin:20px 0;}
-    .footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:40px;border-top:1px solid #e5e7eb;padding-top:14px;}
-    @media print{button{display:none;}}</style></head><body>
-    <div class="header"><h1>🌱 Beginner's Field Nursery &amp; Primary School</h1>
-    <p class="sub">12 Education Avenue, Lekki, Lagos · info@beginnersfieldschool.edu.ng</p></div>
-    <p style="text-align:right;font-size:13px;color:#6b7280;">${today}</p>
-    <p class="body-text">Dear <strong>${parent||'Parent/Guardian'}</strong>,</p>
-    <p class="body-text">We are delighted to inform you that the application for <strong>${name}</strong> has been <strong>successful</strong>.</p>
-    <div class="highlight"><strong>Class:</strong> ${cls||'As discussed'}<br><strong>Session:</strong> 2025/2026<br><strong>School:</strong> Beginner's Field Nursery &amp; Primary School</div>
-    <p class="body-text">Please visit the school office to complete enrolment, pay the acceptance fee and collect the registration pack. Bring two passport photographs and a copy of the birth certificate.</p>
-    <p class="body-text">We look forward to welcoming ${name.split(' ')[0]} into our school family.</p>
-    <br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal, Beginner's Field Nursery &amp; Primary School</p>
-    <div class="footer">Generated by the Beginner's Field School Portal</div>
-    <br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Print Letter</button>
-    </body></html>`);
+    win.document.write(
+      '<!DOCTYPE html><html><head><title>Admission Letter \u2014 ' + name + '</title>' +
+      '<style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}' +
+      '.header{text-align:center;border-bottom:3px solid #0a1f44;padding-bottom:20px;margin-bottom:30px;}' +
+      'h1{color:#0a1f44;font-size:20px;margin-bottom:4px;}.sub{color:#6b7280;font-size:12px;}' +
+      '.body-text{font-size:14px;line-height:1.9;}' +
+      '.highlight{background:#fffbea;border-left:4px solid #f5c200;padding:14px 18px;border-radius:6px;margin:20px 0;}' +
+      '.footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:40px;border-top:1px solid #e5e7eb;padding-top:14px;}' +
+      '@media print{button{display:none;}}</style></head><body>' +
+      '<div class="header"><h1>\ud83c\udf31 Beginner\'s Field Nursery &amp; Primary School</h1>' +
+      '<p class="sub">12 Education Avenue, Lekki, Lagos &middot; info@beginnersfieldschool.edu.ng</p></div>' +
+      '<p style="text-align:right;font-size:13px;color:#6b7280;">' + today + '</p>' +
+      '<p class="body-text">Dear <strong>' + (parent || 'Parent/Guardian') + '</strong>,</p>' +
+      '<p class="body-text">We are delighted to inform you that the application for <strong>' + name + '</strong> has been <strong>successful</strong>.</p>' +
+      '<div class="highlight"><strong>Class:</strong> ' + (cls || 'As discussed') + '<br><strong>Session:</strong> 2025/2026<br><strong>School:</strong> Beginner\'s Field Nursery &amp; Primary School</div>' +
+      '<p class="body-text">Please visit the school office to complete enrolment, pay the acceptance fee and collect the registration pack. Bring two passport photographs and a copy of the birth certificate.</p>' +
+      '<p class="body-text">We look forward to welcoming ' + name.split(' ')[0] + ' into our school family.</p>' +
+      '<br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal, Beginner\'s Field Nursery &amp; Primary School</p>' +
+      '<div class="footer">Generated by the Beginner\'s Field School Portal</div>' +
+      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">\ud83d\udda8\ufe0f Print Letter</button>' +
+      '</body></html>'
+    );
     win.document.close();
     toast('Admission letter opened in new tab.');
   }
 
-  /* ── Student profile modal ── */
+  /* ── Student profile modal ──
+     FIX 9: pre-compute firstName to avoid .split(' ') inside an onclick attribute */
   function viewStudentProfile(name, cls, gender, id, att, fees, status) {
-    const fc = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
-    document.getElementById('modal-student-body').innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;">
-        <div class="receipt-detail"><span>Student ID</span><strong>${id}</strong></div>
-        <div class="receipt-detail"><span>Full Name</span><strong>${name}</strong></div>
-        <div class="receipt-detail"><span>Class</span><strong>${cls}</strong></div>
-        <div class="receipt-detail"><span>Gender</span><strong>${gender}</strong></div>
-        <div class="receipt-detail"><span>Attendance</span><strong>${att}</strong></div>
-        <div class="receipt-detail"><span>Fee Status</span><strong style="color:${fc}">${fees}</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">${status}</strong></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-        <button class="btn btn-navy btn-sm" onclick="toast('Editing ${name} — feature coming soon.')">✏️ Edit</button>
-        <button class="btn btn-outline-navy btn-sm" onclick="toast('Reminder sent to parent of ${name.split(' ')[0]}.')">💳 Send Fee Reminder</button>
-      </div>`;
+    const fc        = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
+    const firstName = name.split(' ')[0];
+    document.getElementById('modal-student-body').innerHTML =
+      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
+        '<div class="receipt-detail"><span>Student ID</span><strong>' + id + '</strong></div>' +
+        '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
+        '<div class="receipt-detail"><span>Gender</span><strong>' + gender + '</strong></div>' +
+        '<div class="receipt-detail"><span>Attendance</span><strong>' + att + '</strong></div>' +
+        '<div class="receipt-detail"><span>Fee Status</span><strong style="color:' + fc + '">' + fees + '</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
+        '<button class="btn btn-navy btn-sm" onclick="toast(\'Editing ' + name + ' \u2014 coming soon.\')">&#9999; Edit</button>' +
+        /* FIX 9: firstName pre-computed above, no .split inside onclick */
+        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Reminder sent to parent of ' + firstName + '.\')">&#128179; Send Fee Reminder</button>' +
+      '</div>';
     openAdminModal('modal-student');
   }
 
   /* ── Teacher view/contact ── */
   function viewTeacher(name, cls, subject, phone, att, status) {
-    document.getElementById('modal-teacher-body').innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;">
-        <div class="receipt-detail"><span>Full Name</span><strong>${name}</strong></div>
-        <div class="receipt-detail"><span>Class</span><strong>${cls}</strong></div>
-        <div class="receipt-detail"><span>Subject</span><strong>${subject}</strong></div>
-        <div class="receipt-detail"><span>Phone</span><strong>${phone}</strong></div>
-        <div class="receipt-detail"><span>Attendance</span><strong>${att}</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong>${status}</strong></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-        <button class="btn btn-navy btn-sm" onclick="closeAdminModal('modal-teacher');contactTeacher('${name}')">📧 Send Message</button>
-        <button class="btn btn-outline-navy btn-sm" onclick="toast('Editing ${name} — coming soon.')">✏️ Edit</button>
-      </div>`;
+    document.getElementById('modal-teacher-body').innerHTML =
+      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
+        '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
+        '<div class="receipt-detail"><span>Subject</span><strong>' + subject + '</strong></div>' +
+        '<div class="receipt-detail"><span>Phone</span><strong>' + phone + '</strong></div>' +
+        '<div class="receipt-detail"><span>Attendance</span><strong>' + att + '</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong>' + status + '</strong></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
+        '<button class="btn btn-navy btn-sm" onclick="closeAdminModal(\'modal-teacher\');contactTeacher(\'' + name + '\')">&#128231; Send Message</button>' +
+        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Editing ' + name + ' \u2014 coming soon.\')">&#9999; Edit</button>' +
+      '</div>';
     openAdminModal('modal-teacher');
   }
 
@@ -631,34 +683,34 @@
     let valid = true;
     if (!s.value.trim()) { s.classList.add('field-error'); valid = false; }
     if (!b.value.trim()) { b.classList.add('field-error'); valid = false; }
-    if (!valid) { toast('⚠️ Please fill in subject and message.'); return; }
-    toast('✅ Message sent to ' + _contactName + '!');
+    if (!valid) { toast('\u26a0\ufe0f Please fill in subject and message.'); return; }
+    toast('\u2705 Message sent to ' + _contactName + '!');
     closeAdminModal('modal-contact');
   }
 
   /* ── Results publish/view ── */
   function viewResults(cls, teacher, status) {
-    document.getElementById('modal-results-body').innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">
-        <div class="receipt-detail"><span>Class</span><strong>${cls}</strong></div>
-        <div class="receipt-detail"><span>Class Teacher</span><strong>${teacher}</strong></div>
-        <div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">${status}</strong></div>
-      </div>
-      <div class="notif ok"><span>✅</span><div><h4>Results Published</h4><p>Students and parents can now view results in their portal</p></div></div>`;
+    document.getElementById('modal-results-body').innerHTML =
+      '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
+        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
+        '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
+      '</div>' +
+      '<div class="notif ok"><span>\u2705</span><div><h4>Results Published</h4><p>Students and parents can now view results in their portal</p></div></div>';
     openAdminModal('modal-results');
   }
 
   function publishResults(key, cls) {
     const badge = document.getElementById('res-badge-' + key);
-    const btn   = document.getElementById('res-btn-'   + key);
+    const btn   = document.getElementById('res-btn-' + key);
     if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
     if (btn)   { btn.outerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'\',\'Published\')">View</button>'; }
-    toast('✅ ' + cls + ' results published to students!');
+    toast('\u2705 ' + cls + ' results published to students!');
   }
 
   function sendReminder(teacher, cls) {
-    toast('📢 Reminder sent to ' + teacher + ' (' + cls + ') to upload results.');
+    toast('\ud83d\udce2 Reminder sent to ' + teacher + ' (' + cls + ') to upload results.');
   }
 
   /* ── Announcements ── */
@@ -669,22 +721,23 @@
     const pri   = document.getElementById('ann-priority');
     [aud, title, body].forEach(el => el.classList.remove('field-error'));
     let valid = true;
-    if (!aud.value)        { aud.classList.add('field-error');   valid = false; }
+    if (!aud.value)          { aud.classList.add('field-error');   valid = false; }
     if (!title.value.trim()) { title.classList.add('field-error'); valid = false; }
     if (!body.value.trim())  { body.classList.add('field-error');  valid = false; }
-    if (!valid) { toast('⚠️ Please fill in all required fields.'); return; }
+    if (!valid) { toast('\u26a0\ufe0f Please fill in all required fields.'); return; }
     const audience = aud.options[aud.selectedIndex].text;
-    const today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
-    const div = document.createElement('div');
-    div.className = 'ann-item ' + pri.value;
-    div.innerHTML = '<h4>' + title.value.trim() + '</h4><p>Sent to ' + audience + ' · ' + today + '</p>';
-    const list = document.getElementById('announcements-list');
+    const today    = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+    const div      = document.createElement('div');
+    div.className  = 'ann-item ' + pri.value;
+    div.innerHTML  = '<h4>' + title.value.trim() + '</h4><p>Sent to ' + audience + ' \u00b7 ' + today + '</p>';
+    const list     = document.getElementById('announcements-list');
     list.insertBefore(div, list.firstChild);
-    toast('📢 Announcement sent to ' + audience + '!');
+    toast('\ud83d\udce2 Announcement sent to ' + audience + '!');
     title.value = ''; body.value = ''; aud.value = '';
   }
 
-  /* ── Add Student ── */
+  /* ── Add Student ──
+     FIX 10: avoid apostrophe-in-onclick by using data attrs instead of inline args */
   function saveNewStudent() {
     const fname  = document.getElementById('new-stu-fname').value.trim();
     const lname  = document.getElementById('new-stu-lname').value.trim();
@@ -692,38 +745,94 @@
     const gender = document.getElementById('new-stu-gender').value;
     const parent = document.getElementById('new-stu-parent').value.trim();
     const phone  = document.getElementById('new-stu-phone').value.trim();
-    if (!fname || !lname || !cls || !gender || !parent || !phone) { toast('⚠️ Please fill in all fields.'); return; }
+    if (!fname || !lname || !cls || !gender || !parent || !phone) {
+      toast('\u26a0\ufe0f Please fill in all fields.'); return;
+    }
     const name  = fname + ' ' + lname;
     const tbody = document.getElementById('students-tbody');
     const id    = 'BFS/2025/00' + (tbody.querySelectorAll('tr').length + 5);
     const row   = document.createElement('tr');
-    row.setAttribute('data-name', name); row.setAttribute('data-class', cls);
-    row.innerHTML = `<td>${id}</td><td><strong>${name}</strong></td><td>${cls}</td><td>${gender}</td><td><span class="badge b-yellow">Pending</span></td><td>—</td><td><span class="badge b-green">Active</span></td><td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('${name}','${cls}','${gender}','${id}','—','Pending','Active')">View</button></td>`;
+    row.setAttribute('data-name', name);
+    row.setAttribute('data-class', cls);
+    /* FIX 10: store params as data attributes, call via a named function */
+    row.setAttribute('data-id', id);
+    row.setAttribute('data-gender', gender);
+    row.setAttribute('data-fees', 'Pending');
+    row.setAttribute('data-att', '\u2014');
+    row.innerHTML =
+      '<td>' + id + '</td>' +
+      '<td><strong>' + name + '</strong></td>' +
+      '<td>' + cls + '</td>' +
+      '<td>' + gender + '</td>' +
+      '<td><span class="badge b-yellow">Pending</span></td>' +
+      '<td>\u2014</td>' +
+      '<td><span class="badge b-green">Active</span></td>' +
+      '<td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentRow(this)">View</button></td>';
     tbody.appendChild(row);
-    toast('✅ ' + name + ' added to ' + cls + '!');
+    toast('\u2705 ' + name + ' added to ' + cls + '!');
     closeAdminModal('modal-add-student');
     ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('new-stu-class').value = '';
+    document.getElementById('new-stu-class').value  = '';
     document.getElementById('new-stu-gender').value = '';
   }
 
-  /* ── Add Teacher ── */
+  /* FIX 10: reads params from data attributes — no apostrophe risk */
+  function viewStudentRow(btn) {
+    const row = btn.closest('tr');
+    viewStudentProfile(
+      row.dataset.name,
+      row.dataset.class,
+      row.dataset.gender,
+      row.dataset.id,
+      row.dataset.att || '\u2014',
+      row.dataset.fees || 'Pending',
+      'Active'
+    );
+  }
+
+  /* ── Add Teacher ──
+     FIX 11: same pattern — store in data attrs, call via viewTeacherRow */
   function saveNewTeacher() {
     const name    = document.getElementById('new-tch-name').value.trim();
     const phone   = document.getElementById('new-tch-phone').value.trim();
     const cls     = document.getElementById('new-tch-class').value;
     const subject = document.getElementById('new-tch-subject').value.trim();
     const email   = document.getElementById('new-tch-email').value.trim();
-    if (!name || !phone || !cls || !subject || !email) { toast('⚠️ Please fill in all fields.'); return; }
+    if (!name || !phone || !cls || !subject || !email) {
+      toast('\u26a0\ufe0f Please fill in all fields.'); return;
+    }
     const tbody = document.getElementById('teachers-tbody');
     const row   = document.createElement('tr');
     row.setAttribute('data-name', name);
-    row.innerHTML = `<td><strong>${name}</strong></td><td>${cls}</td><td>${subject}</td><td>${phone}</td><td>—</td><td><span class="badge b-yellow">Pending</span></td><td><span class="badge b-green">Active</span></td><td style="display:flex;gap:5px;"><button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('${name}','${cls}','${subject}','${phone}','—','Active')">View</button><button class="btn btn-navy btn-sm" onclick="contactTeacher('${name}')">📧</button></td>`;
+    row.setAttribute('data-class', cls);
+    row.setAttribute('data-subject', subject);
+    row.setAttribute('data-phone', phone);
+    row.innerHTML =
+      '<td><strong>' + name + '</strong></td>' +
+      '<td>' + cls + '</td>' +
+      '<td>' + subject + '</td>' +
+      '<td>' + phone + '</td>' +
+      '<td>\u2014</td>' +
+      '<td><span class="badge b-yellow">Pending</span></td>' +
+      '<td><span class="badge b-green">Active</span></td>' +
+      '<td style="display:flex;gap:5px;">' +
+        '<button class="btn btn-outline-navy btn-sm" onclick="viewTeacherRow(this)">View</button>' +
+        '<button class="btn btn-navy btn-sm" onclick="contactTeacherRow(this)">&#128231;</button>' +
+      '</td>';
     tbody.appendChild(row);
-    toast('✅ ' + name + ' added as teacher for ' + cls + '!');
+    toast('\u2705 ' + name + ' added as teacher for ' + cls + '!');
     closeAdminModal('modal-add-teacher');
     ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(i => document.getElementById(i).value = '');
     document.getElementById('new-tch-class').value = '';
+  }
+
+  /* FIX 11: reads params from data attributes — no apostrophe risk */
+  function viewTeacherRow(btn) {
+    const row = btn.closest('tr');
+    viewTeacher(row.dataset.name, row.dataset.class, row.dataset.subject, row.dataset.phone, '\u2014', 'Active');
+  }
+  function contactTeacherRow(btn) {
+    contactTeacher(btn.closest('tr').dataset.name);
   }
 
   /* ── Live filters ── */
@@ -753,197 +862,146 @@
       row.style.display = (!s || (row.dataset.name||'').toLowerCase().includes(s)) ? '' : 'none';
     });
   }
-  /* ── filter payment rows ── */
-  function filterPaymentsList() {
-    const s  = (document.getElementById('pay-search') || {value:''}).value.toLowerCase();
-    const st = (document.getElementById('pay-status-filter') || {value:''}).value;
-    document.querySelectorAll('#payments-list .adm-pay-row').forEach(row => {
-      const show = (!s  || (row.dataset.student||'').toLowerCase().includes(s))
-                && (!st || row.dataset.status === st);
-      row.style.display = show ? '' : 'none';
+
+
+  /* ═══════════════════════════════════════════════
+     SCHOOL FEE MANAGEMENT
+  ═══════════════════════════════════════════════ */
+
+  /* Default fee values — used by Reset button */
+  const FEE_DEFAULTS = {
+    'fee-nursery-tuition': 35000,
+    'fee-nursery-creche':   8000,
+    'fee-uniform':          3500,
+    'fee-primary-tuition': 45000,
+    'fee-ict':              3000,
+    'fee-exam':            10000,
+    'fee-dev-levy':         5000,
+    'fee-pta':              2000,
+    'fee-sports':           1500,
+    'fee-medical':          1000,
+  };
+
+  /* Update the stat cards at the top of the tab */
+  function updateFeeStats() {
+    const nursery = parseInt(document.getElementById('fee-nursery-tuition').value) || 0;
+    const primary = parseInt(document.getElementById('fee-primary-tuition').value) || 0;
+    const levy    = parseInt(document.getElementById('fee-dev-levy').value) || 0;
+    const ns = document.getElementById('fee-stat-nursery');
+    const ps = document.getElementById('fee-stat-primary');
+    const ls = document.getElementById('fee-stat-levy');
+    if (ns) ns.textContent = '₦' + nursery.toLocaleString();
+    if (ps) ps.textContent = '₦' + primary.toLocaleString();
+    if (ls) ls.textContent = '₦' + levy.toLocaleString();
+    renderFeeSummary();
+  }
+
+  /* Render the fee summary preview table */
+  function renderFeeSummary() {
+    const get = id => parseInt(document.getElementById(id).value) || 0;
+    const nursery  = get('fee-nursery-tuition');
+    const creche   = get('fee-nursery-creche');
+    const uniform  = get('fee-uniform');
+    const primary  = get('fee-primary-tuition');
+    const ict      = get('fee-ict');
+    const exam     = get('fee-exam');
+    const levy     = get('fee-dev-levy');
+    const pta      = get('fee-pta');
+    const sports   = get('fee-sports');
+    const medical  = get('fee-medical');
+
+    const fmt = n => '₦' + n.toLocaleString();
+    const na  = '<span style="color:var(--gray);">N/A</span>';
+
+    const nurseryTotal  = nursery + levy + pta + sports + medical;
+    const primaryTotal  = primary + levy + pta + sports + medical;
+    const primary6Total = primary + levy + pta + sports + medical + exam;
+
+    const rows = [
+      ['School Fees (Tuition)', fmt(nursery),  fmt(primary),  fmt(primary)],
+      ['Development Levy',      fmt(levy),     fmt(levy),     fmt(levy)],
+      ['PTA Dues',              fmt(pta),      fmt(pta),      fmt(pta)],
+      ['Sports / Cultural',     fmt(sports),   fmt(sports),   fmt(sports)],
+      ['Medical / Health',      fmt(medical),  fmt(medical),  fmt(medical)],
+      ['ICT / Computer Levy',   na,            fmt(ict),      fmt(ict)],
+      ['External Exam Fees',    na,            na,            fmt(exam)],
+      ['Uniform (per set)',      fmt(uniform),  fmt(uniform),  fmt(uniform)],
+    ];
+
+    const tbody = document.getElementById('fee-summary-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = rows.map(r =>
+      '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>'
+    ).join('') +
+    '<tr class="total-row"><td><strong>Total (excl. uniform)</strong></td>' +
+      '<td><strong>' + fmt(nurseryTotal) + '</strong></td>' +
+      '<td><strong>' + fmt(primaryTotal) + '</strong></td>' +
+      '<td><strong>' + fmt(primary6Total) + '</strong></td>' +
+    '</tr>';
+  }
+
+  /* Save fees — update stat cards + summary, show confirmation */
+  function saveFees() {
+    updateFeeStats();
+    const now = new Date().toLocaleString('en-GB', {
+      day:'numeric', month:'short', year:'numeric',
+      hour:'2-digit', minute:'2-digit'
     });
-  }
-  /* Keep old filterPayments as alias */
-  function filterPayments() { filterPaymentsList(); }
-
-  /* ── confirmPayment / rejectPayment ── */
-  function confirmPayment(ref, name) {
-    if (!confirm('Confirm payment for ' + name + '?')) return;
-    const row  = document.getElementById('payrow-' + ref);
-    const btn  = document.getElementById('pay-confirm-' + ref);
-    if (row) {
-      row.setAttribute('data-status','Confirmed');
-      const badge = row.querySelector('.badge');
-      if (badge) { badge.textContent = 'Confirmed'; badge.className = 'badge b-green'; }
-      /* remove confirm/reject buttons */
-      if (btn) btn.closest('div[style]') && btn.closest('div[style]').remove();
-    }
-    toast('✅ Payment confirmed for ' + name + '!');
-  }
-  function rejectPayment(ref, name) {
-    if (!confirm('Reject this payment from ' + name + '?')) return;
-    const row   = document.getElementById('payrow-' + ref);
-    if (row) {
-      row.setAttribute('data-status','Rejected');
-      const badge = row.querySelector('.badge');
-      if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
-    }
-    toast('Payment from ' + name + ' rejected. Student will be notified.');
+    const el = document.getElementById('fee-last-saved');
+    if (el) el.textContent = 'Last saved: ' + now;
+    toast('✅ Fee schedule saved! Students will see the updated amounts in their portal.');
   }
 
-  /* ════════════════════════════════════════════════
-     RECEIPT VERIFIER — shared logic
-  ════════════════════════════════════════════════ */
-  const SCHOOL_ACCOUNT = '1234567890';
-  const BANK_KEYWORDS  = ['moniepoint','transfer','debit','credit','transaction','payment','receipt',
-    'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
-    'ref','reference','date','success','successful','approved'];
-
-  async function extractPdfText(file) {
-    if (typeof pdfjsLib === 'undefined') return '[PDF.js not loaded]';
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const cnt  = await page.getTextContent();
-      text += cnt.items.map(t => t.str).join(' ') + '
-';
-    }
-    return text;
-  }
-
-  async function extractImageInfo(file) {
-    const name = file.name.toLowerCase();
-    let text = '[Image: ' + file.name + ' | ' + (file.size/1024).toFixed(1) + 'KB]';
-    if (['receipt','transfer','debit','teller','payment','moniepoint','bank','txn','trx']
-        .some(kw => name.includes(kw))) text += '
-[Filename: bank receipt indicator]';
-    return text;
-  }
-
-  function parseAmounts(text) {
-    const amounts = [];
-    [/(?:NGN|₦|naira)\s*([0-9][0-9,\s]*(?:\.[0-9]{2})?)/gi,
-     /([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/g,
-     /([0-9]{4,8}(?:\.[0-9]{2})?)/g
-    ].forEach(pat => {
-      let m;
-      while ((m = pat.exec(text)) !== null) {
-        const val = parseFloat(m[1].replace(/[\s,]/g,''));
-        if (val >= 100 && val <= 10000000) amounts.push(val);
-      }
+  /* Reset all fee inputs to defaults */
+  function resetFees() {
+    if (!confirm('Reset all fees to default values?')) return;
+    Object.entries(FEE_DEFAULTS).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
     });
-    return [...new Set(amounts)];
+    updateFeeStats();
+    toast('Fees reset to default values.');
   }
 
-  function isBankReceipt(text) {
-    const lower = text.toLowerCase();
-    const hits  = BANK_KEYWORDS.filter(kw => lower.includes(kw));
-    return { ok: hits.length >= 2, hits };
+  /* Save deadline and note */
+  function saveDeadline() {
+    const d = document.getElementById('fee-deadline').value;
+    const n = document.getElementById('fee-note').value.trim();
+    if (!d)  { toast('⚠️ Please set a payment deadline.'); return; }
+    if (!n)  { toast('⚠️ Please enter a payment note.'); return; }
+    const fmt = new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    toast('✅ Deadline set to ' + fmt + '. Note saved.');
   }
 
-  function renderVerifyResult(el, extractedText, expectedAmt, isPdf) {
-    const receiptCheck = isBankReceipt(extractedText);
-    const amounts      = parseAmounts(extractedText);
-    const acctCheck    = extractedText.includes(SCHOOL_ACCOUNT);
-    const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) / Math.max(expectedAmt,1) < 0.015);
-    const amountStatus = amounts.length === 0 ? 'unverifiable' : amountMatch ? 'match' : 'mismatch';
-    const overallOk    = receiptCheck.ok && (amountStatus !== 'mismatch');
+  /* Initialise fee summary on page load */
+  document.addEventListener('DOMContentLoaded', function() { renderFeeSummary(); });
 
-    el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
-
-    const amtLabel = amountStatus === 'match'
-      ? 'Matches ₦' + expectedAmt.toLocaleString()
-      : amountStatus === 'unverifiable'
-      ? 'Cannot verify in image — check manually'
-      : 'Expected ₦' + expectedAmt.toLocaleString() + ', found: ' + amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ');
-
-    const statusMsg = overallOk
-      ? (amountStatus === 'unverifiable' ? '⚠️ Receipt looks valid — amount requires manual check' : '✅ Receipt verified and amount matches')
-      : (receiptCheck.ok ? '⚠️ Document found but amount does not match — verify manually' : '❌ Does not appear to be a valid bank receipt');
-
-    const statusColor = overallOk && amountStatus !== 'unverifiable' ? 'var(--green-ok)'
-                      : overallOk ? '#d97706' : 'var(--red)';
-
-    let preview = extractedText.substring(0,300).trim();
-    if (preview.startsWith('[')) preview = '';
-
-    el.style.display = 'block';
-    el.innerHTML = `
-      <div class="verify-status" style="color:${statusColor};">
-        <span>${overallOk ? (amountStatus==='unverifiable'?'⚠️':'✅') : '❌'}</span>
-        <span>${statusMsg}</span>
-      </div>
-      <div class="verify-rows">
-        <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf?'PDF':'Image'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
-        <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'None found'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
-        <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:11.5px;">${amtLabel}</span><span class="${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
-        <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">${acctCheck?SCHOOL_ACCOUNT+' ✓':'Not found in file'}</span><span class="${acctCheck?'vr-pass':''}">${acctCheck?'✅':'⚠️'}</span></div>
-      </div>
-      ${preview?`<span class="preview-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('▼')?'▲ Hide text':'▼ Show text'">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">${preview}</div>`:''}`;
-    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-
-  /* For admin: verify a real uploaded file */
-  async function verifyAdminReceipt() {
-    const fileEl = document.getElementById('manual-receipt-file');
-    const amtEl  = document.getElementById('manual-expected-amt');
-    const el     = document.getElementById('admin-manual-verify');
-    if (!fileEl.files || fileEl.files.length === 0) return;
-    const file   = fileEl.files[0];
-    const expAmt = parseFloat((amtEl||{value:'0'}).value) || 0;
-    el.style.display = 'block';
-    el.className = 'receipt-verifier verifying';
-    el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading receipt…</span></div>';
-    let text = '', isPdf = false;
-    try {
-      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-        isPdf = true; text = await extractPdfText(file);
-      } else {
-        text = await extractImageInfo(file);
-      }
-    } catch(e) { text = '[Error: ' + e.message + ']'; }
-    renderVerifyResult(el, text, expAmt, isPdf);
-  }
-
-  /* For admin: simulate verifying a pre-submitted receipt (demo data) */
-  function simulateVerify(containerId, expectedAmt, fileType) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    el.style.display = 'block';
-    el.className = 'receipt-verifier verifying';
-    el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading submitted receipt…</span></div>';
-    /* Simulate async read then render with realistic demo data */
-    setTimeout(() => {
-      const demoText = fileType === 'pdf'
-        ? 'MONIEPOINT MFB
-Transaction Receipt
-Date: ' + new Date().toLocaleDateString() +
-          '
-Transaction Type: Transfer
-Account: 1234567890
-Beneficiary: BEGINNERS FIELD NURSERY PRIMARY SCHOOL
-' +
-          'Amount: NGN ' + expectedAmt.toLocaleString() + '.00
-Narration: School Payment
-' +
-          'Status: Successful
-Reference: ZB' + Math.floor(Math.random()*999999999)
-        : '[Image receipt — manual verification required]';
-      renderVerifyResult(el, demoText, expectedAmt, fileType === 'pdf');
-    }, 1200);
-  }
+  /* filterPayments kept as stub so no reference errors from any remaining calls */
+  function filterPaymentsList() {}
+  function filterPayments() {}
 
 </script>
 
+<!-- FIX 6: Payments button added to mobile bottom nav
+     FIX 13: All switchToTab calls pass null as second arg so sidebar fallback highlights correctly -->
 <nav class="mobile-bottom-nav">
   <div class="mobile-bottom-nav-inner">
-    <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)"><span class="mbn-icon">&#128202;</span><span class="mbn-label">Overview</span></button>
-    <button class="mbn-item" onclick="switchToTab('admissions');setMbn(this)"><span class="mbn-icon">&#128203;</span><span class="mbn-label">Admissions</span></button>
-    <button class="mbn-item" onclick="switchToTab('students');setMbn(this)"><span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span></button>
-
-    <button class="mbn-item" onclick="switchToTab('announcements');setMbn(this)"><span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span></button>
+    <button class="mbn-item active" onclick="switchToTab('overview',null);setMbn(this)">
+      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Overview</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('admissions',null);setMbn(this)">
+      <span class="mbn-icon">&#128203;</span><span class="mbn-label">Admissions</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('students',null);setMbn(this)">
+      <span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span>
+    </button>
+    <!-- FIX 6: Payments was missing from mobile nav -->
+    <button class="mbn-item" onclick="switchToTab('payments',null);setMbn(this)">
+      <span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('announcements',null);setMbn(this)">
+      <span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span>
+    </button>
   </div>
 </nav>
 <script>
