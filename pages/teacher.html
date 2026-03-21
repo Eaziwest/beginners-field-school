@@ -41,7 +41,6 @@
 
 <div class="dashboard" id="teacher-dashboard">
 
-  <!-- HEADER -->
   <div class="dash-header dash-header-blue">
     <div>
       <h1>👩‍🏫 Teacher Portal</h1>
@@ -59,7 +58,6 @@
 
   <div class="dash-body">
 
-    <!-- SIDEBAR -->
     <div class="sidebar" id="teacher-sidebar">
       <div class="sidebar-section">Main</div>
       <div class="sidebar-link active" onclick="teacherTab('overview', this)"><span class="icon">🏠</span> Dashboard</div>
@@ -73,7 +71,6 @@
 
     <div class="dash-main">
 
-      <!-- ══════════ OVERVIEW ══════════ -->
       <div id="tp-overview" class="stab-pane active">
         <div class="stats-row">
           <div class="stat-card" data-icon="🎒"><div class="stat-num">42</div><div class="stat-label">Students in My Class</div></div>
@@ -85,7 +82,6 @@
           <h3>📅 Today's Snapshot — Primary 6A</h3>
           <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">39 present · 2 absent · 1 late · 93% attendance rate today</p>
           <div class="prog-bar"><div class="prog-fill" style="width:93%;"></div></div>
-          <!-- FIX: use switchToTab() helper instead of broken querySelector -->
           <button class="btn btn-navy" style="margin-top:18px;" onclick="switchToTab('attendance')">
             📅 Mark Today's Attendance
           </button>
@@ -111,12 +107,10 @@
             </div>
             <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow);"></div></div>
           </div>
-          <!-- FIX: use switchToTab() helper -->
           <button class="btn btn-yellow" onclick="switchToTab('results')">📊 Upload Results Now</button>
         </div>
       </div>
 
-      <!-- ══════════ ATTENDANCE ══════════ -->
       <div id="tp-attendance" class="stab-pane">
         <div class="card">
           <h3>📅 Mark Attendance — Primary 6A</h3>
@@ -138,7 +132,6 @@
             </div>
           </div>
 
-          <!-- FIX: added id to tbody so saveAttendance() can read it -->
           <div class="tbl-wrap">
             <table>
               <thead>
@@ -191,14 +184,12 @@
             </table>
           </div>
 
-          <!-- Attendance summary bar (updated on save) -->
           <div id="att-summary" style="display:none;margin-top:14px;padding:12px 16px;background:var(--off-white);border-radius:10px;font-size:13.5px;color:var(--gray);"></div>
 
           <button class="btn btn-navy" style="margin-top:18px;" onclick="saveAttendance()">💾 Save Attendance</button>
         </div>
       </div>
 
-      <!-- ══════════ RESULTS ══════════ -->
       <div id="tp-results" class="stab-pane">
         <div class="card">
           <h3>📊 Upload Student Results</h3>
@@ -208,15 +199,23 @@
               <label>Class</label>
               <select id="res-class"><option>Primary 6A</option></select>
             </div>
+            
             <div class="form-group">
               <label>Subject</label>
-              <select id="res-subject">
-                <option>Mathematics</option>
-                <option>English Language</option>
-                <option>Basic Science</option>
-                <option>Social Studies</option>
-                <option>Yoruba Language</option>
-              </select>
+              <div style="display:flex; gap:8px;">
+                <select id="res-subject" style="flex:1;">
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="English Language">English Language</option>
+                  <option value="Basic Science">Basic Science</option>
+                  <option value="Social Studies">Social Studies</option>
+                  <option value="Yoruba Language">Yoruba Language</option>
+                </select>
+                <button class="btn btn-outline-navy" onclick="deleteSubject()" title="Delete Selected Subject" style="padding:0 12px; border-color:var(--red); color:var(--red);">🗑️</button>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <input type="text" id="new-subject-input" placeholder="Add a new subject..." style="flex:1; padding: 8px 12px; border: 2px solid var(--light-gray); border-radius: 8px; font-size: 13px;" />
+                <button class="btn btn-navy btn-sm" onclick="addSubject()">+ Add</button>
+              </div>
             </div>
           </div>
 
@@ -231,7 +230,6 @@
             </div>
             <div class="form-group">
               <label>CA Max Score</label>
-              <!-- FIX: separate CA max and Exam max so grading is accurate -->
               <input type="number" id="ca-max" value="30" min="1" max="100"
                 style="width:100%;padding:11px 15px;border:2px solid var(--light-gray);border-radius:11px;font-size:14px;font-family:'Nunito',sans-serif;"
                 oninput="recalcAllTotals()" />
@@ -251,7 +249,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- FIX: oninput on every score field recalculates total, grade and remark live -->
                 <tr data-student="Adaeze Nwosu">
                   <td>Adaeze Nwosu</td>
                   <td><input type="number" class="ca-score" value="28" min="0" max="30" oninput="recalcRow(this)" /></td>
@@ -296,7 +293,6 @@
             </table>
           </div>
 
-          <!-- Class average summary -->
           <div id="results-summary" style="margin-top:14px;padding:12px 16px;background:var(--yellow-pale);border:1.5px solid var(--yellow);border-radius:10px;font-size:13.5px;color:var(--navy);font-weight:700;"></div>
 
           <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
@@ -306,7 +302,6 @@
         </div>
       </div>
 
-      <!-- ══════════ MY STUDENTS ══════════ -->
       <div id="tp-students" class="stab-pane">
         <div class="card">
           <h3>🎒 My Students — Primary 6A (42 students)</h3>
@@ -315,32 +310,28 @@
               <thead>
                 <tr>
                   <th>Student ID</th><th>Name</th><th>Gender</th>
-                  <th>Attendance</th><th>Avg Score</th><th>Fees</th><th>Action</th>
+                  <th>Attendance</th><th>Avg Score</th><th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>BFS/001</td><td><strong>Adaeze Nwosu</strong></td><td>Female</td>
                   <td>98%</td><td><strong style="color:var(--green-ok);">88</strong></td>
-                  <td><span class="badge b-green">Paid</span></td>
                   <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
                 </tr>
                 <tr>
                   <td>BFS/002</td><td><strong>Babatunde Afolabi</strong></td><td>Male</td>
                   <td>92%</td><td><strong style="color:var(--navy-mid);">77</strong></td>
-                  <td><span class="badge b-red">Owing</span></td>
                   <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
                 </tr>
                 <tr>
                   <td>BFS/003</td><td><strong>Chioma Eze</strong></td><td>Female</td>
                   <td>85%</td><td><strong style="color:#d97706;">66</strong></td>
-                  <td><span class="badge b-green">Paid</span></td>
                   <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
                 </tr>
                 <tr>
                   <td>BFS/004</td><td><strong>Daniel Okoye</strong></td><td>Male</td>
                   <td>100%</td><td><strong style="color:var(--green-ok);">91</strong></td>
-                  <td><span class="badge b-yellow">Partial</span></td>
                   <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
                 </tr>
               </tbody>
@@ -349,7 +340,6 @@
         </div>
       </div>
 
-      <!-- ══════════ MESSAGES ══════════ -->
       <div id="tp-messages" class="stab-pane">
         <div class="card">
           <h3>📢 School Announcements</h3>
@@ -360,7 +350,6 @@
 
         <div class="card">
           <h3>💬 Message a Parent</h3>
-          <!-- FIX: added ids so sendMessage() can validate -->
           <div class="form-group">
             <label>Select Student *</label>
             <select id="msg-student">
@@ -380,16 +369,13 @@
             <label>Message *</label>
             <textarea id="msg-body" rows="4" placeholder="Type your message to the parent..."></textarea>
           </div>
-          <!-- FIX: calls sendMessage() which validates before sending -->
           <button class="btn btn-navy" onclick="sendMessage()">📤 Send Message</button>
         </div>
       </div>
 
 
-      <!-- ══════════ TIMETABLE ══════════ -->
       <div id="tp-timetable" class="stab-pane">
 
-        <!-- Status banner -->
         <div id="tt-status-banner" class="notif info" style="margin-bottom:18px;">
           <span>📋</span>
           <div><h4 id="tt-status-title">Draft Timetable</h4>
@@ -411,7 +397,6 @@
             Click any subject cell to edit it. Add time slots using the button below. Breaks and dismissal rows are fixed.
           </p>
 
-          <!-- Timetable editor grid -->
           <div class="tbl-wrap">
             <table id="tt-editor-table" style="min-width:620px;">
               <thead>
@@ -422,7 +407,6 @@
                 </tr>
               </thead>
               <tbody id="tt-tbody">
-                <!-- Rows injected by renderTimetableEditor() -->
               </tbody>
             </table>
           </div>
@@ -433,7 +417,6 @@
           </div>
         </div>
 
-        <!-- Preview (read-only) -->
         <div class="card" id="tt-preview-card" style="display:none;">
           <h3>👁 Preview — How Students Will See It</h3>
           <div class="tbl-wrap">
@@ -450,9 +433,9 @@
         </div>
       </div>
 
-    </div><!-- /dash-main -->
-  </div><!-- /dash-body -->
-</div><!-- /dashboard -->
+    </div>
+  </div>
+</div>
 
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
@@ -462,30 +445,21 @@
 
   /* ── Auth guard ── */
   const _user = requireAuth('teacher');
-  if (_user) {
-    injectUserInfo(_user);
-    /* ── Update subtitle with logged-in name ── */
-    document.getElementById('teacher-sub').textContent =
-      'Welcome, ' + _user.name + ' — Beginner\'s Field School';
-  }
+  injectUserInfo(_user);
+
+  /* ── Update subtitle with logged-in name ── */
+  document.getElementById('teacher-sub').textContent =
+    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
 
-  /* ══════════════════════════════════════════
-     FIX 1: switchToTab() — safe tab switcher
-     that correctly finds sidebar links by name
-     instead of fragile querySelector index
-     ══════════════════════════════════════════ */
+  /* ── Safe tab switcher ── */
   function switchToTab(name) {
-    /* Hide all panes */
-    document.querySelectorAll('#teacher-dashboard .stab-pane')
-      .forEach(p => p.classList.remove('active'));
-    /* Deactivate all sidebar links */
-    document.querySelectorAll('#teacher-sidebar .sidebar-link')
-      .forEach(l => l.classList.remove('active'));
-    /* Show the target pane */
+    document.querySelectorAll('#teacher-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
+    
     const pane = document.getElementById('tp-' + name);
     if (pane) pane.classList.add('active');
-    /* Activate the matching sidebar link by its onclick text */
+    
     document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(link => {
       if (link.getAttribute('onclick') && link.getAttribute('onclick').includes("'" + name + "'")) {
         link.classList.add('active');
@@ -493,12 +467,55 @@
     });
   }
 
+  /* ── Subject Management Functions ── */
+  function addSubject() {
+    const input = document.getElementById('new-subject-input');
+    const select = document.getElementById('res-subject');
+    const val = input.value.trim();
 
-  /* ══════════════════════════════════════════
-     FIX 2: saveAttendance() — validates that
-     every student has a status, shows a
-     summary of present / absent / late counts
-     ══════════════════════════════════════════ */
+    if (!val) {
+      toast('⚠️ Please enter a subject name first.');
+      return;
+    }
+
+    // Check for duplicates
+    for (let i = 0; i < select.options.length; i++) {
+      if (select.options[i].value.toLowerCase() === val.toLowerCase()) {
+        toast('⚠️ Subject "' + val + '" already exists.');
+        return;
+      }
+    }
+
+    // Add and auto-select new subject
+    const opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = val;
+    select.appendChild(opt);
+    select.value = val;
+    
+    input.value = ''; // clear input
+    toast('✅ Subject "' + val + '" added!');
+  }
+
+  function deleteSubject() {
+    const select = document.getElementById('res-subject');
+    
+    if (select.selectedIndex === -1 || select.options.length === 0) {
+      toast('⚠️ No subject to delete.');
+      return;
+    }
+    
+    const val = select.options[select.selectedIndex].value;
+    
+    if (!confirm('Are you sure you want to remove "' + val + '" from the list?')) {
+      return;
+    }
+    
+    select.remove(select.selectedIndex);
+    toast('🗑️ Subject "' + val + '" removed.');
+  }
+
+  /* ── Attendance logic ── */
   function saveAttendance() {
     const date    = document.getElementById('att-date').value;
     const period  = document.getElementById('att-period').value;
@@ -526,7 +543,6 @@
 
     if (!date) { toast('⚠️ Please select a date.'); return; }
 
-    /* Show summary */
     const summary = document.getElementById('att-summary');
     summary.style.display = 'block';
     summary.innerHTML =
@@ -540,10 +556,7 @@
   }
 
 
-  /* ══════════════════════════════════════════
-     FIX 3: recalcRow() — recalculates total,
-     grade and remark live as teacher types
-     ══════════════════════════════════════════ */
+  /* ── Results scoring ── */
   function getGrade(total) {
     if (total >= 75) return { grade: 'A', cls: 'grade-A', remark: 'Excellent' };
     if (total >= 60) return { grade: 'B', cls: 'grade-B', remark: 'Very Good' };
@@ -559,7 +572,6 @@
     const caMax    = parseFloat(document.getElementById('ca-max').value) || 30;
     const examMax  = 100 - caMax;
 
-    /* Clamp values to their max */
     const caInput   = row.querySelector('.ca-score');
     const examInput = row.querySelector('.exam-score');
     caInput.max   = caMax;
@@ -604,14 +616,10 @@
       'Students: <strong>' + totals.length + '</strong>';
   }
 
-  /* Initialise summary on page load */
   updateResultsSummary();
 
 
-  /* ══════════════════════════════════════════
-     FIX 4: saveDraftResults() and
-     submitResults() — validate before acting
-     ══════════════════════════════════════════ */
+  /* ── Save/Submit Results ── */
   function validateScores() {
     let valid = true;
     document.querySelectorAll('#results-table tbody tr').forEach(row => {
@@ -630,15 +638,11 @@
   function submitResults() {
     if (!validateScores()) { toast('⚠️ Please fill in all score fields before submitting.'); return; }
     const subject = document.getElementById('res-subject').value;
-    const term    = document.getElementById('res-term').value;
     toast('📤 ' + subject + ' results submitted to Admin for approval!');
   }
 
 
-  /* ══════════════════════════════════════════
-     FIX 5: sendMessage() — validates that
-     student, subject and message are all filled
-     ══════════════════════════════════════════ */
+  /* ── Messages ── */
   function sendMessage() {
     const studentEl  = document.getElementById('msg-student');
     const subjectEl  = document.getElementById('msg-subject');
@@ -656,21 +660,15 @@
 
     toast('✅ Message sent to ' + studentEl.value + "'s parent successfully!");
 
-    /* Clear form after send */
     studentEl.value  = '';
     subjectEl.value  = '';
     bodyEl.value     = '';
   }
 
 
-  /* ═══════════════════════════════════════════════
-     TIMETABLE EDITOR
-  ═══════════════════════════════════════════════ */
-
-  /* Storage key — in a real app this would be a server API */
+  /* ── TIMETABLE EDITOR ── */
   const TT_KEY = 'bfs_timetable_primary6a';
 
-  /* Default timetable structure */
   const TT_DEFAULT = [
     { type:'lesson', time:'8:00 – 9:00',   days:['Mathematics','English','Mathematics','Science','Social Studies'] },
     { type:'lesson', time:'9:00 – 10:00',  days:['English','Mathematics','Science','English','Mathematics'] },
@@ -682,10 +680,9 @@
     { type:'dismiss',time:'2:30',           label:'🏠 School Dismissal' },
   ];
 
-  let ttRows = [];      /* current editor rows */
-  let ttStatus = 'draft'; /* draft | pending | approved | rejected */
+  let ttRows = [];
+  let ttStatus = 'draft';
 
-  /* Load from localStorage or default */
   function loadTimetable() {
     try {
       const saved = localStorage.getItem(TT_KEY);
@@ -705,7 +702,6 @@
     renderTimetableEditor();
   }
 
-  /* Save to localStorage */
   function saveTT(status) {
     try {
       localStorage.setItem(TT_KEY, JSON.stringify({
@@ -715,7 +711,7 @@
         teacher: 'Mr. Emeka Chukwu',
         updated: new Date().toISOString()
       }));
-    } catch(e) { /* localStorage may be unavailable */ }
+    } catch(e) {}
   }
 
   function updateStatusBanner() {
@@ -738,7 +734,6 @@
     if (btn) btn.disabled = (ttStatus === 'pending');
   }
 
-  /* Render the editable table */
   function renderTimetableEditor() {
     const tbody = document.getElementById('tt-tbody');
     if (!tbody) return;
@@ -838,7 +833,6 @@
     card.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 
-  /* Load timetable when the tab is opened */
   const _origTeacherTab = typeof teacherTab === 'function' ? teacherTab : null;
   document.querySelectorAll('.sidebar-link').forEach(link => {
     if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
@@ -847,7 +841,6 @@
       });
     }
   });
-  /* Also load if page opens directly on timetable */
   if (document.getElementById('tp-timetable') && document.getElementById('tp-timetable').classList.contains('active')) {
     loadTimetable();
   }
@@ -886,4 +879,4 @@ function setMbn(btn) {
 }
 </script>
 </body>
-</html>
+</html>npx live-server --port=8080

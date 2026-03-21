@@ -406,11 +406,14 @@
             <table>
               <thead><tr><th>Class</th><th>Class Teacher</th><th>Students</th><th>Upload Status</th><th>Uploaded</th><th>Action</th></tr></thead>
               <tbody>
-                <tr><td><strong>Primary 6A</strong></td><td>Mr. Chukwu</td><td>42</td><td><span class="badge b-green" id="res-badge-p6a">Published</span></td><td>Mar 18</td><td><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 6A','Mr. Chukwu','Published')">View</button></td></tr>
-                <tr><td><strong>Primary 5B</strong></td><td>Mrs. Adamu</td><td>38</td><td><span class="badge b-yellow" id="res-badge-p5b">Awaiting Approval</span></td><td>Mar 17</td><td><button class="btn btn-green btn-sm" id="res-btn-p5b" onclick="publishResults('p5b','Primary 5B')">Approve &amp; Publish</button></td></tr>
-                <tr><td><strong>Primary 3A</strong></td><td>Mr. Lawal</td><td>35</td><td><span class="badge b-green" id="res-badge-p3a">Published</span></td><td>Mar 16</td><td><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 3A','Mr. Lawal','Published')">View</button></td></tr>
+                <tr><td><strong>Primary 6A</strong></td><td>Mr. Chukwu</td><td>42</td><td><span class="badge b-green" id="res-badge-p6a">Published</span></td><td>Mar 18</td><td id="res-td-p6a"><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 6A','Mr. Chukwu','Published')">View</button></td></tr>
+                
+                <tr><td><strong>Primary 5B</strong></td><td>Mrs. Adamu</td><td>38</td><td><span class="badge b-yellow" id="res-badge-p5b">Awaiting Approval</span></td><td>Mar 17</td><td id="res-td-p5b"><button class="btn btn-yellow btn-sm" onclick="reviewPendingResults('p5b','Primary 5B', 'Mrs. Adamu')">&#128269; Review</button></td></tr>
+                
+                <tr><td><strong>Primary 3A</strong></td><td>Mr. Lawal</td><td>35</td><td><span class="badge b-green" id="res-badge-p3a">Published</span></td><td>Mar 16</td><td id="res-td-p3a"><button class="btn btn-outline-navy btn-sm" onclick="viewResults('Primary 3A','Mr. Lawal','Published')">View</button></td></tr>
                 <tr><td><strong>Nursery 2</strong></td><td>Miss Okoye</td><td>28</td><td><span class="badge b-red" id="res-badge-n2">Not Uploaded</span></td><td>&mdash;</td><td><button class="btn btn-outline-navy btn-sm" onclick="sendReminder('Miss Okoye','Nursery 2')">&#128226; Remind</button></td></tr>
-                <tr><td><strong>Nursery 1</strong></td><td>Mrs. Balogun</td><td>25</td><td><span class="badge b-yellow" id="res-badge-n1">Awaiting Approval</span></td><td>Mar 14</td><td><button class="btn btn-green btn-sm" id="res-btn-n1" onclick="publishResults('n1','Nursery 1')">Approve &amp; Publish</button></td></tr>
+                
+                <tr><td><strong>Nursery 1</strong></td><td>Mrs. Balogun</td><td>25</td><td><span class="badge b-yellow" id="res-badge-n1">Awaiting Approval</span></td><td>Mar 14</td><td id="res-td-n1"><button class="btn btn-yellow btn-sm" onclick="reviewPendingResults('n1','Nursery 1', 'Mrs. Balogun')">&#128269; Review</button></td></tr>
               </tbody>
             </table>
           </div>
@@ -503,7 +506,16 @@
 <div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">&#10005;</button><h2>&#128203; Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
 <div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">&#10005;</button><h2>&#127952; Student Profile</h2><div id="modal-student-body"></div></div></div>
 <div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">&#10005;</button><h2>&#128105;&#8205;&#127979; Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
-<div class="admin-modal-overlay" id="modal-results"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-results')">&#10005;</button><h2>&#128202; Results Preview</h2><div id="modal-results-body"></div></div></div>
+
+<div class="admin-modal-overlay" id="modal-results">
+  <div class="admin-modal">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-results')">&#10005;</button>
+    <h2 id="modal-results-title">&#128202; Results Preview</h2>
+    <div id="modal-results-body"></div>
+    <div id="modal-results-actions" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+  </div>
+</div>
+
 <div class="admin-modal-overlay" id="modal-contact"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-contact')">&#10005;</button><h2>&#128172; Send Message</h2><div id="modal-contact-name" style="font-weight:700;color:var(--navy);margin-bottom:16px;font-size:15px;"></div><div class="form-group"><label>Subject *</label><input id="contact-subject" placeholder="e.g. Results submission reminder" /></div><div class="form-group"><label>Message *</label><textarea id="contact-body" rows="4" placeholder="Type your message..."></textarea></div><button class="btn btn-navy" onclick="sendContactMessage()">&#128228; Send</button></div></div>
 <div class="admin-modal-overlay" id="modal-add-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-student')">&#10005;</button><h2>&#10133; Add New Student</h2><div class="form-row"><div class="form-group"><label>First Name *</label><input id="new-stu-fname" placeholder="First name" /></div><div class="form-group"><label>Last Name *</label><input id="new-stu-lname" placeholder="Last name" /></div></div><div class="form-row"><div class="form-group"><label>Class *</label><select id="new-stu-class"><option value="">&#8212; Select &#8212;</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Gender *</label><select id="new-stu-gender"><option value="">&#8212; Select &#8212;</option><option>Male</option><option>Female</option></select></div></div><div class="form-group"><label>Parent/Guardian Name *</label><input id="new-stu-parent" placeholder="Full name" /></div><div class="form-group"><label>Parent Phone *</label><input id="new-stu-phone" placeholder="080X XXX XXXX" /></div><button class="btn btn-navy" onclick="saveNewStudent()">&#128190; Save Student</button></div></div>
 <div class="admin-modal-overlay" id="modal-add-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-teacher')">&#10005;</button><h2>&#10133; Add New Teacher</h2><div class="form-row"><div class="form-group"><label>Full Name *</label><input id="new-tch-name" placeholder="e.g. Mrs. Ada Nwosu" /></div><div class="form-group"><label>Phone *</label><input id="new-tch-phone" placeholder="080X XXX XXXX" /></div></div><div class="form-row"><div class="form-group"><label>Class Assigned *</label><select id="new-tch-class"><option value="">&#8212; Select &#8212;</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Subject *</label><input id="new-tch-subject" placeholder="e.g. Mathematics" /></div></div><div class="form-group"><label>Email Address *</label><input id="new-tch-email" type="email" placeholder="teacher@beginnersfieldschool.edu.ng" /></div><button class="btn btn-navy" onclick="saveNewTeacher()">&#128190; Save Teacher</button></div></div>
@@ -741,33 +753,96 @@
     closeAdminModal('modal-contact');
   }
 
-  /* ── Results Publish/View ── */
-  function viewResults(cls, teacher, status) {
+  /* ── Results Review & Publish Functionality ── */
+  
+  // Opens the review modal for pending results
+  function reviewPendingResults(key, cls, teacher) {
+    document.getElementById('modal-results-title').innerHTML = '&#128202; Review Results — ' + cls;
     var rb = document.getElementById('modal-results-body');
-    if (!rb) return;
+    var ra = document.getElementById('modal-results-actions');
+    if (!rb || !ra) return;
+    
     rb.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
-        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
         '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
         '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong style="color:#d97706">Awaiting Approval</strong></div>' +
       '</div>' +
-      '<div class="notif ok"><span>\u2705</span><div><h4>Results Published</h4><p>Students can now view results in their portal.</p></div></div>';
+      '<div class="card" style="box-shadow:none; border:1px solid var(--light-gray); padding:16px;">' +
+        '<h4 style="margin-bottom:12px; font-size:14px; color:var(--navy);">Class Performance Summary</h4>' +
+        '<div class="receipt-detail"><span>Students Evaluated</span><strong>' + (cls === 'Primary 5B' ? 38 : 25) + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Average</span><strong>' + (cls === 'Primary 5B' ? '76.4%' : '82.1%') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Highest Score</span><strong>' + (cls === 'Primary 5B' ? '98%' : '100%') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Lowest Score</span><strong>' + (cls === 'Primary 5B' ? '41%' : '55%') + '</strong></div>' +
+      '</div>' +
+      '<div class="form-group" style="margin-top:16px;">' +
+        '<label>Review Note (optional)</label>' +
+        '<textarea id="res-review-note" rows="2" placeholder="e.g. Approved, great work. / Rejected: Please double check the exam scores for math."></textarea>' +
+      '</div>';
+      
+    ra.innerHTML = 
+      '<button class="btn btn-green" onclick="approveAndPublishResults(\'' + key + '\', \'' + cls + '\', \'' + teacher + '\')">✅ Approve & Publish</button>' +
+      '<button class="btn btn-red" onclick="rejectPendingResults(\'' + key + '\', \'' + cls + '\', \'' + teacher + '\')">❌ Reject & Return</button>';
+      
     openAdminModal('modal-results');
   }
 
-  function publishResults(key, cls) {
+  // Handles the approval flow
+  function approveAndPublishResults(key, cls, teacher) {
     var badge = document.getElementById('res-badge-' + key);
-    var btn   = document.getElementById('res-btn-'   + key);
+    var td   = document.getElementById('res-td-' + key);
+    
     if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
-    if (btn) {
-      var newBtn = document.createElement('button');
-      newBtn.className = 'btn btn-outline-navy btn-sm';
-      newBtn.textContent = 'View';
-      newBtn.onclick = (function(c) { return function() { viewResults(c, '', 'Published'); }; })(cls);
-      btn.parentNode.replaceChild(newBtn, btn);
+    if (td) {
+      td.innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'' + teacher + '\',\'Published\')">View</button>';
     }
-    toast('\u2705 ' + cls + ' results published to students!');
+    toast('\u2705 ' + cls + ' results approved and published to students!');
+    closeAdminModal('modal-results');
+  }
+
+  // Handles the rejection flow
+  function rejectPendingResults(key, cls, teacher) {
+    var note = document.getElementById('res-review-note');
+    if(!note || !note.value.trim()) {
+      if(note) note.classList.add('field-error');
+      toast('⚠️ Please provide a review note before rejecting.');
+      setTimeout(function() { if(note) note.classList.remove('field-error'); }, 2500);
+      return;
+    }
+    
+    var badge = document.getElementById('res-badge-' + key);
+    var td   = document.getElementById('res-td-' + key);
+    
+    if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
+    if (td) {
+      td.innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'' + teacher + '\',\'Rejected\')">View</button>';
+    }
+    toast('❌ ' + cls + ' results rejected and returned to teacher.');
+    closeAdminModal('modal-results');
+  }
+
+  // General View for published or rejected results
+  function viewResults(cls, teacher, status) {
+    document.getElementById('modal-results-title').innerHTML = '&#128202; Results Preview — ' + cls;
+    var rb = document.getElementById('modal-results-body');
+    var ra = document.getElementById('modal-results-actions');
+    if (!rb) return;
+    if (ra) ra.innerHTML = ''; // Clear action buttons for view mode
+    
+    var col = status === 'Published' ? 'var(--green-ok)' : 'var(--red)';
+    var notif = status === 'Published' 
+      ? '<div class="notif ok" style="margin-top: 16px;"><span>\u2705</span><div><h4>Results Published</h4><p>Students can now view results in their portal.</p></div></div>'
+      : '<div class="notif err" style="margin-top: 16px;"><span>❌</span><div><h4>Results Rejected</h4><p>Returned to teacher for corrections.</p></div></div>';
+
+    rb.innerHTML =
+      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
+        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
+        '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
+        '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
+      '</div>' + notif;
+      
+    openAdminModal('modal-results');
   }
 
   function sendReminder(teacher, cls) {
