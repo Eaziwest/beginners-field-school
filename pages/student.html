@@ -275,15 +275,63 @@
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
 <script src="../js/main.js"></script>
 <script>
   /* ── Auth ── */
   const _user = (function() {
     try {
-      const u = typeof requireAuth === 'function' ? requireAuth('student') : { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
+      var u = typeof requireAuth === 'function' ? requireAuth('student') : null;
+      if (!u) return null;
       if (typeof injectUserInfo === 'function') injectUserInfo(u);
+      var sub = document.getElementById('student-sub');
+      if (sub) sub.textContent = 'Welcome, ' + u.name + ' — Beginner\'s Field School';
+      if (typeof API !== 'undefined') {
+        /* Dashboard stats */
+        API.dashboard.student().then(function(data) {
+          if (!data || !data.stats) return;
+          var s = data.stats, el = function(id){ return document.getElementById(id); };
+          if (el('stat-average'))    el('stat-average').textContent    = s.average ? s.average + '%' : '—';
+          if (el('stat-attendance')) el('stat-attendance').textContent = s.attendance_rate ? s.attendance_rate + '%' : '—';
+          if (el('stat-position'))   el('stat-position').textContent   = s.position ? s.position + (s.position===1?'st':s.position===2?'nd':s.position===3?'rd':'th') : '—';
+        }).catch(function(){});
+        /* Announcements */
+        API.announcements.list({ limit:5 }).then(function(rows) {
+          var list = document.getElementById('student-announcements');
+          if (!list || !rows || !rows.length) return;
+          list.innerHTML = rows.map(function(a) {
+            var cm = { normal:'info', important:'warn', urgent:'err' };
+            var d  = new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+            return '<div class="notif '+(cm[a.priority]||'info')+'">' +
+              '<span>'+(a.priority==='urgent'?'🚨':a.priority==='important'?'⭐':'📢')+'</span>' +
+              '<div><h4>'+a.title+'</h4><p>'+d+'</p></div></div>';
+          }).join('');
+        }).catch(function(){});
+        /* Results */
+        API.results.list({ term:3, session:'2024/2025' }).then(function(rows) {
+          var tbody = document.getElementById('student-results-tbody');
+          if (!tbody || !rows || !rows.length) return;
+          tbody.innerHTML = rows.map(function(r) {
+            var g = r.grade||'—', cls = g==='A'?'grade-A':g==='B'?'grade-B':g==='C'||g==='D'?'grade-C':'grade-F';
+            return '<tr><td>'+r.subject_name+'</td><td>'+(r.ca_score||'—')+'</td><td>'+(r.exam_score||'—')+'</td>'+
+              '<td><strong>'+(r.total||'—')+'</strong></td><td><span class="grade '+cls+'">'+g+'</span></td></tr>';
+          }).join('');
+        }).catch(function(){});
+        /* Fee schedule */
+        API.fees.student().then(function(data) {
+          var list = document.getElementById('student-fees-list');
+          if (!list || !data || !data.fees) return;
+          var req   = data.fees.filter(function(f){ return !f.is_optional; });
+          var total = req.reduce(function(s,f){ return s + parseFloat(f.amount); }, 0);
+          list.innerHTML = req.map(function(f) {
+            return '<div class="fee-row"><span>'+f.item_name+'</span>'+
+              '<span><strong>₦'+Number(f.amount).toLocaleString()+'</strong></span></div>';
+          }).join('') + '<div class="fee-row total"><span>Total Amount Due</span>'+
+            '<span><strong>₦'+total.toLocaleString()+'</strong></span></div>';
+        }).catch(function(){});
+      }
       return u;
-    } catch(e) { return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' }; }
+    } catch(e) { return null; }
   })();
   
   const sub = document.getElementById('student-sub');

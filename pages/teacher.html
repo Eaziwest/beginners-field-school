@@ -440,16 +440,43 @@
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
 <script src="../js/main.js"></script>
 <script>
 
   /* ── Auth guard ── */
-  const _user = requireAuth('teacher');
-  injectUserInfo(_user);
-
-  /* ── Update subtitle with logged-in name ── */
-  document.getElementById('teacher-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  const _user = (function() {
+    try {
+      var u = requireAuth('teacher');
+      if (!u) return null;
+      injectUserInfo(u);
+      var sub = document.getElementById('teacher-sub');
+      if (sub) sub.textContent = 'Welcome, ' + u.name + ' — Beginner\'s Field School';
+      /* Load live data */
+      if (typeof API !== 'undefined') {
+        API.dashboard.teacher().then(function(data) {
+          if (!data || !data.stats) return;
+          var s = data.stats, el = function(id){ return document.getElementById(id); };
+          if (el('stat-class-students')) el('stat-class-students').textContent = s.total_students  || '—';
+          if (el('stat-present-today'))  el('stat-present-today').textContent  = s.present_today   || '—';
+          if (el('stat-results-pct'))    el('stat-results-pct').textContent    = s.subjects_uploaded + ' subjects';
+          if (data.class) document.querySelectorAll('.teacher-class-name').forEach(function(e){ e.textContent = data.class; });
+        }).catch(function(){});
+        API.announcements.list({ limit:5 }).then(function(rows) {
+          var list = document.getElementById('teacher-announcements');
+          if (!list || !rows || !rows.length) return;
+          list.innerHTML = rows.map(function(a) {
+            var clsMap = { normal:'info', important:'warn', urgent:'err' };
+            var d = new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+            return '<div class="notif '+(clsMap[a.priority]||'info')+'">' +
+              '<span>'+(a.priority==='urgent'?'🚨':a.priority==='important'?'⭐':'📢')+'</span>' +
+              '<div><h4>'+a.title+'</h4><p>'+d+' · '+a.audience+'</p></div></div>';
+          }).join('');
+        }).catch(function(){});
+      }
+      return u;
+    } catch(e) { return null; }
+  })();
 
 
   /* ── Safe tab switcher ── */

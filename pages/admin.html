@@ -523,6 +523,7 @@
 <div id="toast">&#128276; <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
 <script src="../js/main.js"></script>
 <script>
   /* ── Auth Safe Wrapper ── */
@@ -533,6 +534,29 @@
         if(typeof injectUserInfo === 'function') injectUserInfo(u);
         const sub = document.getElementById('admin-sub');
         if (sub) sub.textContent = 'Welcome back, ' + u.name + ' \u2014 ' + u.title + ' \u00b7 Beginner\'s Field School';
+        /* ── Load live dashboard stats from API ── */
+        if (typeof API !== 'undefined') {
+          API.dashboard.admin().then(function(data) {
+            if (!data) return;
+            var s = data.stats;
+            var q = function(id){ return document.getElementById(id); };
+            if (q('stat-students'))   q('stat-students').textContent    = (s.total_students    || '—');
+            if (q('stat-teachers'))   q('stat-teachers').textContent    = (s.total_teachers    || '—');
+            if (q('stat-admissions')) q('stat-admissions').textContent  = (s.pending_admissions|| '—');
+            if (q('stat-attendance')) q('stat-attendance').textContent  = (s.attendance_rate   || 0) + '%';
+            var tbody = q('overview-admissions-tbody');
+            if (tbody && data.recent_admissions) {
+              tbody.innerHTML = data.recent_admissions.map(function(a) {
+                var bc = a.status==='approved'?'b-green':a.status==='rejected'?'b-red':'b-yellow';
+                var dt = new Date(a.submitted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+                return '<tr><td><strong>'+a.child_name+'</strong></td><td>'+a.class_applied+'</td>'+
+                  '<td>'+(a.parent_name||'—')+'</td><td>'+dt+'</td>'+
+                  '<td><span class="badge '+bc+'">'+a.status.charAt(0).toUpperCase()+a.status.slice(1)+'</span></td>'+
+                  '<td><button class="btn btn-outline-navy btn-sm" onclick="switchToTab('admissions',null)">View</button></td></tr>';
+              }).join('');
+            }
+          }).catch(function(){});
+        }
       }
       return u;
     } catch(e) { return null; }

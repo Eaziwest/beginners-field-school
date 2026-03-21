@@ -81,13 +81,13 @@
 
       <div class="form-section-title">Child's Information</div>
       <div class="form-row">
-        <div class="form-group"><label>First Name *</label><input type="text" placeholder="Child's first name" /></div>
-        <div class="form-group"><label>Last Name *</label><input type="text" placeholder="Child's last name" /></div>
+        <div class="form-group"><label>First Name *</label><input type="text" id="adm-fname" placeholder="Child's first name" /></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" id="adm-lname" placeholder="Child's last name" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Date of Birth *</label><input type="date" /></div>
+        <div class="form-group"><label>Date of Birth *</label><input type="date" id="adm-dob" /></div>
         <div class="form-group"><label>Gender *</label>
-          <select>
+          <select id="adm-gender">
             <option value="">— Select —</option>
             <option>Male</option>
             <option>Female</option>
@@ -104,12 +104,12 @@
       </div>
       <div class="form-group">
         <label>Previous School (if any)</label>
-        <input type="text" placeholder="Name of previous school" />
+        <input type="text" id="adm-prev-school" placeholder="Name of previous school" />
       </div>
 
       <div class="form-section-title">Parent / Guardian Information</div>
       <div class="form-row">
-        <div class="form-group"><label>Full Name *</label><input type="text" placeholder="Parent or guardian full name" /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="adm-parent-name" placeholder="Parent or guardian full name" /></div>
         <div class="form-group"><label>Relationship *</label>
           <select>
             <option>Mother</option><option>Father</option><option>Guardian</option>
@@ -117,12 +117,12 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="080X XXX XXXX" /></div>
-        <div class="form-group"><label>Email Address</label><input type="email" placeholder="parent@email.com" /></div>
+        <div class="form-group"><label>Phone Number *</label><input type="tel" id="adm-parent-phone" placeholder="080X XXX XXXX" /></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="adm-parent-email" placeholder="parent@email.com" /></div>
       </div>
       <div class="form-group">
         <label>Home Address *</label>
-        <input type="text" placeholder="Full residential address" />
+        <input type="text" id="adm-address" placeholder="Full residential address" />
       </div>
       <div class="form-group">
         <label>Occupation</label>
@@ -155,7 +155,7 @@
       </div>
 
       <div class="submit-row">
-        <button class="btn btn-navy" onclick="submitAdmission()">📤 Submit Application</button>
+        <button class="btn btn-navy" onclick="submitAdmissionForm()">📤 Submit Application</button>
         <a class="btn btn-outline-navy" href="../index.html">← Back to Home</a>
       </div>
     </div>
@@ -171,6 +171,8 @@
   </footer>
 
   <div id="toast"><span id="toast-text"></span></div>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
   <script src="../js/main.js"></script>
   <script>
     /* PDF.js worker */
@@ -292,6 +294,55 @@
       const pre = btn.nextElementSibling;
       if (pre.style.display==='none') { pre.style.display='block'; btn.textContent='▲ Hide text'; }
       else { pre.style.display='none'; btn.textContent='▼ Show extracted text'; }
+    }
+
+    /* ── Submit application to the API ── */
+    async function submitAdmissionForm() {
+      const fname      = (document.getElementById('adm-fname')        || {value:''}).value.trim();
+      const lname      = (document.getElementById('adm-lname')        || {value:''}).value.trim();
+      const dob        = (document.getElementById('adm-dob')          || {value:''}).value;
+      const gender     = (document.getElementById('adm-gender')       || {value:''}).value;
+      const cls        = (document.getElementById('adm-class')        || {value:''}).value;
+      const parentName = (document.getElementById('adm-parent-name')  || {value:''}).value.trim();
+      const parentPhone= (document.getElementById('adm-parent-phone') || {value:''}).value.trim();
+      const parentEmail= (document.getElementById('adm-parent-email') || {value:''}).value.trim();
+      const prevSchool = (document.getElementById('adm-prev-school')  || {value:''}).value.trim();
+      const address    = (document.getElementById('adm-address')      || {value:''}).value.trim();
+
+      if (!fname || !lname)  { toast('Please enter the child's full name.');         return; }
+      if (!cls)              { toast('Please select the class applying for.');         return; }
+      if (!parentName)       { toast('Please enter a parent / guardian name.');        return; }
+      if (!parentPhone)      { toast('Please enter a contact phone number.');          return; }
+
+      const btn = document.querySelector('[onclick="submitAdmissionForm()"]');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
+
+      try {
+        const result = await API.admissions.submit({
+          child_name:   fname + ' ' + lname,
+          dob:          dob || null,
+          gender:       gender || null,
+          class_applied: cls,
+          parent_name:  parentName,
+          parent_phone: parentPhone,
+          parent_email: parentEmail || null,
+          prev_school:  prevSchool  || null,
+          address:      address     || null,
+        });
+
+        /* Update the success banner with the real application number */
+        const banner = document.getElementById('adm-success');
+        if (banner) {
+          banner.style.display = 'block';
+          banner.innerHTML = '✅ Application submitted successfully! Your Application ID is <strong>' + result.application_no + '</strong>.';
+        }
+        toast('Application submitted! ID: ' + result.application_no);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        toast('❌ ' + (err.message || 'Submission failed. Please try again.'));
+        if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Application'; }
+      }
     }
   </script>
 </body>
