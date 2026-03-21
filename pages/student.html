@@ -229,20 +229,26 @@
 
       <!-- ═══ TIMETABLE ═══ -->
       <div id="sp-timetable" class="stab-pane">
-        <div class="card">
-          <h3>📅 Class Timetable — Primary 4 (2024/2025 Session)</h3>
+        <div id="stu-tt-pending" class="notif warn" style="display:none;margin-bottom:16px;">
+          <span>⏳</span>
+          <div><h4>Timetable Pending Approval</h4>
+            <p>Your class teacher has submitted a timetable. It is waiting for admin approval and will appear here once approved.</p>
+          </div>
+        </div>
+        <div id="stu-tt-draft" class="notif info" style="display:none;margin-bottom:16px;">
+          <span>📋</span>
+          <div><h4>Timetable Not Yet Available</h4>
+            <p>Your class teacher has not yet submitted a timetable for this term. Check back later.</p>
+          </div>
+        </div>
+        <div id="stu-tt-card" class="card">
+          <h3>📅 Class Timetable — <span id="stu-tt-class">Primary 4</span> (2024/2025 Session)</h3>
+          <p id="stu-tt-meta" style="color:var(--gray);font-size:12.5px;margin-bottom:14px;"></p>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
-              <tbody>
-                <tr><td><strong>8:00 – 9:00</strong></td><td>Mathematics</td><td>English</td><td>Mathematics</td><td>Science</td><td>Social Studies</td></tr>
-                <tr><td><strong>9:00 – 10:00</strong></td><td>English</td><td>Mathematics</td><td>Science</td><td>English</td><td>Mathematics</td></tr>
-                <tr class="tt-break"><td><strong>10:00 – 10:30</strong></td><td colspan="5">☕ Morning Break</td></tr>
-                <tr><td><strong>10:30 – 11:30</strong></td><td>Science</td><td>Social Studies</td><td>Yoruba</td><td>Mathematics</td><td>English</td></tr>
-                <tr><td><strong>11:30 – 12:30</strong></td><td>Social Studies</td><td>Yoruba</td><td>English</td><td>Social Studies</td><td>Assembly / Games</td></tr>
-                <tr class="tt-break"><td><strong>12:30 – 1:30</strong></td><td colspan="5">🍽️ Lunch Break</td></tr>
-                <tr><td><strong>1:30 – 2:30</strong></td><td>Yoruba</td><td>Science</td><td>Social Studies</td><td>Yoruba</td><td>—</td></tr>
-                <tr class="tt-dismiss"><td><strong>2:30</strong></td><td colspan="5">🏠 School Dismissal</td></tr>
+              <tbody id="stu-tt-tbody">
+                <!-- Populated from teacher's saved timetable -->
               </tbody>
             </table>
           </div>
@@ -329,6 +335,96 @@
   }
 
 
+
+
+
+  /* ── Load timetable from teacher's saved data ── */
+  function loadStudentTimetable() {
+    const TT_KEY = 'bfs_timetable_primary6a';
+    const pending = document.getElementById('stu-tt-pending');
+    const draft   = document.getElementById('stu-tt-draft');
+    const card    = document.getElementById('stu-tt-card');
+    const tbody   = document.getElementById('stu-tt-tbody');
+    const meta    = document.getElementById('stu-tt-meta');
+    if (!card || !tbody) return;
+
+    let data = null;
+    try { data = JSON.parse(localStorage.getItem(TT_KEY) || 'null'); } catch(e) {}
+
+    if (!data || data.status === 'draft') {
+      /* Show static default timetable (teacher hasn't submitted yet) */
+      if (draft) draft.style.display = 'none';
+      if (pending) pending.style.display = 'none';
+      card.style.display = 'block';
+      if (meta) meta.textContent = 'Default timetable — pending teacher submission';
+      renderStudentTT(tbody, getDefaultTT());
+      return;
+    }
+
+    if (data.status === 'pending') {
+      card.style.display = 'none';
+      if (draft) draft.style.display = 'none';
+      if (pending) pending.style.display = 'flex';
+      return;
+    }
+
+    if (data.status === 'approved') {
+      if (pending) pending.style.display = 'none';
+      if (draft)   draft.style.display   = 'none';
+      card.style.display = 'block';
+      const cls = document.getElementById('stu-tt-class');
+      if (cls && data.class) cls.textContent = data.class;
+      if (meta) {
+        const d = data.updated ? new Date(data.updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        meta.textContent = 'Approved timetable' + (d ? ' — last updated ' + d : '') + (data.teacher ? ' by ' + data.teacher : '');
+      }
+      renderStudentTT(tbody, data.rows || getDefaultTT());
+      return;
+    }
+
+    /* Rejected or unknown — show default */
+    card.style.display = 'block';
+    if (meta) meta.textContent = 'Default timetable';
+    renderStudentTT(tbody, getDefaultTT());
+  }
+
+  function renderStudentTT(tbody, rows) {
+    tbody.innerHTML = rows.map(row => {
+      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      if (row.type === 'lesson') {
+        return '<tr><td><strong>' + esc(row.time) + '</strong></td>' +
+          (row.days||[]).map(d => '<td>' + esc(d) + '</td>').join('') + '</tr>';
+      }
+      const cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
+      return '<tr class="' + cls + '"><td><strong>' + esc(row.time) + '</strong></td>' +
+        '<td colspan="5">' + esc(row.label||'') + '</td></tr>';
+    }).join('');
+  }
+
+  function getDefaultTT() {
+    return [
+      { type:'lesson',  time:'8:00 – 9:00',   days:['Mathematics','English','Mathematics','Science','Social Studies'] },
+      { type:'lesson',  time:'9:00 – 10:00',  days:['English','Mathematics','Science','English','Mathematics'] },
+      { type:'break',   time:'10:00 – 10:30', label:'☕ Morning Break' },
+      { type:'lesson',  time:'10:30 – 11:30', days:['Science','Social Studies','Yoruba','Mathematics','English'] },
+      { type:'lesson',  time:'11:30 – 12:30', days:['Social Studies','Yoruba','English','Social Studies','Assembly / Games'] },
+      { type:'break',   time:'12:30 – 1:30',  label:'🍽️ Lunch Break' },
+      { type:'lesson',  time:'1:30 – 2:30',   days:['Yoruba','Science','Social Studies','Yoruba','—'] },
+      { type:'dismiss', time:'2:30',           label:'🏠 School Dismissal' },
+    ];
+  }
+
+  /* Load timetable when tab is opened */
+  document.querySelectorAll('#student-sidebar .sidebar-link').forEach(link => {
+    if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
+      link.addEventListener('click', function() { setTimeout(loadStudentTimetable, 50); });
+    }
+  });
+  document.querySelectorAll('.mobile-bottom-nav .mbn-item').forEach(btn => {
+    if ((btn.getAttribute('onclick') || '').includes("'timetable'")) {
+      btn.addEventListener('click', function() { setTimeout(loadStudentTimetable, 50); });
+    }
+  });
 
 
 </script>

@@ -18,6 +18,23 @@
     tr.att-missing td { background: #fef2f2; }
     /* Message validation */
     .field-error { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important; }
+
+    /* ── Timetable editor ── */
+    .tt-cell-input, .tt-time-input {
+      width: 100%; border: 1px solid transparent; background: transparent;
+      font-size: 13px; font-family: inherit; color: var(--navy);
+      padding: 4px 6px; border-radius: 5px; transition: all 0.15s;
+    }
+    .tt-cell-input:hover, .tt-time-input:hover { border-color: var(--light-gray); background: var(--off-white); }
+    .tt-cell-input:focus, .tt-time-input:focus { border-color: var(--navy); background: #fff; outline: none; }
+    .tt-time-input { font-weight: 700; width: 100px; }
+    .tt-del-btn {
+      background: none; border: none; cursor: pointer; color: var(--red);
+      font-size: 14px; padding: 2px 5px; border-radius: 4px; opacity: 0.5;
+    }
+    .tt-del-btn:hover { opacity: 1; background: #fef2f2; }
+    #tt-editor-table td { padding: 5px 6px; vertical-align: middle; }
+    #tt-editor-table th { padding: 9px 10px; }
   </style>
 </head>
 <body>
@@ -51,6 +68,7 @@
       <div class="sidebar-section">Class</div>
       <div class="sidebar-link"        onclick="teacherTab('students', this)"><span class="icon">🎒</span> My Students</div>
       <div class="sidebar-link"        onclick="teacherTab('messages', this)"><span class="icon">💬</span> Messages</div>
+      <div class="sidebar-link"        onclick="teacherTab('timetable', this)"><span class="icon">📅</span> Timetable</div>
     </div>
 
     <div class="dash-main">
@@ -367,6 +385,71 @@
         </div>
       </div>
 
+
+      <!-- ══════════ TIMETABLE ══════════ -->
+      <div id="tp-timetable" class="stab-pane">
+
+        <!-- Status banner -->
+        <div id="tt-status-banner" class="notif info" style="margin-bottom:18px;">
+          <span>📋</span>
+          <div><h4 id="tt-status-title">Draft Timetable</h4>
+            <p id="tt-status-text">Edit your class timetable below and submit to admin for approval. Students will see it once approved.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+            <h3 style="margin:0;">📅 Class Timetable — <span id="tt-class-label">Primary 6A</span></h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-outline-navy btn-sm" onclick="resetTimetable()">↺ Reset</button>
+              <button class="btn btn-yellow btn-sm" onclick="saveTimetableDraft()">💾 Save Draft</button>
+              <button class="btn btn-navy" onclick="submitTimetable()" id="tt-submit-btn">📤 Submit for Approval</button>
+            </div>
+          </div>
+
+          <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">
+            Click any subject cell to edit it. Add time slots using the button below. Breaks and dismissal rows are fixed.
+          </p>
+
+          <!-- Timetable editor grid -->
+          <div class="tbl-wrap">
+            <table id="tt-editor-table" style="min-width:620px;">
+              <thead>
+                <tr>
+                  <th style="width:110px;">Time Slot</th>
+                  <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th>
+                  <th style="width:40px;"></th>
+                </tr>
+              </thead>
+              <tbody id="tt-tbody">
+                <!-- Rows injected by renderTimetableEditor() -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+            <button class="btn btn-outline-navy btn-sm" onclick="addTimetableRow()">+ Add Time Slot</button>
+            <button class="btn btn-outline-navy btn-sm" onclick="addBreakRow()">+ Add Break Row</button>
+          </div>
+        </div>
+
+        <!-- Preview (read-only) -->
+        <div class="card" id="tt-preview-card" style="display:none;">
+          <h3>👁 Preview — How Students Will See It</h3>
+          <div class="tbl-wrap">
+            <table id="tt-preview-table">
+              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
+              <tbody id="tt-preview-tbody"></tbody>
+            </table>
+          </div>
+          <button class="btn btn-outline-navy btn-sm" style="margin-top:12px;" onclick="document.getElementById('tt-preview-card').style.display='none'">✕ Close Preview</button>
+        </div>
+
+        <div style="margin-top:8px;">
+          <button class="btn btn-outline-navy btn-sm" onclick="showTimetablePreview()">👁 Preview Student View</button>
+        </div>
+      </div>
+
     </div><!-- /dash-main -->
   </div><!-- /dash-body -->
 </div><!-- /dashboard -->
@@ -578,6 +661,197 @@
     bodyEl.value     = '';
   }
 
+
+  /* ═══════════════════════════════════════════════
+     TIMETABLE EDITOR
+  ═══════════════════════════════════════════════ */
+
+  /* Storage key — in a real app this would be a server API */
+  const TT_KEY = 'bfs_timetable_primary6a';
+
+  /* Default timetable structure */
+  const TT_DEFAULT = [
+    { type:'lesson', time:'8:00 – 9:00',   days:['Mathematics','English','Mathematics','Science','Social Studies'] },
+    { type:'lesson', time:'9:00 – 10:00',  days:['English','Mathematics','Science','English','Mathematics'] },
+    { type:'break',  time:'10:00 – 10:30', label:'☕ Morning Break' },
+    { type:'lesson', time:'10:30 – 11:30', days:['Science','Social Studies','Yoruba','Mathematics','English'] },
+    { type:'lesson', time:'11:30 – 12:30', days:['Social Studies','Yoruba','English','Social Studies','Assembly / Games'] },
+    { type:'break',  time:'12:30 – 1:30',  label:'🍽️ Lunch Break' },
+    { type:'lesson', time:'1:30 – 2:30',   days:['Yoruba','Science','Social Studies','Yoruba','—'] },
+    { type:'dismiss',time:'2:30',           label:'🏠 School Dismissal' },
+  ];
+
+  let ttRows = [];      /* current editor rows */
+  let ttStatus = 'draft'; /* draft | pending | approved | rejected */
+
+  /* Load from localStorage or default */
+  function loadTimetable() {
+    try {
+      const saved = localStorage.getItem(TT_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        ttRows  = data.rows   || JSON.parse(JSON.stringify(TT_DEFAULT));
+        ttStatus = data.status || 'draft';
+      } else {
+        ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
+        ttStatus = 'draft';
+      }
+    } catch(e) {
+      ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
+      ttStatus = 'draft';
+    }
+    updateStatusBanner();
+    renderTimetableEditor();
+  }
+
+  /* Save to localStorage */
+  function saveTT(status) {
+    try {
+      localStorage.setItem(TT_KEY, JSON.stringify({
+        rows: ttRows,
+        status: status || ttStatus,
+        class: 'Primary 6A',
+        teacher: 'Mr. Emeka Chukwu',
+        updated: new Date().toISOString()
+      }));
+    } catch(e) { /* localStorage may be unavailable */ }
+  }
+
+  function updateStatusBanner() {
+    const title = document.getElementById('tt-status-title');
+    const text  = document.getElementById('tt-status-text');
+    const banner= document.getElementById('tt-status-banner');
+    const btn   = document.getElementById('tt-submit-btn');
+    if (!title) return;
+    const map = {
+      draft:    { cls:'notif info',  icon:'📋', t:'Draft Timetable',      tx:'Edit and submit to admin for approval. Students cannot see it yet.' },
+      pending:  { cls:'notif warn',  icon:'⏳', t:'Awaiting Admin Approval', tx:'Your timetable has been submitted and is pending review by admin.' },
+      approved: { cls:'notif ok',    icon:'✅', t:'Timetable Approved',    tx:'Your timetable is live. Students can view it in their portal.' },
+      rejected: { cls:'notif err',   icon:'❌', t:'Timetable Rejected',    tx:'Admin rejected this timetable. Please revise and resubmit.' },
+    };
+    const s = map[ttStatus] || map.draft;
+    banner.className = s.cls;
+    banner.querySelector('span').textContent = s.icon;
+    title.textContent = s.t;
+    text.textContent  = s.tx;
+    if (btn) btn.disabled = (ttStatus === 'pending');
+  }
+
+  /* Render the editable table */
+  function renderTimetableEditor() {
+    const tbody = document.getElementById('tt-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    ttRows.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      if (row.type === 'break')   tr.className = 'tt-break';
+      if (row.type === 'dismiss') tr.className = 'tt-dismiss';
+
+      if (row.type === 'lesson') {
+        tr.innerHTML =
+          '<td><input class="tt-time-input" value="' + escHtml(row.time) + '" onchange="ttRows[' + idx + '].time=this.value" /></td>' +
+          row.days.map((d, di) =>
+            '<td><input class="tt-cell-input" value="' + escHtml(d) + '" onchange="ttRows[' + idx + '].days[' + di + ']=this.value" /></td>'
+          ).join('') +
+          '<td><button class="tt-del-btn" onclick="deleteTTRow(' + idx + ')" title="Delete row">✕</button></td>';
+      } else {
+        const isLast = (row.type === 'dismiss');
+        tr.innerHTML =
+          '<td><input class="tt-time-input" value="' + escHtml(row.time) + '" onchange="ttRows[' + idx + '].time=this.value" /></td>' +
+          '<td colspan="5" style="font-weight:700;color:var(--navy);text-align:center;">' +
+            '<input style="width:100%;border:none;background:transparent;text-align:center;font-weight:700;color:var(--navy);font-size:13.5px;font-family:inherit;" ' +
+            'value="' + escHtml(row.label || '') + '" onchange="ttRows[' + idx + '].label=this.value" /></td>' +
+          '<td>' + (isLast ? '' : '<button class="tt-del-btn" onclick="deleteTTRow(' + idx + ')" title="Delete">✕</button>') + '</td>';
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function addTimetableRow() {
+    const insertBefore = ttRows.findIndex(r => r.type === 'dismiss');
+    const newRow = { type:'lesson', time:'', days:['','','','',''] };
+    if (insertBefore > -1) ttRows.splice(insertBefore, 0, newRow);
+    else ttRows.push(newRow);
+    renderTimetableEditor();
+  }
+
+  function addBreakRow() {
+    const insertBefore = ttRows.findIndex(r => r.type === 'dismiss');
+    const newRow = { type:'break', time:'', label:'Break' };
+    if (insertBefore > -1) ttRows.splice(insertBefore, 0, newRow);
+    else ttRows.push(newRow);
+    renderTimetableEditor();
+  }
+
+  function deleteTTRow(idx) {
+    ttRows.splice(idx, 1);
+    renderTimetableEditor();
+  }
+
+  function resetTimetable() {
+    if (!confirm('Reset to default timetable? All edits will be lost.')) return;
+    ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
+    ttStatus = 'draft';
+    saveTT('draft');
+    updateStatusBanner();
+    renderTimetableEditor();
+    toast('Timetable reset to default.');
+  }
+
+  function saveTimetableDraft() {
+    ttStatus = ttStatus === 'approved' ? 'approved' : 'draft';
+    saveTT(ttStatus);
+    toast('✅ Timetable draft saved.');
+  }
+
+  function submitTimetable() {
+    const empty = ttRows.filter(r => r.type === 'lesson' && r.days.every(d => !d.trim()));
+    if (empty.length > 0) {
+      toast('⚠️ Please fill in at least some subject cells before submitting.');
+      return;
+    }
+    ttStatus = 'pending';
+    saveTT('pending');
+    updateStatusBanner();
+    toast('📤 Timetable submitted to admin for approval!');
+  }
+
+  function showTimetablePreview() {
+    const card  = document.getElementById('tt-preview-card');
+    const tbody = document.getElementById('tt-preview-tbody');
+    if (!card || !tbody) return;
+    tbody.innerHTML = ttRows.map(row => {
+      if (row.type === 'lesson') {
+        return '<tr><td><strong>' + escHtml(row.time) + '</strong></td>' +
+          row.days.map(d => '<td>' + escHtml(d) + '</td>').join('') + '</tr>';
+      }
+      const cls = row.type === 'break' ? 'tt-break' : 'tt-dismiss';
+      return '<tr class="' + cls + '"><td><strong>' + escHtml(row.time) + '</strong></td>' +
+        '<td colspan="5">' + escHtml(row.label || '') + '</td></tr>';
+    }).join('');
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  /* Load timetable when the tab is opened */
+  const _origTeacherTab = typeof teacherTab === 'function' ? teacherTab : null;
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
+      link.addEventListener('click', function() {
+        setTimeout(loadTimetable, 50);
+      });
+    }
+  });
+  /* Also load if page opens directly on timetable */
+  if (document.getElementById('tp-timetable') && document.getElementById('tp-timetable').classList.contains('active')) {
+    loadTimetable();
+  }
+
+
 </script>
 
 <nav class="mobile-bottom-nav">
@@ -596,6 +870,9 @@
     </button>
     <button class="mbn-item" onclick="switchToTab('messages');setMbn(this)">
       <span class="mbn-icon">&#128172;</span><span class="mbn-label">Messages</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)">
+      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span>
     </button>
   </div>
 </nav>

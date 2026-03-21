@@ -102,6 +102,7 @@
       <div class="sidebar-link"        onclick="switchToTab('teachers',this)"><span class="icon">👩‍🏫</span> Teachers</div>
       <div class="sidebar-link"        onclick="switchToTab('payments',this)"><span class="icon">💰</span> School Fees</div>
       <div class="sidebar-link"        onclick="switchToTab('results',this)"><span class="icon">📊</span> Results</div>
+      <div class="sidebar-link"        onclick="switchToTab('timetables',this)"><span class="icon">📅</span> Timetables</div>
       <div class="sidebar-section">Communication</div>
       <div class="sidebar-link"        onclick="switchToTab('announcements',this)"><span class="icon">📢</span> Announcements</div>
     </div>
@@ -450,6 +451,63 @@
                 <tr><td><strong>Nursery 1</strong></td><td>Mrs. Balogun</td><td>25</td><td><span class="badge b-yellow" id="res-badge-n1">Awaiting Approval</span></td><td>Mar 14</td><td><button class="btn btn-green btn-sm" id="res-btn-n1" onclick="publishResults('n1','Nursery 1')">Approve &amp; Publish</button></td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══ TIMETABLES ═══ -->
+      <div id="ap-timetables" class="stab-pane">
+
+        <div class="stats-row">
+          <div class="stat-card" data-icon="✅"><div class="stat-num" id="adm-tt-approved-count">0</div><div class="stat-label">Approved</div></div>
+          <div class="stat-card" data-icon="⏳"><div class="stat-num" id="adm-tt-pending-count">0</div><div class="stat-label">Pending Review</div></div>
+          <div class="stat-card" data-icon="📋"><div class="stat-num" id="adm-tt-draft-count">0</div><div class="stat-label">Not Submitted</div></div>
+          <div class="stat-card" data-icon="📅"><div class="stat-num">3rd Term</div><div class="stat-label">Current Term</div></div>
+        </div>
+
+        <div class="card">
+          <h3>📅 Timetable Submissions — 2024/2025 Session</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:18px;">
+            Teachers submit their class timetables here for review. Click <strong>Review</strong> to view and approve or reject.
+          </p>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Class</th><th>Teacher</th><th>Status</th><th>Last Updated</th><th>Action</th></tr></thead>
+              <tbody id="adm-tt-list">
+                <!-- Populated by loadAdminTimetables() -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Review panel — shown when admin clicks Review -->
+        <div class="card" id="adm-tt-review-card" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <h3 style="margin:0;">📋 Reviewing: <span id="adm-tt-review-title">—</span></h3>
+            <button class="btn btn-outline-navy btn-sm" onclick="closeAdminTTReview()">✕ Close</button>
+          </div>
+
+          <div id="adm-tt-review-status" class="notif info" style="margin-bottom:16px;">
+            <span>📋</span><div><h4 id="adm-tt-review-status-title">Pending Review</h4><p id="adm-tt-review-status-text">Review the timetable below then approve or reject.</p></div>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
+              <tbody id="adm-tt-review-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="form-group" style="margin-top:16px;">
+            <label>Review Note (optional — shown to teacher)</label>
+            <textarea id="adm-tt-note" rows="2" placeholder="e.g. Approved. Please ensure PE is scheduled once a week. / Rejected — please add ICT lesson."></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;" id="adm-tt-action-btns">
+            <button class="btn btn-green" onclick="approveAdminTT()">✅ Approve Timetable</button>
+            <button class="btn btn-red"   onclick="rejectAdminTT()">❌ Reject Timetable</button>
           </div>
         </div>
       </div>
@@ -983,6 +1041,171 @@
   function filterPaymentsList() {}
   function filterPayments() {}
 
+
+  /* ═══════════════════════════════════════════════
+     TIMETABLE MANAGEMENT (ADMIN)
+  ═══════════════════════════════════════════════ */
+
+  /* All known class timetable keys */
+  const ADM_TT_CLASSES = [
+    { key:'bfs_timetable_primary6a', label:'Primary 6A', teacher:'Mr. Emeka Chukwu' },
+    { key:'bfs_timetable_primary5b', label:'Primary 5B', teacher:'Mrs. Kemi Adamu' },
+    { key:'bfs_timetable_primary3a', label:'Primary 3A', teacher:'Mr. Femi Lawal' },
+    { key:'bfs_timetable_nursery2',  label:'Nursery 2',  teacher:'Miss Grace Okoye' },
+    { key:'bfs_timetable_nursery1',  label:'Nursery 1',  teacher:'Mrs. Balogun' },
+  ];
+
+  let _adm_tt_current_key = null; /* which class is being reviewed */
+
+  function loadAdminTimetables() {
+    const tbody = document.getElementById('adm-tt-list');
+    if (!tbody) return;
+
+    let approved = 0, pending = 0, draft = 0;
+
+    tbody.innerHTML = ADM_TT_CLASSES.map(cls => {
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(cls.key) || 'null'); } catch(e) {}
+      const status  = data ? (data.status || 'draft') : 'draft';
+      const updated = data && data.updated
+        ? new Date(data.updated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
+        : '—';
+
+      if (status === 'approved') approved++;
+      else if (status === 'pending') pending++;
+      else draft++;
+
+      const badge = {
+        draft:    '<span class="badge b-blue">Not Submitted</span>',
+        pending:  '<span class="badge b-yellow">Pending Review</span>',
+        approved: '<span class="badge b-green">Approved</span>',
+        rejected: '<span class="badge b-red">Rejected</span>',
+      }[status] || '<span class="badge b-blue">Draft</span>';
+
+      const hasData   = data && data.rows && data.rows.length;
+      const actionBtn = (status === 'pending' || (status !== 'draft' && hasData))
+        ? '<button class="btn btn-navy btn-sm" onclick="openAdminTTReview('' + cls.key + '','' + escAdm(cls.label) + '','' + escAdm(cls.teacher) + '')">&#128269; Review</button>'
+        : '<span style="color:var(--gray);font-size:12.5px;">No submission yet</span>';
+
+      return '<tr><td><strong>' + cls.label + '</strong></td><td>' + cls.teacher + '</td><td>' + badge + '</td><td>' + updated + '</td><td>' + actionBtn + '</td></tr>';
+    }).join('');
+
+    /* Update stats */
+    const ac = document.getElementById('adm-tt-approved-count');
+    const pc = document.getElementById('adm-tt-pending-count');
+    const dc = document.getElementById('adm-tt-draft-count');
+    if (ac) ac.textContent = approved;
+    if (pc) pc.textContent = pending;
+    if (dc) dc.textContent = draft;
+  }
+
+  function escAdm(s) {
+    return String(s).replace(/'/g,'\\'').replace(/"/g,'&quot;');
+  }
+
+  function openAdminTTReview(key, label, teacher) {
+    _adm_tt_current_key = key;
+    let data = null;
+    try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
+
+    const card  = document.getElementById('adm-tt-review-card');
+    const title = document.getElementById('adm-tt-review-title');
+    const tbody = document.getElementById('adm-tt-review-tbody');
+    const sBanner= document.getElementById('adm-tt-review-status');
+    const sTitle = document.getElementById('adm-tt-review-status-title');
+    const sTxt   = document.getElementById('adm-tt-review-status-text');
+    const btns   = document.getElementById('adm-tt-action-btns');
+    const noteEl = document.getElementById('adm-tt-note');
+    if (!card || !title || !tbody) return;
+
+    title.textContent = label + ' — ' + teacher;
+    if (noteEl) noteEl.value = (data && data.adminNote) || '';
+
+    const status = data ? (data.status || 'draft') : 'draft';
+    const statusMap = {
+      pending:  { cls:'notif warn', icon:'⏳', t:'Pending Review', tx:'Review the timetable and approve or reject below.' },
+      approved: { cls:'notif ok',   icon:'✅', t:'Currently Approved', tx:'This timetable is live. You can still reject it if needed.' },
+      rejected: { cls:'notif err',  icon:'❌', t:'Previously Rejected', tx:'This timetable was rejected. Teacher may resubmit.' },
+      draft:    { cls:'notif info', icon:'📋', t:'Draft / Not Submitted', tx:'Teacher has not submitted this for review yet.' },
+    };
+    const sm = statusMap[status] || statusMap.draft;
+    if (sBanner) sBanner.className = sm.cls;
+    if (sBanner) sBanner.querySelector('span').textContent = sm.icon;
+    if (sTitle)  sTitle.textContent = sm.t;
+    if (sTxt)    sTxt.textContent   = sm.tx;
+
+    /* Show/hide action buttons */
+    if (btns) btns.style.display = (status === 'approved') ? 'none' : 'flex';
+    /* Allow rejecting approved timetables too */
+    if (btns) btns.style.display = 'flex';
+
+    /* Render timetable rows */
+    const rows = (data && data.rows) || [];
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No timetable data submitted yet.</td></tr>';
+    } else {
+      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      tbody.innerHTML = rows.map(row => {
+        if (row.type === 'lesson') {
+          return '<tr><td><strong>' + esc(row.time) + '</strong></td>' +
+            (row.days||[]).map(d => '<td>' + esc(d) + '</td>').join('') + '</tr>';
+        }
+        const cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
+        return '<tr class="' + cls + '"><td><strong>' + esc(row.time) + '</strong></td>' +
+          '<td colspan="5">' + esc(row.label||'') + '</td></tr>';
+      }).join('');
+    }
+
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  function closeAdminTTReview() {
+    const card = document.getElementById('adm-tt-review-card');
+    if (card) card.style.display = 'none';
+    _adm_tt_current_key = null;
+  }
+
+  function approveAdminTT() {
+    if (!_adm_tt_current_key) return;
+    updateAdminTTStatus('approved');
+    toast('\u2705 Timetable approved! Students can now view it in their portal.');
+  }
+
+  function rejectAdminTT() {
+    if (!_adm_tt_current_key) return;
+    const note = document.getElementById('adm-tt-note');
+    if (!note || !note.value.trim()) {
+      note.classList.add('field-error');
+      toast('\u26a0\ufe0f Please add a note explaining why you are rejecting the timetable.');
+      setTimeout(() => note && note.classList.remove('field-error'), 2500);
+      return;
+    }
+    updateAdminTTStatus('rejected');
+    toast('Timetable rejected. Teacher has been notified to revise and resubmit.');
+  }
+
+  function updateAdminTTStatus(newStatus) {
+    try {
+      const data  = JSON.parse(localStorage.getItem(_adm_tt_current_key) || '{}');
+      const note  = document.getElementById('adm-tt-note');
+      data.status    = newStatus;
+      data.adminNote = note ? note.value.trim() : '';
+      data.reviewed  = new Date().toISOString();
+      localStorage.setItem(_adm_tt_current_key, JSON.stringify(data));
+    } catch(e) { /* localStorage may be unavailable */ }
+    closeAdminTTReview();
+    loadAdminTimetables();
+  }
+
+  /* Load timetables when tab is opened */
+  document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(link => {
+    if ((link.getAttribute('onclick') || '').includes("'timetables'")) {
+      link.addEventListener('click', function() { setTimeout(loadAdminTimetables, 50); });
+    }
+  });
+
+
 </script>
 
 <!-- FIX 6: Payments button added to mobile bottom nav
@@ -1001,6 +1224,9 @@
     <!-- FIX 6: Payments was missing from mobile nav -->
     <button class="mbn-item" onclick="switchToTab('payments',null);setMbn(this)">
       <span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span>
+    </button>
+    <button class="mbn-item" onclick="switchToTab('timetables',null);setMbn(this)">
+      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetables</span>
     </button>
     <button class="mbn-item" onclick="switchToTab('announcements',null);setMbn(this)">
       <span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span>
