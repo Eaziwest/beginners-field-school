@@ -90,6 +90,10 @@
     .back-link { display: block; text-align: center; margin-top: 18px; color: var(--gray); font-size: 13px; }
     .back-link a { color: var(--navy-light); font-weight: 700; }
   </style>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/db.js"></script>
 </head>
 <body>
 
@@ -218,8 +222,8 @@
       selectRole(role);
     }
 
-    /* Main login handler */
-    function attemptLoginForm() {
+    /* Main login handler — async (Supabase) */
+    async function attemptLoginForm() {
       hideError();
       const email    = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
@@ -228,24 +232,33 @@
       if (!email)    { showError('Please enter your email address.'); return; }
       if (!password) { showError('Please enter your password.');      return; }
 
-      const user = attemptLogin(email, password);
+      /* Show loading state */
+      const btn = document.querySelector('.btn.btn-navy[onclick]');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Signing in…'; }
 
-      if (!user) {
-        showError('Incorrect email or password. Please try again.');
+      try {
+        const profile = await attemptLoginAsync(email, password);
+
+        if (profile.role !== role) {
+          showError(
+            'These credentials belong to the ' +
+            profile.role.charAt(0).toUpperCase() + profile.role.slice(1) +
+            ' portal. Please select the correct role tab above.'
+          );
+          document.getElementById('login-password').value = '';
+          return;
+        }
+
+        saveSession(profile);
+        const portals = { admin: 'admin.html', teacher: 'teacher.html', student: 'student.html' };
+        window.location.href = portals[profile.role] || 'login.html';
+
+      } catch (err) {
+        showError(err.message || 'Login failed. Please try again.');
         document.getElementById('login-password').value = '';
-        return;
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🔐 Sign In'; }
       }
-
-      if (user.role !== role) {
-        showError(
-          'These credentials belong to the ' + user.role.charAt(0).toUpperCase() + user.role.slice(1) +
-          ' portal. Please select the correct role tab above.'
-        );
-        return;
-      }
-
-      saveSession(user);
-      window.location.href = user.portal;
     }
 
     /* Forgot password */

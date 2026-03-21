@@ -274,6 +274,9 @@
 
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/db.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
@@ -380,7 +383,7 @@
   }
 
   /* ── Load timetable from teacher's saved data ── */
-  function loadStudentTimetable() {
+  async function loadStudentTimetable() {
     const TT_KEY = 'bfs_timetable_primary6a';
     const pending = document.getElementById('stu-tt-pending');
     const draft   = document.getElementById('stu-tt-draft');
@@ -390,7 +393,7 @@
     if (!card || !tbody) return;
 
     let data = null;
-    try { data = JSON.parse(localStorage.getItem(TT_KEY) || 'null'); } catch(e) {}
+    try { data = await DB.timetables.get(TT_KEY); } catch(e) {}
 
     if (!data || data.status === 'draft') {
       /* Show static default timetable (teacher hasn't submitted yet) */
@@ -414,10 +417,10 @@
       if (draft)   draft.style.display   = 'none';
       card.style.display = 'block';
       const cls = document.getElementById('stu-tt-class');
-      if (cls && data.class) cls.textContent = data.class;
+      if (cls && data.class_label) cls.textContent = data.class_label;
       if (meta) {
-        const d = data.updated ? new Date(data.updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-        meta.textContent = 'Approved timetable' + (d ? ' — last updated ' + d : '') + (data.teacher ? ' by ' + data.teacher : '');
+        const d = data.updated_at ? new Date(data.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        meta.textContent = 'Approved timetable' + (d ? ' — last updated ' + d : '') + (data.teacher_name ? ' by ' + data.teacher_name : '');
       }
       renderStudentTT(tbody, data.rows || getDefaultTT());
       return;
@@ -428,6 +431,27 @@
     if (meta) meta.textContent = 'Default timetable';
     renderStudentTT(tbody, getDefaultTT());
   }
+
+  /* ── Load live fees from DB ── */
+  async function loadStudentFees() {
+    try {
+      const fees = await DB.fees.get();
+      // Map DB keys to element IDs in the fees section
+      const feeMap = {
+        'sp-fee-tuition':  fees.primary_tuition || 45000,
+        'sp-fee-levy':     fees.dev_levy || 5000,
+        'sp-fee-pta':      fees.pta || 2000,
+        'sp-fee-sports':   fees.sports || 1500,
+        'sp-fee-medical':  fees.medical || 1000,
+        'sp-fee-ict':      fees.ict || 3000,
+      };
+      Object.entries(feeMap).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '₦' + Number(val).toLocaleString();
+      });
+    } catch(e) { console.warn('[BFS] Student fees:', e.message); }
+  }
+
 
   function renderStudentTT(tbody, rows) {
     tbody.innerHTML = rows.map(row => {

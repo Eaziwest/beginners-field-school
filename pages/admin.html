@@ -6,6 +6,10 @@
   <title>Admin Portal — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/db.js"></script>
   <style>
     .admin-modal-overlay {
       display:none; position:fixed; inset:0;
@@ -197,39 +201,7 @@
             <table>
               <thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Parent</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody id="admissions-tbody">
-                <tr data-name="Chidera Obi" data-class="Primary 1" data-status="Pending">
-                  <td>001</td><td><strong>Chidera Obi</strong></td><td>Primary 1</td><td>Mr. Obi</td><td>0801 234 5678</td><td>Mar 18</td>
-                  <td><span class="adm-badge badge b-yellow">Pending</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-green btn-sm" onclick="approveAdmission(this,'Chidera Obi')">✓</button>
-                    <button class="btn btn-red btn-sm"   onclick="rejectAdmission(this,'Chidera Obi')">✗</button>
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('Chidera Obi','Primary 1','Mr. Obi','0801 234 5678','Pending')">👁</button>
-                  </td>
-                </tr>
-                <tr data-name="Fatima Bello" data-class="Nursery 2" data-status="Approved">
-                  <td>002</td><td><strong>Fatima Bello</strong></td><td>Nursery 2</td><td>Mrs. Bello</td><td>0802 345 6789</td><td>Mar 17</td>
-                  <td><span class="adm-badge badge b-green">Approved</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('Fatima Bello','Nursery 2','Mrs. Bello')">📄 Letter</button></td>
-                </tr>
-                <tr data-name="Emeka Johnson" data-class="Primary 3" data-status="Rejected">
-                  <td>003</td><td><strong>Emeka Johnson</strong></td><td>Primary 3</td><td>Mr. Johnson</td><td>0803 456 7890</td><td>Mar 16</td>
-                  <td><span class="adm-badge badge b-red">Rejected</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewApplication('Emeka Johnson','Primary 3','Mr. Johnson','0803 456 7890','Rejected')">Details</button></td>
-                </tr>
-                <tr data-name="Ngozi Adeleke" data-class="Nursery 3" data-status="Pending">
-                  <td>004</td><td><strong>Ngozi Adeleke</strong></td><td>Nursery 3</td><td>Dr. Adeleke</td><td>0804 567 8901</td><td>Mar 14</td>
-                  <td><span class="adm-badge badge b-yellow">Pending</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-green btn-sm" onclick="approveAdmission(this,'Ngozi Adeleke')">✓</button>
-                    <button class="btn btn-red btn-sm"   onclick="rejectAdmission(this,'Ngozi Adeleke')">✗</button>
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('Ngozi Adeleke','Nursery 3','Dr. Adeleke','0804 567 8901','Pending')">👁</button>
-                  </td>
-                </tr>
-                <tr data-name="Amara Eze" data-class="Nursery 1" data-status="Approved">
-                  <td>005</td><td><strong>Amara Eze</strong></td><td>Nursery 1</td><td>Mrs. Eze</td><td>0805 678 9012</td><td>Mar 13</td>
-                  <td><span class="adm-badge badge b-green">Approved</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('Amara Eze','Nursery 1','Mrs. Eze')">📄 Letter</button></td>
-                </tr>
+                <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading admissions…</td></tr>
               </tbody>
             </table>
           </div>
@@ -252,26 +224,7 @@
             <table>
               <thead><tr><th>Student ID</th><th>Name</th><th>Class</th><th>Gender</th><th>Fees</th><th>Attendance</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="students-tbody">
-                <tr data-name="Adaeze Nwosu" data-class="Primary 4">
-                  <td>BFS/2025/001</td><td><strong>Adaeze Nwosu</strong></td><td>Primary 4</td><td>Female</td>
-                  <td><span class="badge b-green">Paid</span></td><td>98%</td><td><span class="badge b-green">Active</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Adaeze Nwosu','Primary 4','Female','BFS/2025/001','98%','Paid','Active')">View</button></td>
-                </tr>
-                <tr data-name="Tunde Afolabi" data-class="Primary 2">
-                  <td>BFS/2025/002</td><td><strong>Tunde Afolabi</strong></td><td>Primary 2</td><td>Male</td>
-                  <td><span class="badge b-red">Owing &#x20a6;45k</span></td><td>92%</td><td><span class="badge b-green">Active</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Tunde Afolabi','Primary 2','Male','BFS/2025/002','92%','Owing','Active')">View</button></td>
-                </tr>
-                <tr data-name="Mary Ekwueme" data-class="Nursery 3">
-                  <td>BFS/2025/003</td><td><strong>Mary Ekwueme</strong></td><td>Nursery 3</td><td>Female</td>
-                  <td><span class="badge b-green">Paid</span></td><td>100%</td><td><span class="badge b-green">Active</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Mary Ekwueme','Nursery 3','Female','BFS/2025/003','100%','Paid','Active')">View</button></td>
-                </tr>
-                <tr data-name="Samuel Ogunsi" data-class="Primary 6">
-                  <td>BFS/2025/004</td><td><strong>Samuel Ogunsi</strong></td><td>Primary 6</td><td>Male</td>
-                  <td><span class="badge b-yellow">Partial</span></td><td>88%</td><td><span class="badge b-green">Active</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('Samuel Ogunsi','Primary 6','Male','BFS/2025/004','88%','Partial','Active')">View</button></td>
-                </tr>
+                <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
@@ -289,38 +242,7 @@
             <table>
               <thead><tr><th>Name</th><th>Class</th><th>Subject</th><th>Phone</th><th>Attendance</th><th>Results</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="teachers-tbody">
-                <tr data-name="Mr. Emeka Chukwu">
-                  <td><strong>Mr. Emeka Chukwu</strong></td><td>Primary 6A</td><td>Mathematics</td><td>0801 111 2222</td>
-                  <td>98%</td><td><span class="badge b-green">Uploaded</span></td><td><span class="badge b-green">Active</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('Mr. Emeka Chukwu','Primary 6A','Mathematics','0801 111 2222','98%','Active')">View</button>
-                    <button class="btn btn-navy btn-sm" onclick="contactTeacher('Mr. Emeka Chukwu')">📧</button>
-                  </td>
-                </tr>
-                <tr data-name="Mrs. Kemi Adamu">
-                  <td><strong>Mrs. Kemi Adamu</strong></td><td>Primary 5B</td><td>English</td><td>0802 222 3333</td>
-                  <td>95%</td><td><span class="badge b-yellow">Pending</span></td><td><span class="badge b-green">Active</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('Mrs. Kemi Adamu','Primary 5B','English','0802 222 3333','95%','Active')">View</button>
-                    <button class="btn btn-navy btn-sm" onclick="contactTeacher('Mrs. Kemi Adamu')">📧</button>
-                  </td>
-                </tr>
-                <tr data-name="Miss Grace Okoye">
-                  <td><strong>Miss Grace Okoye</strong></td><td>Nursery 2</td><td>Class Teacher</td><td>0803 333 4444</td>
-                  <td>100%</td><td><span class="badge b-red">Not Done</span></td><td><span class="badge b-green">Active</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('Miss Grace Okoye','Nursery 2','Class Teacher','0803 333 4444','100%','Active')">View</button>
-                    <button class="btn btn-navy btn-sm" onclick="contactTeacher('Miss Grace Okoye')">📧</button>
-                  </td>
-                </tr>
-                <tr data-name="Mr. Femi Lawal">
-                  <td><strong>Mr. Femi Lawal</strong></td><td>Primary 3</td><td>Science</td><td>0804 444 5555</td>
-                  <td>90%</td><td><span class="badge b-green">Uploaded</span></td><td><span class="badge b-yellow">On Leave</span></td>
-                  <td style="display:flex;gap:5px;">
-                    <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('Mr. Femi Lawal','Primary 3','Science','0804 444 5555','90%','On Leave')">View</button>
-                    <button class="btn btn-navy btn-sm" onclick="contactTeacher('Mr. Femi Lawal')">📧</button>
-                  </td>
-                </tr>
+                <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading teachers…</td></tr>
               </tbody>
             </table>
           </div>
@@ -873,80 +795,53 @@
     title.value = ''; body.value = ''; aud.value = '';
   }
 
-  /* ── Add Student ── */
-  function saveNewStudent() {
-    var fname  = document.getElementById('new-stu-fname').value.trim();
-    var lname  = document.getElementById('new-stu-lname').value.trim();
-    var cls    = document.getElementById('new-stu-class').value;
-    var gender = document.getElementById('new-stu-gender').value;
-    var parent = document.getElementById('new-stu-parent').value.trim();
-    var phone  = document.getElementById('new-stu-phone').value.trim();
-    if (!fname||!lname||!cls||!gender||!parent||!phone) { toast('\u26a0\ufe0f Please fill in all fields.'); return; }
-    var name  = fname + ' ' + lname;
-    var tbody = document.getElementById('students-tbody');
-    var id    = 'BFS/2025/00' + (tbody.querySelectorAll('tr').length + 5);
-    var row   = document.createElement('tr');
-    row.dataset.name   = name;
-    row.dataset['class'] = cls;
-    row.dataset.id     = id;
-    row.dataset.gender = gender;
-    row.dataset.fees   = 'Pending';
-    row.dataset.att    = '\u2014';
-    row.innerHTML =
-      '<td>' + id + '</td><td><strong>' + name + '</strong></td><td>' + cls + '</td><td>' + gender + '</td>' +
-      '<td><span class="badge b-yellow">Pending</span></td><td>\u2014</td><td><span class="badge b-green">Active</span></td>' +
-      '<td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentRow(this)">View</button></td>';
-    tbody.appendChild(row);
-    toast('\u2705 ' + name + ' added to ' + cls + '!');
-    closeAdminModal('modal-add-student');
-    ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(function(i) {
-      var el = document.getElementById(i); if (el) el.value = '';
-    });
-    var sc = document.getElementById('new-stu-class');   if (sc) sc.value = '';
-    var sg = document.getElementById('new-stu-gender');  if (sg) sg.value = '';
+  /* ── Add Student (DB) ── */
+  async function saveNewStudent() {
+    const fname  = document.getElementById('new-stu-fname').value.trim();
+    const lname  = document.getElementById('new-stu-lname').value.trim();
+    const cls    = document.getElementById('new-stu-class').value;
+    const gender = document.getElementById('new-stu-gender').value;
+    const parent = document.getElementById('new-stu-parent').value.trim();
+    const phone  = document.getElementById('new-stu-phone').value.trim();
+    if (!fname||!lname||!cls||!gender||!parent||!phone) { toast('⚠️ Please fill in all fields.'); return; }
+
+    try {
+      const student = await DB.students.add({ firstName: fname, lastName: lname, className: cls, gender, parentName: parent, parentPhone: phone });
+      toast(`✅ ${student.first_name} ${student.last_name} added to ${cls}!`);
+      closeAdminModal('modal-add-student');
+      ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('new-stu-class').value  = '';
+      document.getElementById('new-stu-gender').value = '';
+      await loadStudents();
+    } catch(err) {
+      toast('⚠️ ' + err.message);
+    }
   }
 
-  function viewStudentRow(btn) {
-    var row = btn.closest('tr');
-    viewStudentProfile(row.dataset.name, row.dataset['class'], row.dataset.gender,
-      row.dataset.id, row.dataset.att||'\u2014', row.dataset.fees||'Pending', 'Active');
-  }
+  /* ── Add Teacher (DB) ── */
+  async function saveNewTeacher() {
+    const name    = document.getElementById('new-tch-name').value.trim();
+    const phone   = document.getElementById('new-tch-phone').value.trim();
+    const cls     = document.getElementById('new-tch-class').value;
+    const subject = document.getElementById('new-tch-subject').value.trim();
+    const email   = document.getElementById('new-tch-email').value.trim();
+    if (!name||!phone||!cls||!subject||!email) { toast('⚠️ Please fill in all fields.'); return; }
 
-  /* ── Add Teacher ── */
-  function saveNewTeacher() {
-    var name    = document.getElementById('new-tch-name').value.trim();
-    var phone   = document.getElementById('new-tch-phone').value.trim();
-    var cls     = document.getElementById('new-tch-class').value;
-    var subject = document.getElementById('new-tch-subject').value.trim();
-    var email   = document.getElementById('new-tch-email').value.trim();
-    if (!name||!phone||!cls||!subject||!email) { toast('\u26a0\ufe0f Please fill in all fields.'); return; }
-    var tbody = document.getElementById('teachers-tbody');
-    var row   = document.createElement('tr');
-    row.dataset.name    = name;
-    row.dataset['class']= cls;
-    row.dataset.subject = subject;
-    row.dataset.phone   = phone;
-    row.innerHTML =
-      '<td><strong>' + name + '</strong></td><td>' + cls + '</td><td>' + subject + '</td><td>' + phone + '</td>' +
-      '<td>\u2014</td><td><span class="badge b-yellow">Pending</span></td><td><span class="badge b-green">Active</span></td>' +
-      '<td style="display:flex;gap:5px;">' +
-        '<button class="btn btn-outline-navy btn-sm" onclick="viewTeacherRow(this)">View</button>' +
-        '<button class="btn btn-navy btn-sm" onclick="contactTeacherRow(this)">&#128231;</button>' +
-      '</td>';
-    tbody.appendChild(row);
-    toast('\u2705 ' + name + ' added as teacher for ' + cls + '!');
-    closeAdminModal('modal-add-teacher');
-    ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(function(i) {
-      var el = document.getElementById(i); if (el) el.value = '';
-    });
-    var tc = document.getElementById('new-tch-class'); if (tc) tc.value = '';
+    try {
+      const teacher = await DB.teachers.add({ name, phone, classAssigned: cls, subject, email });
+      toast(`✅ ${teacher.name} added as teacher for ${cls}!`);
+      closeAdminModal('modal-add-teacher');
+      ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('new-tch-class').value = '';
+      await loadTeachers();
+    } catch(err) {
+      toast('⚠️ ' + err.message);
+    }
   }
-
-  function viewTeacherRow(btn) {
-    var row = btn.closest('tr');
-    viewTeacher(row.dataset.name, row.dataset['class'], row.dataset.subject, row.dataset.phone, '\u2014', 'Active');
-  }
-  function contactTeacherRow(btn) { contactTeacher(btn.closest('tr').dataset.name); }
 
   /* ── Live Filters ── */
   function filterAdmissions() {
@@ -1031,12 +926,30 @@
       '<td><strong>' + fmt(primary6Total) + '</strong></td></tr>';
   }
 
-  function saveFees() {
+  async function saveFees() {
     updateFeeStats();
-    var now = new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    var el  = document.getElementById('fee-last-saved');
-    if (el) el.textContent = 'Last saved: ' + now;
-    toast('\u2705 Fee schedule saved! Students will see the updated amounts in their portal.');
+    const get = id => { const e = document.getElementById(id); return e ? (parseInt(e.value)||0) : 0; };
+    const feeMap = {
+      nursery_tuition: get('fee-nursery-tuition'),
+      nursery_creche:  get('fee-nursery-creche'),
+      uniform:         get('fee-uniform'),
+      primary_tuition: get('fee-primary-tuition'),
+      ict:             get('fee-ict'),
+      exam:            get('fee-exam'),
+      dev_levy:        get('fee-dev-levy'),
+      pta:             get('fee-pta'),
+      sports:          get('fee-sports'),
+      medical:         get('fee-medical')
+    };
+    try {
+      await DB.fees.save(feeMap);
+      const now = new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      const el  = document.getElementById('fee-last-saved');
+      if (el) el.textContent = 'Last saved: ' + now;
+      toast('✅ Fee schedule saved! Students will see the updated amounts.');
+    } catch(err) {
+      toast('⚠️ Could not save fees: ' + err.message);
+    }
   }
 
   function resetFees() {
@@ -1059,7 +972,7 @@
 
   document.addEventListener('DOMContentLoaded', function() { renderFeeSummary(); });
 
-  /* ── Timetable Management ── */
+  /* ── Timetable Management (Supabase DB) ── */
   var ADM_TT_CLASSES = [
     { key:'bfs_timetable_primary6a', label:'Primary 6A', teacher:'Mr. Emeka Chukwu' },
     { key:'bfs_timetable_primary5b', label:'Primary 5B', teacher:'Mrs. Kemi Adamu' },
@@ -1070,17 +983,21 @@
 
   var _adm_tt_current_key = null;
 
-  function loadAdminTimetables() {
+  async function loadAdminTimetables() {
     var tbody = document.getElementById('adm-tt-list');
     if (!tbody) return;
     var approved = 0, pending = 0, draft = 0;
     tbody.innerHTML = '';
+    var allTT = [];
+    try { allTT = await DB.timetables.getAll(); } catch(e) { console.warn('[BFS] TT load:', e.message); }
+    var ttMap = {};
+    allTT.forEach(function(t) { ttMap[t.class_key] = t; });
+
     ADM_TT_CLASSES.forEach(function(cls) {
-      var data = null;
-      try { data = JSON.parse(localStorage.getItem(cls.key) || 'null'); } catch(e) {}
+      var data = ttMap[cls.key] || null;
       var status  = data ? (data.status || 'draft') : 'draft';
-      var updated = (data && data.updated)
-        ? new Date(data.updated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
+      var updated = (data && data.updated_at)
+        ? new Date(data.updated_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
         : '\u2014';
       if (status === 'approved') approved++;
       else if (status === 'pending') pending++;
@@ -1112,10 +1029,10 @@
     if (dc) dc.textContent = draft;
   }
 
-  function openAdminTTReview(key, label, teacher) {
+  async function openAdminTTReview(key, label, teacher) {
     _adm_tt_current_key = key;
     var data = null;
-    try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
+    try { data = await DB.timetables.get(key); } catch(e) {}
     var card   = document.getElementById('adm-tt-review-card');
     var title  = document.getElementById('adm-tt-review-title');
     var tbody  = document.getElementById('adm-tt-review-tbody');
@@ -1125,7 +1042,7 @@
     var noteEl = document.getElementById('adm-tt-note');
     if (!card || !title || !tbody) return;
     title.textContent = label + ' \u2014 ' + teacher;
-    if (noteEl) noteEl.value = (data && data.adminNote) || '';
+    if (noteEl) noteEl.value = (data && data.admin_note) || '';
     var status = data ? (data.status || 'draft') : 'draft';
     var statusMap = {
       pending:  { cls:'notif warn', icon:'\u23f3', t:'Pending Review',      tx:'Review the timetable and approve or reject below.' },
@@ -1170,36 +1087,32 @@
     _adm_tt_current_key = null;
   }
 
-  function approveAdminTT() {
+  async function approveAdminTT() {
     if (!_adm_tt_current_key) return;
-    updateAdminTTStatus('approved');
-    toast('\u2705 Timetable approved! Students can now view it in their portal.');
+    try {
+      var note = document.getElementById('adm-tt-note');
+      await DB.timetables.updateStatus(_adm_tt_current_key, 'approved', note ? note.value.trim() : '');
+      toast('\u2705 Timetable approved! Students can now view it.');
+      closeAdminTTReview();
+      await loadAdminTimetables();
+    } catch(e) { toast('\u26a0\ufe0f ' + e.message); }
   }
 
-  function rejectAdminTT() {
+  async function rejectAdminTT() {
     if (!_adm_tt_current_key) return;
     var note = document.getElementById('adm-tt-note');
     if (!note || !note.value.trim()) {
       if (note) note.classList.add('field-error');
-      toast('\u26a0\ufe0f Please add a note explaining why you are rejecting the timetable.');
+      toast('\u26a0\ufe0f Please add a note explaining the rejection.');
       setTimeout(function() { if (note) note.classList.remove('field-error'); }, 2500);
       return;
     }
-    updateAdminTTStatus('rejected');
-    toast('Timetable rejected. Teacher has been notified to revise and resubmit.');
-  }
-
-  function updateAdminTTStatus(newStatus) {
     try {
-      var data  = JSON.parse(localStorage.getItem(_adm_tt_current_key) || '{}');
-      var note  = document.getElementById('adm-tt-note');
-      data.status    = newStatus;
-      data.adminNote = note ? note.value.trim() : '';
-      data.reviewed  = new Date().toISOString();
-      localStorage.setItem(_adm_tt_current_key, JSON.stringify(data));
-    } catch(e) {}
-    closeAdminTTReview();
-    loadAdminTimetables();
+      await DB.timetables.updateStatus(_adm_tt_current_key, 'rejected', note.value.trim());
+      toast('Timetable rejected. Teacher notified to revise.');
+      closeAdminTTReview();
+      await loadAdminTimetables();
+    } catch(e) { toast('\u26a0\ufe0f ' + e.message); }
   }
 
   /* ── Event delegation ── */
@@ -1217,11 +1130,323 @@
   });
 
   /* Set initial tab correctly based on active panel */
-  document.addEventListener('DOMContentLoaded', function() {
-    var activePane = document.querySelector('.stab-pane.active');
-    if(activePane && activePane.id) {
-       switchToTab(activePane.id.replace('ap-', ''));
+  /* ══════════════════════════════════════════════════════════
+     DB LOAD FUNCTIONS — populate all tabs from Supabase
+  ══════════════════════════════════════════════════════════ */
+
+  /* ── Overview stats ── */
+  async function loadOverviewStats() {
+    try {
+      const s = await DB.stats.getOverview();
+      const cards = document.querySelectorAll('#ap-overview .stat-num');
+      if (cards[0]) cards[0].textContent = s.totalStudents;
+      if (cards[1]) cards[1].textContent = s.totalTeachers;
+      if (cards[2]) cards[2].textContent = s.pendingAdmissions;
+    } catch(e) { console.warn('[BFS] Overview stats:', e.message); }
+  }
+
+  /* ── Overview recent admissions ── */
+  async function loadOverviewAdmissions() {
+    try {
+      const all = await DB.admissions.getAll();
+      const recent = all.slice(0, 4);
+      const tbody = document.querySelector('#ap-overview tbody');
+      if (!tbody) return;
+      tbody.innerHTML = recent.map(a => {
+        const d = new Date(a.applied_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        const badgeCls = a.status === 'Approved' ? 'b-green' : a.status === 'Rejected' ? 'b-red' : 'b-yellow';
+        const btn = a.status === 'Approved'
+          ? `<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}')">📄 Letter</button>`
+          : a.status === 'Pending'
+          ? `<button class="btn btn-green btn-sm" onclick="quickApprove('${a.id}','${a.student_name}',this)">✓ Approve</button>`
+          : `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">View</button>`;
+        return `<tr>
+          <td><strong>${a.student_name}</strong></td>
+          <td>${a.class_applied}</td>
+          <td>${a.parent_name||'—'} — ${a.parent_phone||'—'}</td>
+          <td>${d}</td>
+          <td><span class="badge ${badgeCls}">${a.status}</span></td>
+          <td>${btn}</td>
+        </tr>`;
+      }).join('');
+    } catch(e) { console.warn('[BFS] Overview admissions:', e.message); }
+  }
+
+  async function quickApprove(id, name, btn) {
+    try {
+      await DB.admissions.updateStatus(id, 'Approved');
+      btn.closest('td').innerHTML = `<button class="btn btn-outline-navy btn-sm">📄 Letter</button>`;
+      btn.closest('tr').querySelector('.badge').textContent = 'Approved';
+      btn.closest('tr').querySelector('.badge').className = 'badge b-green';
+      toast(`✅ ${name} approved!`);
+      loadOverviewStats();
+    } catch(e) { toast('⚠️ ' + e.message); }
+  }
+
+  /* ── Full admissions table ── */
+  async function loadAdmissions() {
+    const tbody = document.getElementById('admissions-tbody');
+    if (!tbody) return;
+    try {
+      const list = await DB.admissions.getAll();
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No admission applications yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map((a, i) => {
+        const d = new Date(a.applied_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        const badgeCls = a.status === 'Approved' ? 'b-green' : a.status === 'Rejected' ? 'b-red' : 'b-yellow';
+        let btns = '';
+        if (a.status === 'Pending') {
+          btns = `<div style="display:flex;gap:5px;">
+            <button class="btn btn-green btn-sm" onclick="approveAdmissionDB('${a.id}','${a.student_name}',this)">✓</button>
+            <button class="btn btn-red btn-sm"   onclick="rejectAdmissionDB('${a.id}','${a.student_name}',this)">✗</button>
+            <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">👁</button>
+          </div>`;
+        } else if (a.status === 'Approved') {
+          btns = `<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}')">📄 Letter</button>`;
+        } else {
+          btns = `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">Details</button>`;
+        }
+        return `<tr data-id="${a.id}" data-name="${a.student_name}" data-class="${a.class_applied}" data-status="${a.status}">
+          <td>${String(i+1).padStart(3,'0')}</td>
+          <td><strong>${a.student_name}</strong></td>
+          <td>${a.class_applied}</td>
+          <td>${a.parent_name||'—'}</td>
+          <td>${a.parent_phone||'—'}</td>
+          <td>${d}</td>
+          <td><span class="adm-badge badge ${badgeCls}">${a.status}</span></td>
+          <td>${btns}</td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
     }
+  }
+
+  async function approveAdmissionDB(id, name, btn) {
+    try {
+      await DB.admissions.updateStatus(id, 'Approved');
+      toast(`✅ ${name} approved!`);
+      await loadAdmissions();
+      loadOverviewStats();
+    } catch(e) { toast('⚠️ ' + e.message); }
+  }
+  async function rejectAdmissionDB(id, name, btn) {
+    if (!confirm(`Reject application for ${name}?`)) return;
+    try {
+      await DB.admissions.updateStatus(id, 'Rejected');
+      toast(`Application for ${name} rejected.`);
+      await loadAdmissions();
+      loadOverviewStats();
+    } catch(e) { toast('⚠️ ' + e.message); }
+  }
+
+  /* ── Students ── */
+  async function loadStudents() {
+    const tbody = document.getElementById('students-tbody');
+    if (!tbody) return;
+    try {
+      const list = await DB.students.getAll();
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No students yet. Add one above.</td></tr>'; return; }
+      tbody.innerHTML = list.map(s => {
+        const name = `${s.first_name} ${s.last_name}`;
+        const feeCls = s.fee_status === 'Paid' ? 'b-green' : s.fee_status === 'Partial' ? 'b-yellow' : s.fee_status === 'Pending' ? 'b-yellow' : 'b-red';
+        return `<tr data-name="${name}" data-class="${s.class}">
+          <td>${s.student_id}</td>
+          <td><strong>${name}</strong></td>
+          <td>${s.class}</td>
+          <td>${s.gender||'—'}</td>
+          <td><span class="badge ${feeCls}">${s.fee_status}</span></td>
+          <td>${s.attendance||'—'}</td>
+          <td><span class="badge b-green">${s.status}</span></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('${name}','${s.class}','${s.gender||''}','${s.student_id}','${s.attendance||'—'}','${s.fee_status}','${s.status}')">View</button></td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+    }
+  }
+
+  /* ── Teachers ── */
+  async function loadTeachers() {
+    const tbody = document.getElementById('teachers-tbody');
+    if (!tbody) return;
+    try {
+      const list = await DB.teachers.getAll();
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No teachers yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map(t => {
+        const resCls  = t.results_status === 'Uploaded' ? 'b-green' : t.results_status === 'Not Done' ? 'b-red' : 'b-yellow';
+        const statCls = t.employment_status === 'Active' ? 'b-green' : 'b-yellow';
+        return `<tr data-name="${t.name}">
+          <td><strong>${t.name}</strong></td>
+          <td>${t.class_assigned||'—'}</td>
+          <td>${t.subject||'—'}</td>
+          <td>${t.phone||'—'}</td>
+          <td>${t.attendance||'—'}</td>
+          <td><span class="badge ${resCls}">${t.results_status}</span></td>
+          <td><span class="badge ${statCls}">${t.employment_status}</span></td>
+          <td style="display:flex;gap:5px;">
+            <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('${t.name}','${t.class_assigned||''}','${t.subject||''}','${t.phone||''}','${t.attendance||'—'}','${t.employment_status}')">View</button>
+            <button class="btn btn-navy btn-sm" onclick="contactTeacher('${t.name}')">📧</button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+    }
+  }
+
+  /* ── Fees ── */
+  async function loadFees() {
+    try {
+      const fees = await DB.fees.get();
+      const map = {
+        'fee-nursery-tuition': fees.nursery_tuition,
+        'fee-nursery-creche':  fees.nursery_creche,
+        'fee-uniform':         fees.uniform,
+        'fee-primary-tuition': fees.primary_tuition,
+        'fee-ict':             fees.ict,
+        'fee-exam':            fees.exam,
+        'fee-dev-levy':        fees.dev_levy,
+        'fee-pta':             fees.pta,
+        'fee-sports':          fees.sports,
+        'fee-medical':         fees.medical
+      };
+      Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined) el.value = val;
+      });
+      updateFeeStats();
+    } catch(e) { console.warn('[BFS] Load fees:', e.message); }
+  }
+
+  /* ── Results ── */
+  async function loadResults() {
+    const tbody = document.querySelector('#ap-results tbody');
+    if (!tbody) return;
+    try {
+      const list = await DB.results.getAll();
+      tbody.innerHTML = list.map(r => {
+        const badgeCls = r.upload_status === 'Published' ? 'b-green'
+          : r.upload_status === 'Awaiting Approval' ? 'b-yellow'
+          : r.upload_status === 'Rejected' ? 'b-red' : 'b-red';
+        const d = r.uploaded_at
+          ? new Date(r.uploaded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+          : '—';
+        let btn = '';
+        if (r.upload_status === 'Awaiting Approval') {
+          btn = `<button class="btn btn-yellow btn-sm" onclick="reviewPendingResultsDB('${r.id}','${r.class_name}','${r.teacher_name||''}',${r.students_count})">🔍 Review</button>`;
+        } else if (r.upload_status === 'Not Uploaded') {
+          btn = `<button class="btn btn-outline-navy btn-sm" onclick="sendReminder('${r.teacher_name||''}','${r.class_name}')">📣 Remind</button>`;
+        } else {
+          btn = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${r.class_name}','${r.teacher_name||''}','${r.upload_status}')">View</button>`;
+        }
+        return `<tr>
+          <td><strong>${r.class_name}</strong></td>
+          <td>${r.teacher_name||'—'}</td>
+          <td>${r.students_count}</td>
+          <td><span class="badge ${badgeCls}" id="res-badge-${r.id}">${r.upload_status}</span></td>
+          <td>${d}</td>
+          <td id="res-td-${r.id}">${btn}</td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+    }
+  }
+
+  async function reviewPendingResultsDB(id, cls, teacher, count) {
+    document.getElementById('modal-results-title').innerHTML = '📊 Review Results — ' + cls;
+    const rb = document.getElementById('modal-results-body');
+    const ra = document.getElementById('modal-results-actions');
+    if (!rb || !ra) return;
+    rb.innerHTML = `
+      <div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">
+        <div class="receipt-detail"><span>Class Teacher</span><strong>${teacher}</strong></div>
+        <div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>
+        <div class="receipt-detail"><span>Students</span><strong>${count}</strong></div>
+        <div class="receipt-detail"><span>Status</span><strong style="color:#d97706">Awaiting Approval</strong></div>
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label>Review Note (optional)</label>
+        <textarea id="res-review-note" rows="2" placeholder="e.g. Approved, great work. / Rejected: Please double-check exam scores."></textarea>
+      </div>`;
+    ra.innerHTML = `
+      <button class="btn btn-green" onclick="approveResultsDB('${id}','${cls}','${teacher}')">✅ Approve & Publish</button>
+      <button class="btn btn-red"   onclick="rejectResultsDB('${id}','${cls}','${teacher}')">❌ Reject & Return</button>`;
+    openAdminModal('modal-results');
+  }
+
+  async function approveResultsDB(id, cls, teacher) {
+    try {
+      await DB.results.updateStatus(id, 'Published');
+      const badge = document.getElementById('res-badge-' + id);
+      const td    = document.getElementById('res-td-' + id);
+      if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
+      if (td) td.innerHTML = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${cls}','${teacher}','Published')">View</button>`;
+      toast(`✅ ${cls} results approved and published!`);
+      closeAdminModal('modal-results');
+    } catch(e) { toast('⚠️ ' + e.message); }
+  }
+
+  async function rejectResultsDB(id, cls, teacher) {
+    const note = document.getElementById('res-review-note');
+    if (!note || !note.value.trim()) {
+      if (note) note.classList.add('field-error');
+      toast('⚠️ Please add a note before rejecting.');
+      setTimeout(() => { if (note) note.classList.remove('field-error'); }, 2500);
+      return;
+    }
+    try {
+      await DB.results.updateStatus(id, 'Rejected', note.value.trim());
+      const badge = document.getElementById('res-badge-' + id);
+      const td    = document.getElementById('res-td-' + id);
+      if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
+      if (td) td.innerHTML = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${cls}','${teacher}','Rejected')">View</button>`;
+      toast(`❌ ${cls} results rejected and returned.`);
+      closeAdminModal('modal-results');
+    } catch(e) { toast('⚠️ ' + e.message); }
+  }
+
+  /* ── Announcements list ── */
+  async function loadAnnouncements() {
+    const list = document.getElementById('announcements-list');
+    if (!list) return;
+    try {
+      const anns = await DB.announcements.getAll();
+      if (!anns.length) { list.innerHTML = '<p style="color:var(--gray);padding:14px;">No announcements yet.</p>'; return; }
+      list.innerHTML = anns.map(a => {
+        const d = new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+        return `<div class="ann-item ${a.priority||'normal'}">
+          <h4>${a.title}</h4>
+          <p>Sent to ${a.audience||'Everyone'} · ${d}</p>
+        </div>`;
+      }).join('');
+    } catch(e) { console.warn('[BFS] Announcements:', e.message); }
+  }
+
+  /* ── INIT: run on page load ── */
+  document.addEventListener('DOMContentLoaded', async function() {
+    // Tab routing
+    const activePane = document.querySelector('.stab-pane.active');
+    if (activePane && activePane.id) switchToTab(activePane.id.replace('ap-', ''));
+
+    // Load all data in parallel
+    try {
+      await Promise.all([
+        loadOverviewStats(),
+        loadOverviewAdmissions(),
+        loadAdmissions(),
+        loadStudents(),
+        loadTeachers(),
+        loadFees(),
+        loadResults(),
+        loadAnnouncements(),
+        loadAdminTimetables()
+      ]);
+    } catch(e) {
+      console.warn('[BFS] Init load error:', e.message);
+    }
+
+    renderFeeSummary();
   });
 </script>
 

@@ -439,6 +439,9 @@
 
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/db.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
@@ -683,16 +686,15 @@
   let ttRows = [];
   let ttStatus = 'draft';
 
-  function loadTimetable() {
+  async function loadTimetable() {
     try {
-      const saved = localStorage.getItem(TT_KEY);
-      if (saved) {
-        const data = JSON.parse(saved);
-        ttRows  = data.rows   || JSON.parse(JSON.stringify(TT_DEFAULT));
+      const data = await DB.timetables.get(TT_KEY);
+      if (data && data.rows && data.rows.length) {
+        ttRows   = data.rows;
         ttStatus = data.status || 'draft';
       } else {
         ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
-        ttStatus = 'draft';
+        ttStatus = (data && data.status) || 'draft';
       }
     } catch(e) {
       ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
@@ -702,16 +704,15 @@
     renderTimetableEditor();
   }
 
-  function saveTT(status) {
+  async function saveTT(status) {
     try {
-      localStorage.setItem(TT_KEY, JSON.stringify({
-        rows: ttRows,
-        status: status || ttStatus,
-        class: 'Primary 6A',
-        teacher: 'Mr. Emeka Chukwu',
-        updated: new Date().toISOString()
-      }));
-    } catch(e) {}
+      await DB.timetables.save(TT_KEY, {
+        rows:        ttRows,
+        status:      status || ttStatus,
+        classLabel:  'Primary 6A',
+        teacherName: 'Mr. Emeka Chukwu'
+      });
+    } catch(e) { console.warn('[BFS] saveTT:', e.message); }
   }
 
   function updateStatusBanner() {
@@ -788,30 +789,30 @@
     renderTimetableEditor();
   }
 
-  function resetTimetable() {
+  async function resetTimetable() {
     if (!confirm('Reset to default timetable? All edits will be lost.')) return;
     ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
     ttStatus = 'draft';
-    saveTT('draft');
+    await saveTT('draft');
     updateStatusBanner();
     renderTimetableEditor();
     toast('Timetable reset to default.');
   }
 
-  function saveTimetableDraft() {
+  async function saveTimetableDraft() {
     ttStatus = ttStatus === 'approved' ? 'approved' : 'draft';
-    saveTT(ttStatus);
+    await saveTT(ttStatus);
     toast('✅ Timetable draft saved.');
   }
 
-  function submitTimetable() {
+  async function submitTimetable() {
     const empty = ttRows.filter(r => r.type === 'lesson' && r.days.every(d => !d.trim()));
     if (empty.length > 0) {
       toast('⚠️ Please fill in at least some subject cells before submitting.');
       return;
     }
     ttStatus = 'pending';
-    saveTT('pending');
+    await saveTT('pending');
     updateStatusBanner();
     toast('📤 Timetable submitted to admin for approval!');
   }

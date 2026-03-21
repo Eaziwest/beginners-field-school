@@ -1,43 +1,13 @@
 /* ============================================================
-   Beginner's Field Nursery & Primary School — Auth System
+   Beginner's Field School — Auth System (Supabase-powered)
    ============================================================
-   NOTE: These credentials are stored here for demo/prototype
-   purposes only. In a real production system, authentication
-   must be handled server-side with hashed passwords and
-   secure sessions (e.g. Node.js + bcrypt + JWT or similar).
+   Uses Supabase Auth for email/password login.
+   On success the user's profile row is fetched from the
+   `profiles` table and stored in sessionStorage for fast
+   access on subsequent pages.
    ============================================================ */
 
-const USERS = [
-  {
-    role:     'admin',
-    name:     'Mrs. Adaeze Okafor',
-    title:    'Principal',
-    initials: 'AO',
-    email:    'admin@beginnersfieldschool.edu.ng',
-    password: 'Admin@2025',
-    portal:   'admin.html'
-  },
-  {
-    role:     'teacher',
-    name:     'Mr. Emeka Chukwu',
-    title:    'Class Teacher — P6A',
-    initials: 'EC',
-    email:    'e.chukwu@beginnersfieldschool.edu.ng',
-    password: 'Teacher@2025',
-    portal:   'teacher.html'
-  },
-  {
-    role:     'student',
-    name:     'Adaeze Nwosu',
-    title:    'Primary 4 · 2024/2025',
-    initials: 'AN',
-    email:    'student@beginnersfieldschool.edu.ng',
-    password: 'Student@2025',
-    portal:   'student.html'
-  }
-];
-
-/* ── Session helpers (sessionStorage so it clears on tab close) ── */
+/* ── Session helpers (sessionStorage clears on tab close) ── */
 
 function saveSession(user) {
   sessionStorage.setItem('bfs_user', JSON.stringify({
@@ -58,49 +28,68 @@ function clearSession() {
   sessionStorage.removeItem('bfs_user');
 }
 
-/* ── Login validation ── */
+/* ── Login (async — uses Supabase Auth) ──────────────────────
+   Returns profile object on success, throws on failure.
+   ─────────────────────────────────────────────────────────── */
+async function attemptLoginAsync(email, password) {
+  if (!window._supabase) {
+    throw new Error('Supabase is not configured. Please update js/supabase-config.js.');
+  }
 
-function attemptLogin(email, password) {
-  const match = USERS.find(
-    u => u.email.toLowerCase() === email.trim().toLowerCase()
-      && u.password === password
-  );
-  return match || null;
+  const { data: authData, error: authError } = await window._supabase.auth
+    .signInWithPassword({ email: email.trim().toLowerCase(), password });
+
+  if (authError) {
+    if (authError.message.includes('Invalid login credentials')) {
+      throw new Error('Incorrect email or password. Please try again.');
+    }
+    throw new Error(authError.message);
+  }
+
+  const { data: profile, error: profileError } = await window._supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', authData.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    await window._supabase.auth.signOut();
+    throw new Error('Account found but no school profile exists. Please contact the admin.');
+  }
+
+  return profile;
 }
 
-/* ── Guard: call at top of each portal page ──
-   Redirects to login if no valid session,
-   or if the session role doesn't match the required role. ── */
-
+/* ── Guard: call at top of each portal page ── */
 function requireAuth(requiredRole) {
   const user = getSession();
   if (!user || user.role !== requiredRole) {
     clearSession();
     window.location.href = 'login.html';
+    return null;
   }
   return user;
 }
 
 /* ── Logout ── */
-
-function logout() {
+async function logout() {
   clearSession();
+  if (window._supabase) {
+    await window._supabase.auth.signOut().catch(() => {});
+  }
   window.location.href = 'login.html';
 }
 
-/* ── Inject logged-in user info into the dashboard header ──
-   Looks for elements with data-user-name, data-user-title,
-   data-user-initials, data-user-email and fills them in. ── */
-
+/* ── Inject logged-in user info into the dashboard header ── */
 function injectUserInfo(user) {
   document.querySelectorAll('[data-user-name]').forEach(el => {
     el.textContent = user.name;
   });
   document.querySelectorAll('[data-user-title]').forEach(el => {
-    el.textContent = user.title;
+    el.textContent = user.title || '';
   });
   document.querySelectorAll('[data-user-initials]').forEach(el => {
-    el.textContent = user.initials;
+    el.textContent = user.initials || user.name.slice(0, 2).toUpperCase();
   });
   document.querySelectorAll('[data-user-email]').forEach(el => {
     el.textContent = user.email;
