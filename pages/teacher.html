@@ -462,11 +462,12 @@
 
   /* ── Auth guard ── */
   const _user = requireAuth('teacher');
-  injectUserInfo(_user);
-
-  /* ── Update subtitle with logged-in name ── */
-  document.getElementById('teacher-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  if (_user) {
+    injectUserInfo(_user);
+    /* ── Update subtitle with logged-in name ── */
+    document.getElementById('teacher-sub').textContent =
+      'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  }
 
 
   /* ══════════════════════════════════════════

@@ -265,9 +265,11 @@
 <script>
   /* ── Auth ── */
   const _user = requireAuth('student');
-  injectUserInfo(_user);
-  document.getElementById('student-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  if (_user) {
+    injectUserInfo(_user);
+    document.getElementById('student-sub').textContent =
+      'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  }
 
   /* ── Tab switcher ── */
   function switchToTab(name, el) {
