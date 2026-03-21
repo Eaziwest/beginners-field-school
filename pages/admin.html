@@ -508,12 +508,6 @@
 <script src="../js/main.js"></script>
 <script>
 
-  /* ── PDF.js worker ── */
-  if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
-
   /* ── Auth ── */
   const _user = requireAuth('admin');
   injectUserInfo(_user);
@@ -586,6 +580,7 @@
         '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
       '</div>';
     const actEl = document.getElementById('modal-application-actions');
+    if (!actEl) { openAdminModal('modal-application'); return; }
     if (status === 'Pending') {
       actEl.innerHTML =
         '<button class="btn btn-green" onclick="toast(\'' + name + ' approved!\');closeAdminModal(\'modal-application\')">\u2713 Approve</button>' +
@@ -631,7 +626,7 @@
   function viewStudentProfile(name, cls, gender, id, att, fees, status) {
     const fc        = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
     const firstName = name.split(' ')[0];
-    document.getElementById('modal-student-body').innerHTML =
+    const sbody = document.getElementById('modal-student-body'); if (!sbody) return; sbody.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
         '<div class="receipt-detail"><span>Student ID</span><strong>' + id + '</strong></div>' +
         '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
@@ -642,9 +637,8 @@
         '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" onclick="toast(\'Editing ' + name + ' \u2014 coming soon.\')">&#9999; Edit</button>' +
-        /* FIX 9: firstName pre-computed above, no .split inside onclick */
-        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Reminder sent to parent of ' + firstName + '.\')">&#128179; Send Fee Reminder</button>' +
+        '<button class="btn btn-navy btn-sm" onclick="toast(\'Edit student \u2014 coming soon.\')">&#9999; Edit</button>' +
+        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Fee reminder noted.\')">&#128179; Send Fee Reminder</button>' +
       '</div>';
     openAdminModal('modal-student');
   }
@@ -661,9 +655,12 @@
         '<div class="receipt-detail"><span>Status</span><strong>' + status + '</strong></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" onclick="closeAdminModal(\'modal-teacher\');contactTeacher(\'' + name + '\')">&#128231; Send Message</button>' +
-        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Editing ' + name + ' \u2014 coming soon.\')">&#9999; Edit</button>' +
+        '<button class="btn btn-navy btn-sm" id="teacher-msg-btn">&#128231; Send Message</button>' +
+        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Edit teacher \u2014 coming soon.\')">&#9999; Edit</button>' +
       '</div>';
+    /* Wire Send Message button safely without embedding name in onclick string */
+    const msgBtn = document.getElementById('teacher-msg-btn');
+    if (msgBtn) { msgBtn.onclick = function() { closeAdminModal('modal-teacher'); contactTeacher(name); }; }
     openAdminModal('modal-teacher');
   }
 
@@ -690,7 +687,9 @@
 
   /* ── Results publish/view ── */
   function viewResults(cls, teacher, status) {
-    document.getElementById('modal-results-body').innerHTML =
+    const rb = document.getElementById('modal-results-body');
+    if (!rb) return;
+    rb.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
         '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
         '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
@@ -884,7 +883,9 @@
 
   /* Update the stat cards at the top of the tab */
   function updateFeeStats() {
-    const nursery = parseInt(document.getElementById('fee-nursery-tuition').value) || 0;
+    const _t = document.getElementById('fee-nursery-tuition');
+    if (!_t) return; /* fee pane not in DOM yet */
+    const nursery = parseInt(_t.value) || 0;
     const primary = parseInt(document.getElementById('fee-primary-tuition').value) || 0;
     const levy    = parseInt(document.getElementById('fee-dev-levy').value) || 0;
     const ns = document.getElementById('fee-stat-nursery');
@@ -898,7 +899,9 @@
 
   /* Render the fee summary preview table */
   function renderFeeSummary() {
-    const get = id => parseInt(document.getElementById(id).value) || 0;
+    const el0 = document.getElementById('fee-nursery-tuition');
+    if (!el0) return; /* fee pane not visible yet — skip silently */
+    const get = id => { const e = document.getElementById(id); return e ? (parseInt(e.value) || 0) : 0; };
     const nursery  = get('fee-nursery-tuition');
     const creche   = get('fee-nursery-creche');
     const uniform  = get('fee-uniform');
