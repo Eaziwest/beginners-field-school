@@ -566,39 +566,53 @@
 <script src="../js/main.js"></script>
 <script>
 
-  /* ── Auth ── */
-  const _user = requireAuth('admin');
-  injectUserInfo(_user);
-  document.getElementById('admin-sub').textContent =
-    'Welcome back, ' + _user.name + ' \u2014 ' + _user.title + ' \u00b7 Beginner\'s Field School';
+  /* ── Auth — null-safe wrapper so a missing session never crashes the page ── */
+  const _user = (function() {
+    try {
+      const u = requireAuth('admin');
+      if (u) {
+        injectUserInfo(u);
+        const sub = document.getElementById('admin-sub');
+        if (sub) sub.textContent = 'Welcome back, ' + u.name + ' \u2014 ' + u.title + ' \u00b7 Beginner\'s Field School';
+      }
+      return u;
+    } catch(e) { return null; }
+  })();
 
   /* ── Tab switcher ── */
   function switchToTab(name, el) {
-    document.querySelectorAll('#admin-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
-    const pane = document.getElementById('ap-' + name);
+    document.querySelectorAll('#admin-dashboard .stab-pane')
+      .forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('#admin-sidebar .sidebar-link')
+      .forEach(function(l) { l.classList.remove('active'); });
+    var pane = document.getElementById('ap-' + name);
     if (pane) pane.classList.add('active');
     if (el && el.classList) {
       el.classList.add('active');
     } else {
-      /* FIX 13: fallback highlights matching sidebar link when called without el (e.g. from mobile nav) */
-      document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(link => {
+      document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(function(link) {
         if ((link.getAttribute('onclick') || '').includes("'" + name + "'")) link.classList.add('active');
       });
     }
   }
 
   /* ── Modal helpers ── */
-  function openAdminModal(id)  { document.getElementById(id).classList.add('open'); }
-  function closeAdminModal(id) { document.getElementById(id).classList.remove('open'); }
-  document.querySelectorAll('.admin-modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  function openAdminModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  }
+  function closeAdminModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  }
+  document.querySelectorAll('.admin-modal-overlay').forEach(function(o) {
+    o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
   });
 
   /* ── Overview approve ── */
   function approveOverview(key, name) {
-    const badge = document.getElementById('ov-badge-' + key);
-    const btn   = document.getElementById('ov-btn-' + key);
+    var badge = document.getElementById('ov-badge-' + key);
+    var btn   = document.getElementById('ov-btn-' + key);
     if (badge) { badge.textContent = 'Approved'; badge.className = 'badge b-green'; }
     if (btn)   { btn.disabled = true; btn.textContent = '\u2713 Approved'; btn.style.opacity = '0.5'; }
     toast('\u2705 ' + name + ' approved!');
@@ -606,55 +620,66 @@
 
   /* ── Admissions table approve/reject ── */
   function approveAdmission(btn, name) {
-    const row   = btn.closest('tr');
-    const badge = row.querySelector('.adm-badge');
+    var row   = btn.closest('tr');
+    var badge = row.querySelector('.adm-badge');
     if (badge) { badge.textContent = 'Approved'; badge.className = 'adm-badge badge b-green'; }
     row.setAttribute('data-status', 'Approved');
-    btn.closest('td').innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter(\'' + name + '\',\'\',\'\')">&#128196; Letter</button>';
+    /* Use a data attribute on the new button so we never embed name in onclick */
+    var td = btn.closest('td');
+    td.innerHTML = '<button class="btn btn-outline-navy btn-sm adm-letter-btn">&#128196; Letter</button>';
+    td.querySelector('.adm-letter-btn').dataset.name = name;
     toast('\u2705 ' + name + ' approved! Letter is ready.');
   }
 
   function rejectAdmission(btn, name) {
     if (!confirm('Reject application for ' + name + '?')) return;
-    const row   = btn.closest('tr');
-    const badge = row.querySelector('.adm-badge');
+    var row   = btn.closest('tr');
+    var badge = row.querySelector('.adm-badge');
     if (badge) { badge.textContent = 'Rejected'; badge.className = 'adm-badge badge b-red'; }
     row.setAttribute('data-status', 'Rejected');
     btn.closest('td').innerHTML = '<button class="btn btn-outline-navy btn-sm">Details</button>';
     toast('Application for ' + name + ' rejected.');
   }
 
-  /* ── View application modal ──
-     FIX 8: Use string concatenation instead of template literals with
-     embedded onclick handlers to avoid quote-clash issues */
+  /* ── View application modal — uses data attributes, no name-in-onclick ── */
   function viewApplication(name, cls, parent, phone, status) {
-    const col = status === 'Approved' ? '#15803d' : status === 'Rejected' ? '#dc2626' : '#92400e';
-    document.getElementById('modal-application-body').innerHTML =
+    var col = status === 'Approved' ? '#15803d' : status === 'Rejected' ? '#dc2626' : '#92400e';
+    var body = document.getElementById('modal-application-body');
+    if (!body) return;
+    body.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
         '<div class="receipt-detail"><span>Student Name</span><strong>' + name + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls || '\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent || '\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone || '\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls||'\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent||'\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone||'\u2014') + '</strong></div>' +
         '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
       '</div>';
-    const actEl = document.getElementById('modal-application-actions');
-    if (!actEl) { openAdminModal('modal-application'); return; }
-    if (status === 'Pending') {
-      actEl.innerHTML =
-        '<button class="btn btn-green" onclick="toast(\'' + name + ' approved!\');closeAdminModal(\'modal-application\')">\u2713 Approve</button>' +
-        '<button class="btn btn-red" onclick="toast(\'' + name + ' rejected.\');closeAdminModal(\'modal-application\')">\u2717 Reject</button>';
-    } else {
-      actEl.innerHTML = '';
+    var actEl = document.getElementById('modal-application-actions');
+    if (actEl) {
+      if (status === 'Pending') {
+        actEl.innerHTML =
+          '<button class="btn btn-green modal-appr-btn">&#10003; Approve</button>' +
+          '<button class="btn btn-red  modal-rejt-btn">&#10007; Reject</button>';
+        actEl.querySelector('.modal-appr-btn').onclick = function() {
+          toast(name + ' approved!'); closeAdminModal('modal-application');
+        };
+        actEl.querySelector('.modal-rejt-btn').onclick = function() {
+          toast(name + ' rejected.'); closeAdminModal('modal-application');
+        };
+      } else {
+        actEl.innerHTML = '';
+      }
     }
     openAdminModal('modal-application');
   }
 
   /* ── Print admission letter ── */
   function printAdmissionLetter(name, cls, parent) {
-    const win   = window.open('', '_blank');
-    const today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    var win   = window.open('', '_blank');
+    if (!win) { toast('\u26a0\ufe0f Popup blocked — please allow popups.'); return; }
+    var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
     win.document.write(
-      '<!DOCTYPE html><html><head><title>Admission Letter \u2014 ' + name + '</title>' +
+      '<!DOCTYPE html><html><head><title>Admission Letter</title>' +
       '<style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}' +
       '.header{text-align:center;border-bottom:3px solid #0a1f44;padding-bottom:20px;margin-bottom:30px;}' +
       'h1{color:#0a1f44;font-size:20px;margin-bottom:4px;}.sub{color:#6b7280;font-size:12px;}' +
@@ -665,25 +690,26 @@
       '<div class="header"><h1>\ud83c\udf31 Beginner\'s Field Nursery &amp; Primary School</h1>' +
       '<p class="sub">12 Education Avenue, Lekki, Lagos &middot; info@beginnersfieldschool.edu.ng</p></div>' +
       '<p style="text-align:right;font-size:13px;color:#6b7280;">' + today + '</p>' +
-      '<p class="body-text">Dear <strong>' + (parent || 'Parent/Guardian') + '</strong>,</p>' +
+      '<p class="body-text">Dear <strong>' + (parent||'Parent/Guardian') + '</strong>,</p>' +
       '<p class="body-text">We are delighted to inform you that the application for <strong>' + name + '</strong> has been <strong>successful</strong>.</p>' +
-      '<div class="highlight"><strong>Class:</strong> ' + (cls || 'As discussed') + '<br><strong>Session:</strong> 2025/2026<br><strong>School:</strong> Beginner\'s Field Nursery &amp; Primary School</div>' +
-      '<p class="body-text">Please visit the school office to complete enrolment, pay the acceptance fee and collect the registration pack. Bring two passport photographs and a copy of the birth certificate.</p>' +
+      '<div class="highlight"><strong>Class:</strong> ' + (cls||'As discussed') + '<br><strong>Session:</strong> 2025/2026</div>' +
+      '<p class="body-text">Please visit the school office to complete enrolment and collect the registration pack.</p>' +
       '<p class="body-text">We look forward to welcoming ' + name.split(' ')[0] + ' into our school family.</p>' +
-      '<br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal, Beginner\'s Field Nursery &amp; Primary School</p>' +
+      '<br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal</p>' +
       '<div class="footer">Generated by the Beginner\'s Field School Portal</div>' +
-      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">\ud83d\udda8\ufe0f Print Letter</button>' +
+      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;">&#128424;&#65039; Print Letter</button>' +
       '</body></html>'
     );
     win.document.close();
     toast('Admission letter opened in new tab.');
   }
 
-  /* ── Student profile modal ──
-     FIX 9: pre-compute firstName to avoid .split(' ') inside an onclick attribute */
+  /* ── Student profile modal ── */
   function viewStudentProfile(name, cls, gender, id, att, fees, status) {
-    const fc    = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
-    const sbody = document.getElementById('modal-student-body'); if (!sbody) return; sbody.innerHTML =
+    var fc   = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
+    var body = document.getElementById('modal-student-body');
+    if (!body) return;
+    body.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
         '<div class="receipt-detail"><span>Student ID</span><strong>' + id + '</strong></div>' +
         '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
@@ -694,15 +720,19 @@
         '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" onclick="toast(\'Edit student \u2014 coming soon.\')">&#9999; Edit</button>' +
-        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Fee reminder noted.\')">&#128179; Send Fee Reminder</button>' +
+        '<button class="btn btn-navy btn-sm" id="stu-edit-btn">&#9999;&#65039; Edit</button>' +
+        '<button class="btn btn-outline-navy btn-sm" id="stu-fee-btn">&#128179; Send Fee Reminder</button>' +
       '</div>';
+    body.querySelector('#stu-edit-btn').onclick    = function() { toast('Edit student \u2014 coming soon.'); };
+    body.querySelector('#stu-fee-btn').onclick     = function() { toast('Fee reminder sent to parent.'); };
     openAdminModal('modal-student');
   }
 
-  /* ── Teacher view/contact ── */
+  /* ── Teacher view/contact — Send Message wired via closure, no name-in-onclick ── */
   function viewTeacher(name, cls, subject, phone, att, status) {
-    const _tb = document.getElementById('modal-teacher-body'); if (!_tb) return; _tb.innerHTML =
+    var body = document.getElementById('modal-teacher-body');
+    if (!body) return;
+    body.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
         '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
         '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
@@ -712,31 +742,33 @@
         '<div class="receipt-detail"><span>Status</span><strong>' + status + '</strong></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" id="teacher-msg-btn">&#128231; Send Message</button>' +
-        '<button class="btn btn-outline-navy btn-sm" onclick="toast(\'Edit teacher \u2014 coming soon.\')">&#9999; Edit</button>' +
+        '<button class="btn btn-navy btn-sm" id="teacher-msg-btn">&#128231;&#65039; Send Message</button>' +
+        '<button class="btn btn-outline-navy btn-sm" id="teacher-edit-btn">&#9999;&#65039; Edit</button>' +
       '</div>';
-    /* Wire Send Message button safely without embedding name in onclick string */
-    const msgBtn = document.getElementById('teacher-msg-btn');
-    if (msgBtn) { msgBtn.onclick = function() { closeAdminModal('modal-teacher'); contactTeacher(name); }; }
+    body.querySelector('#teacher-msg-btn').onclick  = function() { closeAdminModal('modal-teacher'); contactTeacher(name); };
+    body.querySelector('#teacher-edit-btn').onclick = function() { toast('Edit teacher \u2014 coming soon.'); };
     openAdminModal('modal-teacher');
   }
 
-  let _contactName = '';
+  var _contactName = '';
   function contactTeacher(name) {
     _contactName = name;
-    document.getElementById('modal-contact-name').textContent = 'To: ' + name;
-    document.getElementById('contact-subject').value = '';
-    document.getElementById('contact-body').value = '';
+    var el = document.getElementById('modal-contact-name');
+    if (el) el.textContent = 'To: ' + name;
+    var s = document.getElementById('contact-subject');
+    var b = document.getElementById('contact-body');
+    if (s) s.value = '';
+    if (b) b.value = '';
     openAdminModal('modal-contact');
   }
 
   function sendContactMessage() {
-    const s = document.getElementById('contact-subject');
-    const b = document.getElementById('contact-body');
-    [s, b].forEach(el => el.classList.remove('field-error'));
-    let valid = true;
-    if (!s.value.trim()) { s.classList.add('field-error'); valid = false; }
-    if (!b.value.trim()) { b.classList.add('field-error'); valid = false; }
+    var s = document.getElementById('contact-subject');
+    var b = document.getElementById('contact-body');
+    [s, b].forEach(function(el) { if (el) el.classList.remove('field-error'); });
+    var valid = true;
+    if (!s || !s.value.trim()) { if (s) s.classList.add('field-error'); valid = false; }
+    if (!b || !b.value.trim()) { if (b) b.classList.add('field-error'); valid = false; }
     if (!valid) { toast('\u26a0\ufe0f Please fill in subject and message.'); return; }
     toast('\u2705 Message sent to ' + _contactName + '!');
     closeAdminModal('modal-contact');
@@ -744,7 +776,7 @@
 
   /* ── Results publish/view ── */
   function viewResults(cls, teacher, status) {
-    const rb = document.getElementById('modal-results-body');
+    var rb = document.getElementById('modal-results-body');
     if (!rb) return;
     rb.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
@@ -753,15 +785,22 @@
         '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
         '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + status + '</strong></div>' +
       '</div>' +
-      '<div class="notif ok"><span>\u2705</span><div><h4>Results Published</h4><p>Students and parents can now view results in their portal</p></div></div>';
+      '<div class="notif ok"><span>\u2705</span><div><h4>Results Published</h4><p>Students can now view results in their portal.</p></div></div>';
     openAdminModal('modal-results');
   }
 
+  /* publishResults — uses DOM manipulation instead of outerHTML with onclick string */
   function publishResults(key, cls) {
-    const badge = document.getElementById('res-badge-' + key);
-    const btn   = document.getElementById('res-btn-' + key);
+    var badge = document.getElementById('res-badge-' + key);
+    var btn   = document.getElementById('res-btn-'   + key);
     if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
-    if (btn)   { btn.outerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'\',\'Published\')">View</button>'; }
+    if (btn) {
+      var newBtn = document.createElement('button');
+      newBtn.className = 'btn btn-outline-navy btn-sm';
+      newBtn.textContent = 'View';
+      newBtn.onclick = (function(c) { return function() { viewResults(c, '', 'Published'); }; })(cls);
+      btn.parentNode.replaceChild(newBtn, btn);
+    }
     toast('\u2705 ' + cls + ' results published to students!');
   }
 
@@ -771,106 +810,83 @@
 
   /* ── Announcements ── */
   function sendAnnouncement() {
-    const aud   = document.getElementById('ann-audience');
-    const title = document.getElementById('ann-title');
-    const body  = document.getElementById('ann-body');
-    const pri   = document.getElementById('ann-priority');
-    [aud, title, body].forEach(el => el.classList.remove('field-error'));
-    let valid = true;
-    if (!aud.value)          { aud.classList.add('field-error');   valid = false; }
-    if (!title.value.trim()) { title.classList.add('field-error'); valid = false; }
-    if (!body.value.trim())  { body.classList.add('field-error');  valid = false; }
+    var aud   = document.getElementById('ann-audience');
+    var title = document.getElementById('ann-title');
+    var body  = document.getElementById('ann-body');
+    var pri   = document.getElementById('ann-priority');
+    [aud, title, body].forEach(function(el) { if (el) el.classList.remove('field-error'); });
+    var valid = true;
+    if (!aud  || !aud.value)          { if (aud)   aud.classList.add('field-error');   valid = false; }
+    if (!title|| !title.value.trim()) { if (title) title.classList.add('field-error'); valid = false; }
+    if (!body || !body.value.trim())  { if (body)  body.classList.add('field-error');  valid = false; }
     if (!valid) { toast('\u26a0\ufe0f Please fill in all required fields.'); return; }
-    const audience = aud.options[aud.selectedIndex].text;
-    const today    = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
-    const div      = document.createElement('div');
-    div.className  = 'ann-item ' + pri.value;
-    div.innerHTML  = '<h4>' + title.value.trim() + '</h4><p>Sent to ' + audience + ' \u00b7 ' + today + '</p>';
-    const list     = document.getElementById('announcements-list');
-    list.insertBefore(div, list.firstChild);
+    var audience = aud.options[aud.selectedIndex].text;
+    var today    = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+    var div      = document.createElement('div');
+    div.className = 'ann-item ' + pri.value;
+    div.innerHTML = '<h4>' + title.value.trim() + '</h4><p>Sent to ' + audience + ' \u00b7 ' + today + '</p>';
+    var list = document.getElementById('announcements-list');
+    if (list) list.insertBefore(div, list.firstChild);
     toast('\ud83d\udce2 Announcement sent to ' + audience + '!');
     title.value = ''; body.value = ''; aud.value = '';
   }
 
-  /* ── Add Student ──
-     FIX 10: avoid apostrophe-in-onclick by using data attrs instead of inline args */
+  /* ── Add Student — stores all params as data-* attrs, never in onclick strings ── */
   function saveNewStudent() {
-    const fname  = document.getElementById('new-stu-fname').value.trim();
-    const lname  = document.getElementById('new-stu-lname').value.trim();
-    const cls    = document.getElementById('new-stu-class').value;
-    const gender = document.getElementById('new-stu-gender').value;
-    const parent = document.getElementById('new-stu-parent').value.trim();
-    const phone  = document.getElementById('new-stu-phone').value.trim();
-    if (!fname || !lname || !cls || !gender || !parent || !phone) {
-      toast('\u26a0\ufe0f Please fill in all fields.'); return;
-    }
-    const name  = fname + ' ' + lname;
-    const tbody = document.getElementById('students-tbody');
-    const id    = 'BFS/2025/00' + (tbody.querySelectorAll('tr').length + 5);
-    const row   = document.createElement('tr');
-    row.setAttribute('data-name', name);
-    row.setAttribute('data-class', cls);
-    /* FIX 10: store params as data attributes, call via a named function */
-    row.setAttribute('data-id', id);
-    row.setAttribute('data-gender', gender);
-    row.setAttribute('data-fees', 'Pending');
-    row.setAttribute('data-att', '\u2014');
+    var fname  = document.getElementById('new-stu-fname').value.trim();
+    var lname  = document.getElementById('new-stu-lname').value.trim();
+    var cls    = document.getElementById('new-stu-class').value;
+    var gender = document.getElementById('new-stu-gender').value;
+    var parent = document.getElementById('new-stu-parent').value.trim();
+    var phone  = document.getElementById('new-stu-phone').value.trim();
+    if (!fname||!lname||!cls||!gender||!parent||!phone) { toast('\u26a0\ufe0f Please fill in all fields.'); return; }
+    var name  = fname + ' ' + lname;
+    var tbody = document.getElementById('students-tbody');
+    var id    = 'BFS/2025/00' + (tbody.querySelectorAll('tr').length + 5);
+    var row   = document.createElement('tr');
+    row.dataset.name   = name;
+    row.dataset['class'] = cls;
+    row.dataset.id     = id;
+    row.dataset.gender = gender;
+    row.dataset.fees   = 'Pending';
+    row.dataset.att    = '\u2014';
     row.innerHTML =
-      '<td>' + id + '</td>' +
-      '<td><strong>' + name + '</strong></td>' +
-      '<td>' + cls + '</td>' +
-      '<td>' + gender + '</td>' +
-      '<td><span class="badge b-yellow">Pending</span></td>' +
-      '<td>\u2014</td>' +
-      '<td><span class="badge b-green">Active</span></td>' +
+      '<td>' + id + '</td><td><strong>' + name + '</strong></td><td>' + cls + '</td><td>' + gender + '</td>' +
+      '<td><span class="badge b-yellow">Pending</span></td><td>\u2014</td><td><span class="badge b-green">Active</span></td>' +
       '<td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentRow(this)">View</button></td>';
     tbody.appendChild(row);
     toast('\u2705 ' + name + ' added to ' + cls + '!');
     closeAdminModal('modal-add-student');
-    ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('new-stu-class').value  = '';
-    document.getElementById('new-stu-gender').value = '';
+    ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(function(i) {
+      var el = document.getElementById(i); if (el) el.value = '';
+    });
+    var sc = document.getElementById('new-stu-class');   if (sc) sc.value = '';
+    var sg = document.getElementById('new-stu-gender');  if (sg) sg.value = '';
   }
 
-  /* FIX 10: reads params from data attributes — no apostrophe risk */
   function viewStudentRow(btn) {
-    const row = btn.closest('tr');
-    viewStudentProfile(
-      row.dataset.name,
-      row.dataset.class,
-      row.dataset.gender,
-      row.dataset.id,
-      row.dataset.att || '\u2014',
-      row.dataset.fees || 'Pending',
-      'Active'
-    );
+    var row = btn.closest('tr');
+    viewStudentProfile(row.dataset.name, row.dataset['class'], row.dataset.gender,
+      row.dataset.id, row.dataset.att||'\u2014', row.dataset.fees||'Pending', 'Active');
   }
 
-  /* ── Add Teacher ──
-     FIX 11: same pattern — store in data attrs, call via viewTeacherRow */
+  /* ── Add Teacher ── */
   function saveNewTeacher() {
-    const name    = document.getElementById('new-tch-name').value.trim();
-    const phone   = document.getElementById('new-tch-phone').value.trim();
-    const cls     = document.getElementById('new-tch-class').value;
-    const subject = document.getElementById('new-tch-subject').value.trim();
-    const email   = document.getElementById('new-tch-email').value.trim();
-    if (!name || !phone || !cls || !subject || !email) {
-      toast('\u26a0\ufe0f Please fill in all fields.'); return;
-    }
-    const tbody = document.getElementById('teachers-tbody');
-    const row   = document.createElement('tr');
-    row.setAttribute('data-name', name);
-    row.setAttribute('data-class', cls);
-    row.setAttribute('data-subject', subject);
-    row.setAttribute('data-phone', phone);
+    var name    = document.getElementById('new-tch-name').value.trim();
+    var phone   = document.getElementById('new-tch-phone').value.trim();
+    var cls     = document.getElementById('new-tch-class').value;
+    var subject = document.getElementById('new-tch-subject').value.trim();
+    var email   = document.getElementById('new-tch-email').value.trim();
+    if (!name||!phone||!cls||!subject||!email) { toast('\u26a0\ufe0f Please fill in all fields.'); return; }
+    var tbody = document.getElementById('teachers-tbody');
+    var row   = document.createElement('tr');
+    row.dataset.name    = name;
+    row.dataset['class']= cls;
+    row.dataset.subject = subject;
+    row.dataset.phone   = phone;
     row.innerHTML =
-      '<td><strong>' + name + '</strong></td>' +
-      '<td>' + cls + '</td>' +
-      '<td>' + subject + '</td>' +
-      '<td>' + phone + '</td>' +
-      '<td>\u2014</td>' +
-      '<td><span class="badge b-yellow">Pending</span></td>' +
-      '<td><span class="badge b-green">Active</span></td>' +
+      '<td><strong>' + name + '</strong></td><td>' + cls + '</td><td>' + subject + '</td><td>' + phone + '</td>' +
+      '<td>\u2014</td><td><span class="badge b-yellow">Pending</span></td><td><span class="badge b-green">Active</span></td>' +
       '<td style="display:flex;gap:5px;">' +
         '<button class="btn btn-outline-navy btn-sm" onclick="viewTeacherRow(this)">View</button>' +
         '<button class="btn btn-navy btn-sm" onclick="contactTeacherRow(this)">&#128231;</button>' +
@@ -878,175 +894,137 @@
     tbody.appendChild(row);
     toast('\u2705 ' + name + ' added as teacher for ' + cls + '!');
     closeAdminModal('modal-add-teacher');
-    ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('new-tch-class').value = '';
+    ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(function(i) {
+      var el = document.getElementById(i); if (el) el.value = '';
+    });
+    var tc = document.getElementById('new-tch-class'); if (tc) tc.value = '';
   }
 
-  /* FIX 11: reads params from data attributes — no apostrophe risk */
   function viewTeacherRow(btn) {
-    const row = btn.closest('tr');
-    viewTeacher(row.dataset.name, row.dataset.class, row.dataset.subject, row.dataset.phone, '\u2014', 'Active');
+    var row = btn.closest('tr');
+    viewTeacher(row.dataset.name, row.dataset['class'], row.dataset.subject, row.dataset.phone, '\u2014', 'Active');
   }
-  function contactTeacherRow(btn) {
-    contactTeacher(btn.closest('tr').dataset.name);
-  }
+  function contactTeacherRow(btn) { contactTeacher(btn.closest('tr').dataset.name); }
 
   /* ── Live filters ── */
   function filterAdmissions() {
-    const s  = document.getElementById('adm-search').value.toLowerCase();
-    const cl = document.getElementById('adm-class-filter').value;
-    const st = document.getElementById('adm-status-filter').value;
-    document.querySelectorAll('#admissions-tbody tr').forEach(row => {
-      const show = (!s  || (row.dataset.name  ||'').toLowerCase().includes(s))
-                && (!cl || row.dataset.class  === cl)
-                && (!st || row.dataset.status === st);
+    var s  = document.getElementById('adm-search').value.toLowerCase();
+    var cl = document.getElementById('adm-class-filter').value;
+    var st = document.getElementById('adm-status-filter').value;
+    document.querySelectorAll('#admissions-tbody tr').forEach(function(row) {
+      var show = (!s  || (row.dataset.name||'').toLowerCase().includes(s))
+              && (!cl || row.dataset['class'] === cl)
+              && (!st || row.dataset.status   === st);
       row.style.display = show ? '' : 'none';
     });
   }
   function filterStudents() {
-    const s  = document.getElementById('stu-search').value.toLowerCase();
-    const cl = document.getElementById('stu-class-filter').value;
-    document.querySelectorAll('#students-tbody tr').forEach(row => {
-      const show = (!s  || (row.dataset.name ||'').toLowerCase().includes(s))
-                && (!cl || row.dataset.class === cl);
+    var s  = document.getElementById('stu-search').value.toLowerCase();
+    var cl = document.getElementById('stu-class-filter').value;
+    document.querySelectorAll('#students-tbody tr').forEach(function(row) {
+      var show = (!s  || (row.dataset.name||'').toLowerCase().includes(s))
+              && (!cl || row.dataset['class'] === cl);
       row.style.display = show ? '' : 'none';
     });
   }
   function filterTeachers() {
-    const s = document.getElementById('tch-search').value.toLowerCase();
-    document.querySelectorAll('#teachers-tbody tr').forEach(row => {
+    var s = document.getElementById('tch-search').value.toLowerCase();
+    document.querySelectorAll('#teachers-tbody tr').forEach(function(row) {
       row.style.display = (!s || (row.dataset.name||'').toLowerCase().includes(s)) ? '' : 'none';
     });
   }
 
-
-  /* ═══════════════════════════════════════════════
+  /* ════════════════════════════════════════════
      SCHOOL FEE MANAGEMENT
-  ═══════════════════════════════════════════════ */
-
-  /* Default fee values — used by Reset button */
-  const FEE_DEFAULTS = {
-    'fee-nursery-tuition': 35000,
-    'fee-nursery-creche':   8000,
-    'fee-uniform':          3500,
-    'fee-primary-tuition': 45000,
-    'fee-ict':              3000,
-    'fee-exam':            10000,
-    'fee-dev-levy':         5000,
-    'fee-pta':              2000,
-    'fee-sports':           1500,
-    'fee-medical':          1000,
+  ════════════════════════════════════════════ */
+  var FEE_DEFAULTS = {
+    'fee-nursery-tuition': 35000, 'fee-nursery-creche': 8000, 'fee-uniform': 3500,
+    'fee-primary-tuition': 45000, 'fee-ict': 3000, 'fee-exam': 10000,
+    'fee-dev-levy': 5000, 'fee-pta': 2000, 'fee-sports': 1500, 'fee-medical': 1000
   };
 
-  /* Update the stat cards at the top of the tab */
   function updateFeeStats() {
-    const _t = document.getElementById('fee-nursery-tuition');
-    if (!_t) return; /* fee pane not in DOM yet */
-    const nursery = parseInt(_t.value) || 0;
-    const primary = parseInt(document.getElementById('fee-primary-tuition').value) || 0;
-    const levy    = parseInt(document.getElementById('fee-dev-levy').value) || 0;
-    const ns = document.getElementById('fee-stat-nursery');
-    const ps = document.getElementById('fee-stat-primary');
-    const ls = document.getElementById('fee-stat-levy');
-    if (ns) ns.textContent = '₦' + nursery.toLocaleString();
-    if (ps) ps.textContent = '₦' + primary.toLocaleString();
-    if (ls) ls.textContent = '₦' + levy.toLocaleString();
+    var t = document.getElementById('fee-nursery-tuition');
+    if (!t) return;
+    var nursery = parseInt(t.value) || 0;
+    var primary = parseInt((document.getElementById('fee-primary-tuition')||{value:0}).value) || 0;
+    var levy    = parseInt((document.getElementById('fee-dev-levy')||{value:0}).value) || 0;
+    var ns = document.getElementById('fee-stat-nursery');
+    var ps = document.getElementById('fee-stat-primary');
+    var ls = document.getElementById('fee-stat-levy');
+    if (ns) ns.textContent = '\u20a6' + nursery.toLocaleString();
+    if (ps) ps.textContent = '\u20a6' + primary.toLocaleString();
+    if (ls) ls.textContent = '\u20a6' + levy.toLocaleString();
     renderFeeSummary();
   }
 
-  /* Render the fee summary preview table */
   function renderFeeSummary() {
-    const el0 = document.getElementById('fee-nursery-tuition');
-    if (!el0) return; /* fee pane not visible yet — skip silently */
-    const get = id => { const e = document.getElementById(id); return e ? (parseInt(e.value) || 0) : 0; };
-    const nursery  = get('fee-nursery-tuition');
-    const creche   = get('fee-nursery-creche');
-    const uniform  = get('fee-uniform');
-    const primary  = get('fee-primary-tuition');
-    const ict      = get('fee-ict');
-    const exam     = get('fee-exam');
-    const levy     = get('fee-dev-levy');
-    const pta      = get('fee-pta');
-    const sports   = get('fee-sports');
-    const medical  = get('fee-medical');
-
-    const fmt = n => '₦' + n.toLocaleString();
-    const na  = '<span style="color:var(--gray);">N/A</span>';
-
-    const nurseryTotal  = nursery + levy + pta + sports + medical;
-    const primaryTotal  = primary + levy + pta + sports + medical;
-    const primary6Total = primary + levy + pta + sports + medical + exam;
-
-    const rows = [
-      ['School Fees (Tuition)', fmt(nursery),  fmt(primary),  fmt(primary)],
-      ['Development Levy',      fmt(levy),     fmt(levy),     fmt(levy)],
-      ['PTA Dues',              fmt(pta),      fmt(pta),      fmt(pta)],
-      ['Sports / Cultural',     fmt(sports),   fmt(sports),   fmt(sports)],
-      ['Medical / Health',      fmt(medical),  fmt(medical),  fmt(medical)],
-      ['ICT / Computer Levy',   na,            fmt(ict),      fmt(ict)],
-      ['External Exam Fees',    na,            na,            fmt(exam)],
-      ['Uniform (per set)',      fmt(uniform),  fmt(uniform),  fmt(uniform)],
+    var t = document.getElementById('fee-nursery-tuition');
+    if (!t) return;
+    var get = function(id) { var e = document.getElementById(id); return e ? (parseInt(e.value)||0) : 0; };
+    var nursery = get('fee-nursery-tuition'), creche = get('fee-nursery-creche'), uniform = get('fee-uniform');
+    var primary = get('fee-primary-tuition'), ict = get('fee-ict'), exam = get('fee-exam');
+    var levy = get('fee-dev-levy'), pta = get('fee-pta'), sports = get('fee-sports'), medical = get('fee-medical');
+    var fmt = function(n) { return '\u20a6' + n.toLocaleString(); };
+    var na  = '<span style="color:var(--gray);">N/A</span>';
+    var nurseryTotal  = nursery + levy + pta + sports + medical;
+    var primaryTotal  = primary + levy + pta + sports + medical;
+    var primary6Total = primary + levy + pta + sports + medical + exam;
+    var rows = [
+      ['School Fees (Tuition)', fmt(nursery), fmt(primary), fmt(primary)],
+      ['Development Levy',      fmt(levy),    fmt(levy),    fmt(levy)],
+      ['PTA Dues',              fmt(pta),     fmt(pta),     fmt(pta)],
+      ['Sports / Cultural',     fmt(sports),  fmt(sports),  fmt(sports)],
+      ['Medical / Health',      fmt(medical), fmt(medical), fmt(medical)],
+      ['ICT / Computer Levy',   na,           fmt(ict),     fmt(ict)],
+      ['External Exam Fees',    na,           na,           fmt(exam)],
+      ['Uniform (per set)',      fmt(uniform), fmt(uniform), fmt(uniform)],
     ];
-
-    const tbody = document.getElementById('fee-summary-tbody');
+    var tbody = document.getElementById('fee-summary-tbody');
     if (!tbody) return;
-    tbody.innerHTML = rows.map(r =>
-      '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>'
-    ).join('') +
+    tbody.innerHTML = rows.map(function(r) {
+      return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>';
+    }).join('') +
     '<tr class="total-row"><td><strong>Total (excl. uniform)</strong></td>' +
-      '<td><strong>' + fmt(nurseryTotal) + '</strong></td>' +
-      '<td><strong>' + fmt(primaryTotal) + '</strong></td>' +
-      '<td><strong>' + fmt(primary6Total) + '</strong></td>' +
-    '</tr>';
+      '<td><strong>' + fmt(nurseryTotal)  + '</strong></td>' +
+      '<td><strong>' + fmt(primaryTotal)  + '</strong></td>' +
+      '<td><strong>' + fmt(primary6Total) + '</strong></td></tr>';
   }
 
-  /* Save fees — update stat cards + summary, show confirmation */
   function saveFees() {
     updateFeeStats();
-    const now = new Date().toLocaleString('en-GB', {
-      day:'numeric', month:'short', year:'numeric',
-      hour:'2-digit', minute:'2-digit'
-    });
-    const el = document.getElementById('fee-last-saved');
+    var now = new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    var el  = document.getElementById('fee-last-saved');
     if (el) el.textContent = 'Last saved: ' + now;
-    toast('✅ Fee schedule saved! Students will see the updated amounts in their portal.');
+    toast('\u2705 Fee schedule saved! Students will see the updated amounts in their portal.');
   }
 
-  /* Reset all fee inputs to defaults */
   function resetFees() {
     if (!confirm('Reset all fees to default values?')) return;
-    Object.entries(FEE_DEFAULTS).forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      if (el) el.value = val;
+    Object.keys(FEE_DEFAULTS).forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = FEE_DEFAULTS[id];
     });
     updateFeeStats();
     toast('Fees reset to default values.');
   }
 
-  /* Save deadline and note */
   function saveDeadline() {
-    const d = document.getElementById('fee-deadline').value;
-    const n = document.getElementById('fee-note').value.trim();
-    if (!d)  { toast('⚠️ Please set a payment deadline.'); return; }
-    if (!n)  { toast('⚠️ Please enter a payment note.'); return; }
-    const fmt = new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
-    toast('✅ Deadline set to ' + fmt + '. Note saved.');
+    var d = document.getElementById('fee-deadline');
+    var n = document.getElementById('fee-note');
+    if (!d || !d.value)         { toast('\u26a0\ufe0f Please set a payment deadline.'); return; }
+    if (!n || !n.value.trim())  { toast('\u26a0\ufe0f Please enter a payment note.'); return; }
+    var fmt = new Date(d.value).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    toast('\u2705 Deadline set to ' + fmt + '. Note saved.');
   }
 
-  /* Initialise fee summary on page load */
   document.addEventListener('DOMContentLoaded', function() { renderFeeSummary(); });
-
-  /* filterPayments kept as stub so no reference errors from any remaining calls */
   function filterPaymentsList() {}
-  function filterPayments() {}
+  function filterPayments()     {}
 
-
-  /* ═══════════════════════════════════════════════
+  /* ════════════════════════════════════════════
      TIMETABLE MANAGEMENT (ADMIN)
-  ═══════════════════════════════════════════════ */
-
-  /* All known class timetable keys */
-  const ADM_TT_CLASSES = [
+  ════════════════════════════════════════════ */
+  var ADM_TT_CLASSES = [
     { key:'bfs_timetable_primary6a', label:'Primary 6A', teacher:'Mr. Emeka Chukwu' },
     { key:'bfs_timetable_primary5b', label:'Primary 5B', teacher:'Mrs. Kemi Adamu' },
     { key:'bfs_timetable_primary3a', label:'Primary 3A', teacher:'Mr. Femi Lawal' },
@@ -1054,113 +1032,104 @@
     { key:'bfs_timetable_nursery1',  label:'Nursery 1',  teacher:'Mrs. Balogun' },
   ];
 
-  let _adm_tt_current_key = null; /* which class is being reviewed */
+  var _adm_tt_current_key = null;
 
   function loadAdminTimetables() {
-    const tbody = document.getElementById('adm-tt-list');
+    var tbody = document.getElementById('adm-tt-list');
     if (!tbody) return;
-
-    let approved = 0, pending = 0, draft = 0;
-
-    tbody.innerHTML = ADM_TT_CLASSES.map(cls => {
-      let data = null;
+    var approved = 0, pending = 0, draft = 0;
+    tbody.innerHTML = '';
+    ADM_TT_CLASSES.forEach(function(cls) {
+      var data = null;
       try { data = JSON.parse(localStorage.getItem(cls.key) || 'null'); } catch(e) {}
-      const status  = data ? (data.status || 'draft') : 'draft';
-      const updated = data && data.updated
+      var status  = data ? (data.status || 'draft') : 'draft';
+      var updated = (data && data.updated)
         ? new Date(data.updated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
-        : '—';
-
+        : '\u2014';
       if (status === 'approved') approved++;
       else if (status === 'pending') pending++;
       else draft++;
-
-      const badge = {
+      var badgeMap = {
         draft:    '<span class="badge b-blue">Not Submitted</span>',
         pending:  '<span class="badge b-yellow">Pending Review</span>',
         approved: '<span class="badge b-green">Approved</span>',
         rejected: '<span class="badge b-red">Rejected</span>',
-      }[status] || '<span class="badge b-blue">Draft</span>';
-
-      const hasData   = data && data.rows && data.rows.length;
-      const actionBtn = (status === 'pending' || (status !== 'draft' && hasData))
-        ? '<button class="btn btn-navy btn-sm tt-review-btn" data-key="' + cls.key + '" data-label="' + cls.label + '" data-teacher="' + cls.teacher + '">&#128269; Review</button>'
-        : '<span style="color:var(--gray);font-size:12.5px;">No submission yet</span>';
-
-      return '<tr><td><strong>' + cls.label + '</strong></td><td>' + cls.teacher + '</td><td>' + badge + '</td><td>' + updated + '</td><td>' + actionBtn + '</td></tr>';
-    }).join('');
-
-    /* Update stats */
-    const ac = document.getElementById('adm-tt-approved-count');
-    const pc = document.getElementById('adm-tt-pending-count');
-    const dc = document.getElementById('adm-tt-draft-count');
+      };
+      var badge = badgeMap[status] || badgeMap.draft;
+      var hasData = data && data.rows && data.rows.length;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><strong>' + cls.label + '</strong></td>' +
+        '<td>' + cls.teacher + '</td>' +
+        '<td>' + badge + '</td>' +
+        '<td>' + updated + '</td>' +
+        '<td>' + ((status === 'pending' || (status !== 'draft' && hasData))
+          ? '<button class="btn btn-navy btn-sm tt-review-btn" data-key="' + cls.key + '" data-label="' + cls.label + '" data-teacher="' + cls.teacher + '">&#128269; Review</button>'
+          : '<span style="color:var(--gray);font-size:12.5px;">No submission yet</span>') + '</td>';
+      tbody.appendChild(tr);
+    });
+    var ac = document.getElementById('adm-tt-approved-count');
+    var pc = document.getElementById('adm-tt-pending-count');
+    var dc = document.getElementById('adm-tt-draft-count');
     if (ac) ac.textContent = approved;
     if (pc) pc.textContent = pending;
     if (dc) dc.textContent = draft;
   }
 
-  function escAdm(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
-
   function openAdminTTReview(key, label, teacher) {
     _adm_tt_current_key = key;
-    let data = null;
+    var data = null;
     try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
-
-    const card  = document.getElementById('adm-tt-review-card');
-    const title = document.getElementById('adm-tt-review-title');
-    const tbody = document.getElementById('adm-tt-review-tbody');
-    const sBanner= document.getElementById('adm-tt-review-status');
-    const sTitle = document.getElementById('adm-tt-review-status-title');
-    const sTxt   = document.getElementById('adm-tt-review-status-text');
-    const btns   = document.getElementById('adm-tt-action-btns');
-    const noteEl = document.getElementById('adm-tt-note');
+    var card   = document.getElementById('adm-tt-review-card');
+    var title  = document.getElementById('adm-tt-review-title');
+    var tbody  = document.getElementById('adm-tt-review-tbody');
+    var banner = document.getElementById('adm-tt-review-status');
+    var sTitle = document.getElementById('adm-tt-review-status-title');
+    var sTxt   = document.getElementById('adm-tt-review-status-text');
+    var noteEl = document.getElementById('adm-tt-note');
     if (!card || !title || !tbody) return;
-
-    title.textContent = label + ' — ' + teacher;
+    title.textContent = label + ' \u2014 ' + teacher;
     if (noteEl) noteEl.value = (data && data.adminNote) || '';
-
-    const status = data ? (data.status || 'draft') : 'draft';
-    const statusMap = {
-      pending:  { cls:'notif warn', icon:'⏳', t:'Pending Review', tx:'Review the timetable and approve or reject below.' },
-      approved: { cls:'notif ok',   icon:'✅', t:'Currently Approved', tx:'This timetable is live. You can still reject it if needed.' },
-      rejected: { cls:'notif err',  icon:'❌', t:'Previously Rejected', tx:'This timetable was rejected. Teacher may resubmit.' },
-      draft:    { cls:'notif info', icon:'📋', t:'Draft / Not Submitted', tx:'Teacher has not submitted this for review yet.' },
+    var status = data ? (data.status || 'draft') : 'draft';
+    var statusMap = {
+      pending:  { cls:'notif warn', icon:'\u23f3', t:'Pending Review',      tx:'Review the timetable and approve or reject below.' },
+      approved: { cls:'notif ok',   icon:'\u2705', t:'Currently Approved',   tx:'This timetable is live. You can still reject it if needed.' },
+      rejected: { cls:'notif err',  icon:'\u274c', t:'Previously Rejected',  tx:'This timetable was rejected. Teacher may resubmit.' },
+      draft:    { cls:'notif info', icon:'\ud83d\udccb', t:'Draft / Not Submitted', tx:'Teacher has not submitted this for review yet.' },
     };
-    const sm = statusMap[status] || statusMap.draft;
-    if (sBanner) sBanner.className = sm.cls;
-    if (sBanner) { const ic = sBanner.querySelector('span'); if (ic) ic.textContent = sm.icon; }
-    if (sTitle)  sTitle.textContent = sm.t;
-    if (sTxt)    sTxt.textContent   = sm.tx;
-
-    /* Show/hide action buttons */
-    if (btns) btns.style.display = (status === 'approved') ? 'none' : 'flex';
-    /* Allow rejecting approved timetables too */
+    var sm = statusMap[status] || statusMap.draft;
+    if (banner) {
+      banner.className = sm.cls;
+      var ic = banner.querySelector('span');
+      if (ic) ic.textContent = sm.icon;
+    }
+    if (sTitle) sTitle.textContent = sm.t;
+    if (sTxt)   sTxt.textContent   = sm.tx;
+    var btns = document.getElementById('adm-tt-action-btns');
     if (btns) btns.style.display = 'flex';
-
-    /* Render timetable rows */
-    const rows = (data && data.rows) || [];
+    var rows = (data && data.rows) || [];
     if (rows.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No timetable data submitted yet.</td></tr>';
     } else {
-      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      tbody.innerHTML = rows.map(row => {
+      var esc = function(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      };
+      tbody.innerHTML = rows.map(function(row) {
         if (row.type === 'lesson') {
           return '<tr><td><strong>' + esc(row.time) + '</strong></td>' +
-            (row.days||[]).map(d => '<td>' + esc(d) + '</td>').join('') + '</tr>';
+            (row.days||[]).map(function(d) { return '<td>' + esc(d) + '</td>'; }).join('') + '</tr>';
         }
-        const cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
+        var cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
         return '<tr class="' + cls + '"><td><strong>' + esc(row.time) + '</strong></td>' +
           '<td colspan="5">' + esc(row.label||'') + '</td></tr>';
       }).join('');
     }
-
     card.style.display = 'block';
     card.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 
   function closeAdminTTReview() {
-    const card = document.getElementById('adm-tt-review-card');
+    var card = document.getElementById('adm-tt-review-card');
     if (card) card.style.display = 'none';
     _adm_tt_current_key = null;
   }
@@ -1173,11 +1142,11 @@
 
   function rejectAdminTT() {
     if (!_adm_tt_current_key) return;
-    const note = document.getElementById('adm-tt-note');
+    var note = document.getElementById('adm-tt-note');
     if (!note || !note.value.trim()) {
-      note.classList.add('field-error');
+      if (note) note.classList.add('field-error');
       toast('\u26a0\ufe0f Please add a note explaining why you are rejecting the timetable.');
-      setTimeout(() => note && note.classList.remove('field-error'), 2500);
+      setTimeout(function() { if (note) note.classList.remove('field-error'); }, 2500);
       return;
     }
     updateAdminTTStatus('rejected');
@@ -1186,32 +1155,31 @@
 
   function updateAdminTTStatus(newStatus) {
     try {
-      const data  = JSON.parse(localStorage.getItem(_adm_tt_current_key) || '{}');
-      const note  = document.getElementById('adm-tt-note');
+      var data  = JSON.parse(localStorage.getItem(_adm_tt_current_key) || '{}');
+      var note  = document.getElementById('adm-tt-note');
       data.status    = newStatus;
       data.adminNote = note ? note.value.trim() : '';
       data.reviewed  = new Date().toISOString();
       localStorage.setItem(_adm_tt_current_key, JSON.stringify(data));
-    } catch(e) { /* localStorage may be unavailable */ }
+    } catch(e) {}
     closeAdminTTReview();
     loadAdminTimetables();
   }
 
-  /* Event delegation for timetable Review buttons (avoids inline onclick with quotes) */
+  /* Event delegation — Review buttons and admission Letter buttons use data-* attrs */
   document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.tt-review-btn');
-    if (!btn) return;
-    openAdminTTReview(btn.dataset.key, btn.dataset.label, btn.dataset.teacher);
+    var rb = e.target.closest('.tt-review-btn');
+    if (rb) { openAdminTTReview(rb.dataset.key, rb.dataset.label, rb.dataset.teacher); return; }
+    var lb = e.target.closest('.adm-letter-btn');
+    if (lb) { printAdmissionLetter(lb.dataset.name, '', ''); return; }
   });
 
-  /* Load timetables when tab is opened */
-  document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(link => {
-    if ((link.getAttribute('onclick') || '').includes("'timetables'")) {
+  /* Load timetables when Timetables tab is opened */
+  document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(function(link) {
+    if ((link.getAttribute('onclick')||'').includes("'timetables'")) {
       link.addEventListener('click', function() { setTimeout(loadAdminTimetables, 50); });
     }
   });
-
-
 </script>
 
 <!-- FIX 6: Payments button added to mobile bottom nav
