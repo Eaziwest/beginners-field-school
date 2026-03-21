@@ -682,8 +682,7 @@
   /* ── Student profile modal ──
      FIX 9: pre-compute firstName to avoid .split(' ') inside an onclick attribute */
   function viewStudentProfile(name, cls, gender, id, att, fees, status) {
-    const fc        = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
-    const firstName = name.split(' ')[0];
+    const fc    = fees.includes('Owing') ? 'var(--red)' : fees === 'Partial' ? '#d97706' : 'var(--green-ok)';
     const sbody = document.getElementById('modal-student-body'); if (!sbody) return; sbody.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
         '<div class="receipt-detail"><span>Student ID</span><strong>' + id + '</strong></div>' +
@@ -703,7 +702,7 @@
 
   /* ── Teacher view/contact ── */
   function viewTeacher(name, cls, subject, phone, att, status) {
-    document.getElementById('modal-teacher-body').innerHTML =
+    const _tb = document.getElementById('modal-teacher-body'); if (!_tb) return; _tb.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
         '<div class="receipt-detail"><span>Full Name</span><strong>' + name + '</strong></div>' +
         '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
@@ -1084,7 +1083,7 @@
 
       const hasData   = data && data.rows && data.rows.length;
       const actionBtn = (status === 'pending' || (status !== 'draft' && hasData))
-        ? '<button class="btn btn-navy btn-sm" onclick="openAdminTTReview('' + cls.key + '','' + escAdm(cls.label) + '','' + escAdm(cls.teacher) + '')">&#128269; Review</button>'
+        ? '<button class="btn btn-navy btn-sm tt-review-btn" data-key="' + cls.key + '" data-label="' + cls.label + '" data-teacher="' + cls.teacher + '">&#128269; Review</button>'
         : '<span style="color:var(--gray);font-size:12.5px;">No submission yet</span>';
 
       return '<tr><td><strong>' + cls.label + '</strong></td><td>' + cls.teacher + '</td><td>' + badge + '</td><td>' + updated + '</td><td>' + actionBtn + '</td></tr>';
@@ -1100,7 +1099,7 @@
   }
 
   function escAdm(s) {
-    return String(s).replace(/'/g,'\\'').replace(/"/g,'&quot;');
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   function openAdminTTReview(key, label, teacher) {
@@ -1130,7 +1129,7 @@
     };
     const sm = statusMap[status] || statusMap.draft;
     if (sBanner) sBanner.className = sm.cls;
-    if (sBanner) sBanner.querySelector('span').textContent = sm.icon;
+    if (sBanner) { const ic = sBanner.querySelector('span'); if (ic) ic.textContent = sm.icon; }
     if (sTitle)  sTitle.textContent = sm.t;
     if (sTxt)    sTxt.textContent   = sm.tx;
 
@@ -1197,6 +1196,13 @@
     closeAdminTTReview();
     loadAdminTimetables();
   }
+
+  /* Event delegation for timetable Review buttons (avoids inline onclick with quotes) */
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.tt-review-btn');
+    if (!btn) return;
+    openAdminTTReview(btn.dataset.key, btn.dataset.label, btn.dataset.teacher);
+  });
 
   /* Load timetables when tab is opened */
   document.querySelectorAll('#admin-sidebar .sidebar-link').forEach(link => {
