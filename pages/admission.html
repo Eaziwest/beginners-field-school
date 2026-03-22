@@ -6,6 +6,8 @@
   <title>Admission — Beginner's Field School</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     body { padding: 0; }
@@ -72,7 +74,7 @@
   <div class="adm-body">
 
     <div id="adm-success" class="alert-success" style="display:none;">
-      ✅ Application submitted successfully! Your Application ID is <strong>BFS-2025-0039</strong>.
+      ✅ Application submitted! Your Application ID is <strong id="adm-ref-display">—</strong>.
       We will contact you within 3 working days. Thank you for choosing Beginner's Field School!
     </div>
 
@@ -81,13 +83,13 @@
 
       <div class="form-section-title">Child's Information</div>
       <div class="form-row">
-        <div class="form-group"><label>First Name *</label><input type="text" placeholder="Child's first name" /></div>
-        <div class="form-group"><label>Last Name *</label><input type="text" placeholder="Child's last name" /></div>
+        <div class="form-group"><label>First Name *</label><input id="adm-fname" type="text" placeholder="Child's first name" /></div>
+        <div class="form-group"><label>Last Name *</label><input id="adm-lname" type="text" placeholder="Child's last name" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Date of Birth *</label><input type="date" /></div>
+        <div class="form-group"><label>Date of Birth *</label><input id="adm-dob" type="date" /></div>
         <div class="form-group"><label>Gender *</label>
-          <select>
+          <select id="adm-gender">
             <option value="">— Select —</option>
             <option>Male</option>
             <option>Female</option>
@@ -96,7 +98,7 @@
       </div>
       <div class="form-group">
         <label>Class Applying For *</label>
-        <select>
+        <select id="adm-class">
           <option value="">— Select Class —</option>
           <optgroup label="Nursery"><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option></optgroup>
           <optgroup label="Primary"><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></optgroup>
@@ -104,29 +106,33 @@
       </div>
       <div class="form-group">
         <label>Previous School (if any)</label>
-        <input type="text" placeholder="Name of previous school" />
+        <input id="adm-prev-school" type="text" placeholder="Name of previous school" />
       </div>
 
       <div class="form-section-title">Parent / Guardian Information</div>
       <div class="form-row">
-        <div class="form-group"><label>Full Name *</label><input type="text" placeholder="Parent or guardian full name" /></div>
+        <div class="form-group"><label>Full Name *</label><input id="adm-parent-name" type="text" placeholder="Parent or guardian full name" /></div>
         <div class="form-group"><label>Relationship *</label>
-          <select>
+          <select id="adm-relationship">
             <option>Mother</option><option>Father</option><option>Guardian</option>
           </select>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="080X XXX XXXX" /></div>
-        <div class="form-group"><label>Email Address</label><input type="email" placeholder="parent@email.com" /></div>
+        <div class="form-group"><label>Phone Number *</label><input id="adm-parent-phone" type="tel" placeholder="080X XXX XXXX" /></div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input id="adm-parent-email" type="email" placeholder="parent@email.com" />
+          <p style="font-size:11.5px;color:var(--gray);margin-top:4px;">⚠️ Admission result &amp; portal login credentials will be sent to this email. Please use a valid address.</p>
+        </div>
       </div>
       <div class="form-group">
         <label>Home Address *</label>
-        <input type="text" placeholder="Full residential address" />
+        <input id="adm-address" type="text" placeholder="Full residential address" />
       </div>
       <div class="form-group">
         <label>Occupation</label>
-        <input type="text" placeholder="Parent's occupation" />
+        <input id="adm-occupation" type="text" placeholder="Parent's occupation" />
       </div>
 
       <div class="form-section-title">Application Fee Payment</div>
@@ -171,8 +177,26 @@
   </footer>
 
   <div id="toast"><span id="toast-text"></span></div>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/db.js"></script>
   <script src="../js/main.js"></script>
   <script>
+    /* ── EmailJS initialisation ──────────────────────────────
+       1. Create a free account at https://www.emailjs.com
+       2. Add a service (Gmail / Outlook / custom SMTP)
+       3. Create ONE template with variables:
+            {{to_email}}  {{parent_name}}  {{student_name}}
+            {{class}}     {{app_id}}
+       4. Paste your Public Key, Service ID, Template ID below
+    ──────────────────────────────────────────────────────── */
+    const EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
+    const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+    const EMAILJS_SUBMIT_TMPL = 'bfs_admission_received';  // template for submission confirmation
+
+    if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
+      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+
     /* PDF.js worker */
     if (typeof pdfjsLib !== 'undefined') {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -183,6 +207,89 @@
     const BANK_KEYWORDS  = ['moniepoint','transfer','debit','credit','transaction','payment','receipt',
       'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
       'ref','reference','date','success','successful','approved'];
+
+    /* ── Submit Admission (live Supabase) ── */
+    async function submitAdmission() {
+      const fname   = document.getElementById('adm-fname').value.trim();
+      const lname   = document.getElementById('adm-lname').value.trim();
+      const cls     = document.getElementById('adm-class').value;
+      const gender  = document.getElementById('adm-gender').value;
+      const dob     = document.getElementById('adm-dob').value;
+      const pName   = document.getElementById('adm-parent-name').value.trim();
+      const pPhone  = document.getElementById('adm-parent-phone').value.trim();
+      const pEmail  = document.getElementById('adm-parent-email').value.trim();
+      const address = document.getElementById('adm-address').value.trim();
+      const rel     = document.getElementById('adm-relationship').value;
+      const prevSch = document.getElementById('adm-prev-school').value.trim();
+      const occ     = document.getElementById('adm-occupation').value.trim();
+
+      if (!fname || !lname) { showToastAdm('⚠️ Please enter the child's first and last name.'); return; }
+      if (!cls)             { showToastAdm('⚠️ Please select the class applying for.'); return; }
+      if (!pName)           { showToastAdm('⚠️ Please enter the parent/guardian name.'); return; }
+      if (!pPhone)          { showToastAdm('⚠️ Please enter a phone number.'); return; }
+      if (!pEmail || !pEmail.includes('@')) { showToastAdm('⚠️ A valid email address is required — admission result will be sent there.'); return; }
+      if (!address)         { showToastAdm('⚠️ Please enter your home address.'); return; }
+
+      const btn = document.querySelector('.btn.btn-navy[onclick]');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
+
+      try {
+        const result = await DB.admissions.submit({
+          studentName:    `${fname} ${lname}`,
+          classApplied:   cls,
+          parentName:     pName,
+          parentPhone:    pPhone,
+          parentEmail:    pEmail,
+          dateOfBirth:    dob  || null,
+          gender:         gender || null,
+          previousSchool: prevSch || null,
+          homeAddress:    address,
+          occupation:     occ  || null,
+          relationship:   rel
+        });
+
+        /* Show success banner */
+        const successEl = document.getElementById('adm-success');
+        const refEl     = document.getElementById('adm-ref-display');
+        if (refEl)     refEl.textContent = result.id.substring(0, 8).toUpperCase();
+        if (successEl) { successEl.style.display = 'block'; successEl.scrollIntoView({ behavior:'smooth' }); }
+
+        /* Send confirmation email via EmailJS (non-blocking) */
+        if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
+          emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_SUBMIT_TMPL, {
+            to_email:    pEmail,
+            parent_name: pName,
+            student_name:`${fname} ${lname}`,
+            class:       cls,
+            app_id:      result.id.substring(0, 8).toUpperCase()
+          }).catch(e => console.warn('Email send failed:', e));
+        }
+
+        /* Clear form */
+        ['adm-fname','adm-lname','adm-parent-name','adm-parent-phone',
+         'adm-parent-email','adm-address','adm-occupation','adm-prev-school'].forEach(id => {
+          const el = document.getElementById(id); if (el) el.value = '';
+        });
+        ['adm-class','adm-gender'].forEach(id => {
+          const el = document.getElementById(id); if (el) el.value = '';
+        });
+        document.getElementById('adm-dob').value = '';
+
+      } catch(err) {
+        showToastAdm('⚠️ Submission failed: ' + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Application'; }
+      }
+    }
+
+    function showToastAdm(msg) {
+      const t = document.getElementById('toast');
+      const tx = document.getElementById('toast-text');
+      if (!t || !tx) { alert(msg); return; }
+      tx.textContent = msg; t.style.display = 'flex';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.style.display = 'none', 4000);
+    }
 
     async function extractPdfText(file) {
       const buf = await file.arrayBuffer();
@@ -250,7 +357,7 @@
         }
       } catch(err) { extractedText = '[Error: ' + err.message + ']'; }
 
-      const expectedAmt  = isShop ? (typeof cart !== 'undefined' ? cart.reduce((s,i)=>s+i.price*i.qty,0) : 0) : 5000;
+      const expectedAmt  = 5000;
       const receiptCheck = isBankReceipt(extractedText);
       const amounts      = parseAmounts(extractedText);
       const acctCheck    = hasAccountNumber(extractedText);
@@ -272,19 +379,19 @@
       let previewShort = extractedText.substring(0,300).trim();
       if (previewShort.startsWith('[')) previewShort = '';
 
-      el.innerHTML = \`
-        <div class="verify-status" style="color:\${statusColor};">
-          <span class="verify-icon">\${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
-          <span>\${statusMsg}</span>
+      el.innerHTML = `
+        <div class="verify-status" style="color:${statusColor};">
+          <span class="verify-icon">${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
+          <span>${statusMsg}</span>
         </div>
         <div class="verify-rows">
-          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">\${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">\${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">\${amtLabel}</span><span class="\${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">\${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">\${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="\${acctCheck?'vr-pass':''}">\${acctCheck?'✅':'⚠️'}</span></div>
+          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">${amtLabel}</span><span class="${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="${acctCheck?'vr-pass':''}">${acctCheck?'✅':'⚠️'}</span></div>
         </div>
-        \${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
-      \`;
+        ${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
+      `;
       el.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
 

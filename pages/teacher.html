@@ -73,9 +73,17 @@
 
       <div id="tp-overview" class="stab-pane active">
         <div class="stats-row">
-          <div class="stat-card" data-icon="🎒"><div class="stat-num">42</div><div class="stat-label">Students in My Class</div></div>
+          <div class="stat-card" data-icon="🎒"><div class="stat-num" id="stat-student-count">—</div><div class="stat-label">Students in My Class</div></div>
           <div class="stat-card" data-icon="✅"><div class="stat-num">39</div><div class="stat-label">Present Today</div></div>
           <div class="stat-card" data-icon="📊"><div class="stat-num">85%</div><div class="stat-label">Results Uploaded</div></div>
+        </div>
+
+        <!-- New Students Notification (shown when newly admitted students exist) -->
+        <div id="new-students-notif" class="card" style="display:none;border-left:4px solid var(--green-ok);">
+          <h3 style="color:var(--green-ok);">🆕 New Students Admitted to Your Class</h3>
+          <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">The following students were recently admitted and added to your class register:</p>
+          <div id="new-students-list"></div>
+          <button class="btn btn-outline-navy btn-sm" style="margin-top:14px;" onclick="teacherTab('students',null)">🎒 View All Students →</button>
         </div>
 
         <div class="card">
@@ -304,36 +312,20 @@
 
       <div id="tp-students" class="stab-pane">
         <div class="card">
-          <h3>🎒 My Students — Primary 6A (42 students)</h3>
+          <h3>🎒 My Students — <span id="teacher-class-label">My Class</span> (<span id="teacher-student-count">—</span> students)</h3>
+          <div class="filter-bar" style="margin-bottom:14px;">
+            <input id="tp-stu-search" placeholder="🔍 Search student..." oninput="filterTeacherStudents()" />
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Student ID</th><th>Name</th><th>Gender</th>
-                  <th>Attendance</th><th>Avg Score</th><th>Action</th>
+                  <th>Attendance</th><th>Fee Status</th><th>Badge</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>BFS/001</td><td><strong>Adaeze Nwosu</strong></td><td>Female</td>
-                  <td>98%</td><td><strong style="color:var(--green-ok);">88</strong></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/002</td><td><strong>Babatunde Afolabi</strong></td><td>Male</td>
-                  <td>92%</td><td><strong style="color:var(--navy-mid);">77</strong></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/003</td><td><strong>Chioma Eze</strong></td><td>Female</td>
-                  <td>85%</td><td><strong style="color:#d97706;">66</strong></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
-                <tr>
-                  <td>BFS/004</td><td><strong>Daniel Okoye</strong></td><td>Male</td>
-                  <td>100%</td><td><strong style="color:var(--green-ok);">91</strong></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Profile feature coming soon.')">Profile</button></td>
-                </tr>
+              <tbody id="teacher-students-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
@@ -454,20 +446,123 @@
   document.getElementById('teacher-sub').textContent =
     'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
+  /* ── Derive the teacher's assigned class from their profile title or stored class ── */
+  /* The profile.title is e.g. "Class Teacher — P6A"; we also check profile.class_assigned */
+  const _teacherClass = (_user.class_assigned || '').trim() ||
+    ((_user.title || '').match(/Primary \d+[A-Z]?|Nursery \d+[A-Z]?/i) || [])[0] || '';
 
-  /* ── Safe tab switcher ── */
+  /* ── Load live students from Supabase for this teacher's class ── */
+  let _allTeacherStudents = [];
+
+  async function loadTeacherStudents() {
+    const tbody = document.getElementById('teacher-students-tbody');
+    if (!tbody) return;
+    if (!_teacherClass) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No class assigned to your profile yet. Contact admin.</td></tr>';
+      return;
+    }
+    try {
+      const list = await DB.students.getByClass(_teacherClass);
+      _allTeacherStudents = list;
+
+      /* Update stat cards + header */
+      const countEl = document.getElementById('stat-student-count');
+      const countEl2 = document.getElementById('teacher-student-count');
+      const labelEl  = document.getElementById('teacher-class-label');
+      if (countEl)  countEl.textContent  = list.length;
+      if (countEl2) countEl2.textContent = list.length;
+      if (labelEl)  labelEl.textContent  = _teacherClass;
+
+      /* Detect newly admitted students (created in last 7 days) */
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const newStudents  = list.filter(s => new Date(s.created_at).getTime() > sevenDaysAgo);
+
+      const notifCard = document.getElementById('new-students-notif');
+      const newList   = document.getElementById('new-students-list');
+      if (notifCard && newList) {
+        if (newStudents.length > 0) {
+          notifCard.style.display = 'block';
+          newList.innerHTML = newStudents.map(s => `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--off-white);border-radius:10px;margin-bottom:8px;">
+              <div style="width:38px;height:38px;border-radius:50%;background:var(--green-ok);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">
+                ${s.first_name.charAt(0)}${s.last_name.charAt(0)}
+              </div>
+              <div>
+                <strong>${s.first_name} ${s.last_name}</strong>
+                <div style="font-size:12px;color:var(--gray);">${s.student_id} · ${s.class} · Admitted ${new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+              </div>
+              <span class="badge b-green" style="margin-left:auto;">🆕 New</span>
+            </div>`).join('');
+        } else {
+          notifCard.style.display = 'none';
+        }
+      }
+
+      renderTeacherStudents(list);
+    } catch(e) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+    }
+  }
+
+  function renderTeacherStudents(list) {
+    const tbody = document.getElementById('teacher-students-tbody');
+    if (!tbody) return;
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No students in this class yet.</td></tr>';
+      return;
+    }
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    tbody.innerHTML = list.map(s => {
+      const name     = `${s.first_name} ${s.last_name}`;
+      const isNew    = new Date(s.created_at).getTime() > sevenDaysAgo;
+      const feeCls   = s.fee_status === 'Paid' ? 'b-green' : s.fee_status === 'Partial' ? 'b-yellow' : 'b-red';
+      const newBadge = isNew ? '<span class="badge b-green" style="margin-left:6px;font-size:10px;">🆕 New</span>' : '';
+      return `<tr data-name="${name.toLowerCase()}">
+        <td>${s.student_id}</td>
+        <td><strong>${name}</strong>${newBadge}</td>
+        <td>${s.gender||'—'}</td>
+        <td>${s.attendance||'—'}</td>
+        <td><span class="badge ${feeCls}">${s.fee_status||'Pending'}</span></td>
+        <td><span class="badge b-green">${s.status||'Active'}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filterTeacherStudents() {
+    const q = (document.getElementById('tp-stu-search').value || '').toLowerCase();
+    const filtered = _allTeacherStudents.filter(s =>
+      (`${s.first_name} ${s.last_name}`).toLowerCase().includes(q) ||
+      (s.student_id || '').toLowerCase().includes(q)
+    );
+    renderTeacherStudents(filtered);
+  }
+
+  /* Load students when the students tab is opened */
+  const _origSwitchToTab = null;
+
+
   function switchToTab(name) {
     document.querySelectorAll('#teacher-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
-    
+
     const pane = document.getElementById('tp-' + name);
     if (pane) pane.classList.add('active');
-    
+
     document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(link => {
       if (link.getAttribute('onclick') && link.getAttribute('onclick').includes("'" + name + "'")) {
         link.classList.add('active');
       }
     });
+
+    /* Load live students when tab opened */
+    if (name === 'students') loadTeacherStudents();
+  }
+
+  /* Trigger student load on page init (for overview new-student notification card) */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTeacherStudents);
+  } else {
+    loadTeacherStudents();
   }
 
   /* ── Subject Management Functions ── */

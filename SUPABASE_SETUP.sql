@@ -5,19 +5,24 @@
 
 -- ── 1. PROFILES (extends Supabase auth.users) ────────────────
 create table if not exists profiles (
-  id        uuid references auth.users on delete cascade primary key,
-  role      text not null check (role in ('admin','teacher','student')),
-  name      text not null,
-  title     text,
-  initials  text,
-  email     text unique not null,
-  portal    text,
-  created_at timestamptz default now()
+  id                  uuid references auth.users on delete cascade primary key,
+  role                text not null check (role in ('admin','teacher','student','parent')),
+  name                text not null,
+  title               text,
+  initials            text,
+  email               text unique not null,
+  portal              text,
+  must_reset_password boolean default false,   -- ← true for auto-created parent accounts
+  class_assigned      text,                    -- ← for teachers: their assigned class
+  created_at          timestamptz default now()
 );
 alter table profiles enable row level security;
 create policy "Users can read own profile"  on profiles for select using (auth.uid() = id);
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
 create policy "Admins can read all profiles" on profiles for select using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+create policy "Admins can insert profiles" on profiles for insert with check (
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
 );
 
@@ -34,6 +39,7 @@ create table if not exists students (
   fee_status    text default 'Pending',
   attendance    text default '—',
   status        text default 'Active',
+  parent_email  text,                          -- ← copied from admission on approval
   created_at    timestamptz default now()
 );
 alter table students enable row level security;
@@ -49,14 +55,24 @@ create policy "Admin can update students" on students for update using (
 
 -- ── 3. ADMISSIONS ──────────────────────────────────────────────
 create table if not exists admissions (
-  id            uuid default gen_random_uuid() primary key,
-  student_name  text not null,
-  class_applied text not null,
-  parent_name   text,
-  parent_phone  text,
-  status        text default 'Pending' check (status in ('Pending','Approved','Rejected')),
-  applied_date  date default current_date,
-  created_at    timestamptz default now()
+  id              uuid default gen_random_uuid() primary key,
+  student_name    text not null,
+  class_applied   text not null,
+  parent_name     text,
+  parent_phone    text,
+  parent_email    text,                        -- ← required for portal login
+  date_of_birth   date,
+  gender          text,
+  previous_school text,
+  home_address    text,
+  occupation      text,
+  relationship    text,
+  status          text default 'Pending' check (status in ('Pending','Approved','Rejected')),
+  serial_number   text,                        -- ← BFS/YEAR/0001 generated on approval
+  temp_password   text,                        -- ← stored so admin can resend if needed
+  rejection_note  text,                        -- ← optional note sent in rejection mail
+  applied_date    date default current_date,
+  created_at      timestamptz default now()
 );
 alter table admissions enable row level security;
 create policy "Admin can do all on admissions" on admissions for all using (
@@ -240,3 +256,47 @@ on conflict (class_key) do nothing;
 --   ('<ADMIN_UUID>',   'admin',   'Mrs. Adaeze Okafor', 'Principal',           'AO', 'admin@beginnersfieldschool.edu.ng',   'admin.html'),
 --   ('<TEACHER_UUID>', 'teacher', 'Mr. Emeka Chukwu',   'Class Teacher — P6A', 'EC', 'e.chukwu@beginnersfieldschool.edu.ng','teacher.html'),
 --   ('<STUDENT_UUID>', 'student', 'Adaeze Nwosu',       'Primary 4 · 2024/2025','AN','student@beginnersfieldschool.edu.ng', 'student.html');
+
+-- ============================================================
+--  ADMISSION WORKFLOW ADDITIONS
+--  Run this block AFTER the main schema if upgrading an
+--  existing database, OR it is already included above for
+--  fresh installs.
+-- ============================================================
+
+-- Sequence counter so serial numbers never collide
+create sequence if not exists admission_serial_seq start 1;
+
+-- Helper function: generate next serial  BFS/YEAR/NNNN
+create or replace function next_admission_serial()
+returns text language plpgsql as $$
+declare
+  yr   text := to_char(now(), 'YYYY');
+  seq  int  := nextval('admission_serial_seq');
+begin
+  return 'BFS/' || yr || '/' || lpad(seq::text, 4, '0');
+end;
+$$;
+
+-- ── PARENT_PROFILES view (safe read for teachers) ────────────
+-- Teachers need to see parent accounts linked to their students
+create or replace view parent_student_link as
+  select
+    s.id          as student_id,
+    s.student_id  as student_code,
+    s.first_name,
+    s.last_name,
+    s.class,
+    s.parent_name,
+    s.parent_phone,
+    s.parent_email
+  from students s;
+
+-- RLS: teachers can read students in their class (already covered by students policy)
+
+-- ── Admissions: public insert (already set), admin all ───────
+-- (policies already created above; the new columns are included automatically)
+
+-- ── Extra index for fast pending lookups ─────────────────────
+create index if not exists idx_admissions_status on admissions(status);
+create index if not exists idx_students_class    on students(class);

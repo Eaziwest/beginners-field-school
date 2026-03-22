@@ -283,12 +283,24 @@
   /* ── Auth ── */
   const _user = (function() {
     try {
-      const u = typeof requireAuth === 'function' ? requireAuth('student') : { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
-      if (typeof injectUserInfo === 'function') injectUserInfo(u);
-      return u;
+      /* Accept both 'student' and 'parent' roles on this portal */
+      const session = typeof getSession === 'function' ? getSession() : null;
+      if (!session) {
+        if (typeof requireAuth === 'function') requireAuth('student'); // triggers redirect
+        return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
+      }
+      if (session.role !== 'student' && session.role !== 'parent') {
+        if (typeof clearSession === 'function') clearSession();
+        window.location.href = 'login.html';
+        return null;
+      }
+      if (typeof injectUserInfo === 'function') injectUserInfo(session);
+      /* Fire password reset modal for first-time parent logins */
+      if (typeof checkMustResetPassword === 'function') checkMustResetPassword(session);
+      return session;
     } catch(e) { return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' }; }
   })();
-  
+
   const sub = document.getElementById('student-sub');
   if (sub) {
     sub.textContent = 'Welcome, ' + _user.name + ' — Beginner\'s Field School';

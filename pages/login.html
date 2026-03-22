@@ -110,7 +110,7 @@
     <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">Select your role, then enter your credentials</p>
 
     <!-- Role tabs -->
-    <div class="role-tabs">
+    <div class="role-tabs" style="grid-template-columns:1fr 1fr 1fr 1fr;">
       <div class="role-tab active" id="tab-admin"   onclick="selectRole('admin')">
         <span class="rt-icon">🏛️</span><span class="rt-label">Admin</span>
       </div>
@@ -119,6 +119,9 @@
       </div>
       <div class="role-tab" id="tab-student" onclick="selectRole('student')">
         <span class="rt-icon">🎒</span><span class="rt-label">Student</span>
+      </div>
+      <div class="role-tab" id="tab-parent" onclick="selectRole('parent')">
+        <span class="rt-icon">👨‍👩‍👦</span><span class="rt-label">Parent</span>
       </div>
     </div>
     <input type="hidden" id="selected-role" value="admin" />
@@ -250,7 +253,12 @@
         }
 
         saveSession(profile);
-        const portals = { admin: 'admin.html', teacher: 'teacher.html', student: 'student.html' };
+        const portals = {
+          admin:   'admin.html',
+          teacher: 'teacher.html',
+          student: 'student.html',
+          parent:  'student.html'
+        };
         window.location.href = portals[profile.role] || 'login.html';
 
       } catch (err) {
@@ -270,7 +278,7 @@
     (function () {
       const user = getSession();
       if (!user) return;
-      const map = { admin: 'admin.html', teacher: 'teacher.html', student: 'student.html' };
+      const map = { admin: 'admin.html', teacher: 'teacher.html', student: 'student.html', parent: 'student.html' };
       if (map[user.role]) window.location.href = map[user.role];
     })();
 

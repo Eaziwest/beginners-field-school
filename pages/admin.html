@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/db.js"></script>
   <style>
@@ -162,7 +163,7 @@
                 <tr>
                   <td><strong>Fatima Bello</strong></td><td>Nursery 2</td><td>Mrs. Bello — 0802 345 6789</td><td>Mar 17</td>
                   <td><span class="badge b-green">Approved</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('Fatima Bello','Nursery 2','Mrs. Bello')">📄 Letter</button></td>
+                  <td><button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('Fatima Bello','Nursery 2','Mrs. Bello','')">📄 Letter</button></td>
                 </tr>
                 <tr>
                   <td><strong>Emeka Johnson</strong></td><td>Primary 3</td><td>Mr. Johnson — 0803 456 7890</td><td>Mar 16</td>
@@ -199,7 +200,7 @@
           </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Parent</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Parent</th><th>Email</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody id="admissions-tbody">
                 <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading admissions…</td></tr>
               </tbody>
@@ -426,6 +427,37 @@
 </div>
 
 <div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">&#10005;</button><h2>&#128203; Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
+
+<!-- Rejection note modal -->
+<div class="admin-modal-overlay" id="modal-reject-note">
+  <div class="admin-modal">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-reject-note')">&#10005;</button>
+    <h2>❌ Reject Application</h2>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:18px;">A rejection email will be sent to the parent's email address. You may include an optional note.</p>
+    <div class="form-group">
+      <label>Reason for Rejection (optional)</label>
+      <textarea id="reject-note-text" rows="4" placeholder="e.g. Class capacity reached for the selected year. We encourage you to reapply next session..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-red" id="reject-confirm-btn" onclick="confirmReject()">❌ Confirm Rejection</button>
+      <button class="btn btn-outline-navy" onclick="closeAdminModal('modal-reject-note')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Approval success modal -->
+<div class="admin-modal-overlay" id="modal-approved-detail">
+  <div class="admin-modal">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-approved-detail')">&#10005;</button>
+    <h2>✅ Admission Approved</h2>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:18px;">An email has been sent to the parent with login credentials. Details are shown below for your records.</p>
+    <div id="modal-approved-detail-body" style="background:var(--off-white);border-radius:12px;padding:20px;"></div>
+    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-outline-navy btn-sm" id="approved-print-btn">📄 Print Admission Letter</button>
+      <button class="btn btn-navy btn-sm" onclick="closeAdminModal('modal-approved-detail')">Close</button>
+    </div>
+  </div>
+</div>
 <div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">&#10005;</button><h2>&#127952; Student Profile</h2><div id="modal-student-body"></div></div></div>
 <div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">&#10005;</button><h2>&#128105;&#8205;&#127979; Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
 
@@ -533,16 +565,22 @@
   }
 
   /* ── Application Details ── */
-  function viewApplication(name, cls, parent, phone, status) {
+  function viewApplication(name, cls, parent, phone, email, status, serial) {
     var col = status === 'Approved' ? '#15803d' : status === 'Rejected' ? '#dc2626' : '#92400e';
     var body = document.getElementById('modal-application-body');
     if (!body) return;
-    body.innerHTML = 
+    const serialRow = serial
+      ? `<div class="receipt-detail"><span>Serial / Login ID</span><strong style="color:var(--navy);">${serial}</strong></div>` : '';
+    const emailRow = email
+      ? `<div class="receipt-detail"><span>Parent Email</span><strong>${email}</strong></div>` : '';
+    body.innerHTML =
       '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
         '<div class="receipt-detail"><span>Student Name</span><strong>' + name + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls||'\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent||'\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone||'\u2014') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls||'—') + '</strong></div>' +
+        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent||'—') + '</strong></div>' +
+        emailRow +
+        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone||'—') + '</strong></div>' +
+        serialRow +
         '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
       '</div>';
     var actEl = document.getElementById('modal-application-actions');
@@ -551,8 +589,8 @@
         actEl.innerHTML =
           '<button class="btn btn-green modal-appr-btn">&#10003; Approve</button>' +
           '<button class="btn btn-red  modal-rejt-btn">&#10007; Reject</button>';
-        actEl.querySelector('.modal-appr-btn').onclick = function() { toast(name + ' approved!'); closeAdminModal('modal-application'); };
-        actEl.querySelector('.modal-rejt-btn').onclick = function() { toast(name + ' rejected.'); closeAdminModal('modal-application'); };
+        actEl.querySelector('.modal-appr-btn').onclick = function() { closeAdminModal('modal-application'); };
+        actEl.querySelector('.modal-rejt-btn').onclick = function() { closeAdminModal('modal-application'); };
       } else { actEl.innerHTML = ''; }
     }
     openAdminModal('modal-application');
@@ -560,10 +598,11 @@
 
   /* ── Print Admission Letter ── 
      (Safely split HTML string tags to prevent parsing leakages) */
-  function printAdmissionLetter(name, cls, parent) {
+  function printAdmissionLetter(name, cls, parent, serial) {
     var win   = window.open('', '_blank');
     if (!win) { toast('\u26a0\ufe0f Popup blocked — please allow popups.'); return; }
     var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    var serialLine = serial ? '<div class="highlight"><strong>Admission Serial / Login ID:</strong> ' + serial + '<br><strong>Class:</strong> ' + (cls||'As discussed') + '<br><strong>Session:</strong> 2025/2026</div>' : '<div class="highlight"><strong>Class:</strong> ' + (cls||'As discussed') + '<br><strong>Session:</strong> 2025/2026</div>';
     win.document.write(
       '<!DOCTYPE html><html><head><title>Admission Letter</title>' +
       '<style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}' +
@@ -578,12 +617,12 @@
       '<p style="text-align:right;font-size:13px;color:#6b7280;">' + today + '</p>' +
       '<p class="body-text">Dear <strong>' + (parent||'Parent/Guardian') + '</strong>,</p>' +
       '<p class="body-text">We are delighted to inform you that the application for <strong>' + name + '</strong> has been <strong>successful</strong>.</p>' +
-      '<div class="highlight"><strong>Class:</strong> ' + (cls||'As discussed') + '<br><strong>Session:</strong> 2025/2026</div>' +
-      '<p class="body-text">Please visit the school office to complete enrolment and collect the registration pack.</p>' +
+      serialLine +
+      '<p class="body-text">Please visit the school office to complete enrolment and collect the registration pack. Your child\'s portal login credentials have been sent to your registered email address.</p>' +
       '<p class="body-text">We look forward to welcoming ' + name.split(' ')[0] + ' into our school family.</p>' +
       '<br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal</p>' +
       '<div class="footer">Generated by the Beginner\'s Field School Portal</div>' +
-      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;">&#128424;&#65039; Print Letter</button>' +
+      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;">\u{1F5A8}\ufe0f Print Letter</button>' +
       '</body' + '></html>'
     );
     win.document.close();
@@ -1189,27 +1228,36 @@
     if (!tbody) return;
     try {
       const list = await DB.admissions.getAll();
-      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No admission applications yet.</td></tr>'; return; }
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:24px;">No admission applications yet.</td></tr>'; return; }
       tbody.innerHTML = list.map((a, i) => {
         const d = new Date(a.applied_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
         const badgeCls = a.status === 'Approved' ? 'b-green' : a.status === 'Rejected' ? 'b-red' : 'b-yellow';
+        const emailSafe = (a.parent_email || '').replace(/'/g, '');
         let btns = '';
         if (a.status === 'Pending') {
           btns = `<div style="display:flex;gap:5px;">
-            <button class="btn btn-green btn-sm" onclick="approveAdmissionDB('${a.id}','${a.student_name}',this)">✓</button>
-            <button class="btn btn-red btn-sm"   onclick="rejectAdmissionDB('${a.id}','${a.student_name}',this)">✗</button>
-            <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">👁</button>
+            <button class="btn btn-green btn-sm" title="Approve" onclick="approveAdmissionDB('${a.id}','${a.student_name}',this)">✓ Approve</button>
+            <button class="btn btn-red btn-sm"   title="Reject"  onclick="rejectAdmissionDB('${a.id}','${a.student_name}',this)">✗ Reject</button>
+            <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${emailSafe}','${a.status}','${a.serial_number||''}')">👁</button>
           </div>`;
         } else if (a.status === 'Approved') {
-          btns = `<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}')">📄 Letter</button>`;
+          btns = `<div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.serial_number||''}')">📄 Letter</button>
+            <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${emailSafe}','${a.status}','${a.serial_number||''}')">👁</button>
+          </div>`;
         } else {
-          btns = `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">Details</button>`;
+          btns = `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${emailSafe}','${a.status}','${a.serial_number||''}')">Details</button>`;
         }
+        const serialBadge = a.serial_number
+          ? `<br><span style="font-size:11px;color:var(--navy-light);font-weight:700;">${a.serial_number}</span>` : '';
+        const emailDisplay = a.parent_email
+          ? `<span style="font-size:12px;">${a.parent_email}</span>` : '<span style="color:var(--gray);">—</span>';
         return `<tr data-id="${a.id}" data-name="${a.student_name}" data-class="${a.class_applied}" data-status="${a.status}">
           <td>${String(i+1).padStart(3,'0')}</td>
-          <td><strong>${a.student_name}</strong></td>
+          <td><strong>${a.student_name}</strong>${serialBadge}</td>
           <td>${a.class_applied}</td>
           <td>${a.parent_name||'—'}</td>
+          <td>${emailDisplay}</td>
           <td>${a.parent_phone||'—'}</td>
           <td>${d}</td>
           <td><span class="adm-badge badge ${badgeCls}">${a.status}</span></td>
@@ -1217,26 +1265,122 @@
         </tr>`;
       }).join('');
     } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
     }
   }
 
-  async function approveAdmissionDB(id, name, btn) {
-    try {
-      await DB.admissions.updateStatus(id, 'Approved');
-      toast(`✅ ${name} approved!`);
-      await loadAdmissions();
-      loadOverviewStats();
-    } catch(e) { toast('⚠️ ' + e.message); }
+  /* ── EmailJS config (same keys as admission.html) ── */
+  const EMAILJS_PUBLIC_KEY   = 'YOUR_EMAILJS_PUBLIC_KEY';
+  const EMAILJS_SERVICE_ID   = 'YOUR_SERVICE_ID';
+  const EMAILJS_APPROVE_TMPL = 'bfs_admission_approved';   // template: to_email, parent_name, student_name, class, serial, temp_password, login_url
+  const EMAILJS_REJECT_TMPL  = 'bfs_admission_rejected';   // template: to_email, parent_name, student_name, class, rejection_note
+
+  if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   }
-  async function rejectAdmissionDB(id, name, btn) {
-    if (!confirm(`Reject application for ${name}?`)) return;
+
+  /* ── Pending reject state ── */
+  let _pendingRejectId   = null;
+  let _pendingRejectName = null;
+  let _pendingRejectAdm  = null;  // full admission record
+
+  async function approveAdmissionDB(id, name, btn) {
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
     try {
-      await DB.admissions.updateStatus(id, 'Rejected');
-      toast(`Application for ${name} rejected.`);
+      /* Full workflow: generate serial, create student, create parent auth account */
+      const result = await DB.admissions.approve(id);
+      const { admission: adm, student, serial, tempPassword } = result;
+
+      /* Send approval email */
+      const emailSent = await sendAdmissionEmail('approve', {
+        toEmail:      adm.parent_email,
+        parentName:   adm.parent_name   || 'Parent/Guardian',
+        studentName:  adm.student_name,
+        className:    adm.class_applied,
+        serial,
+        tempPassword,
+        loginUrl:     window.location.origin + '/pages/login.html'
+      });
+
+      /* Show success modal */
+      const body = document.getElementById('modal-approved-detail-body');
+      if (body) {
+        body.innerHTML = `
+          <div class="receipt-detail"><span>Student Name</span><strong>${adm.student_name}</strong></div>
+          <div class="receipt-detail"><span>Class</span><strong>${adm.class_applied}</strong></div>
+          <div class="receipt-detail"><span>Serial / Login ID</span><strong style="color:var(--navy);font-size:15px;">${serial}</strong></div>
+          <div class="receipt-detail"><span>Temp Password</span><strong style="font-family:monospace;">${tempPassword}</strong></div>
+          <div class="receipt-detail"><span>Parent Email</span><strong>${adm.parent_email || '—'}</strong></div>
+          <div class="receipt-detail"><span>Email Status</span><strong style="color:${emailSent?'var(--green-ok)':'#d97706'};">${emailSent?'✅ Sent':'⚠️ Failed — please send manually'}</strong></div>
+          <div class="receipt-detail"><span>Student ID</span><strong>${student ? student.student_id : '—'}</strong></div>`;
+      }
+      const printBtn = document.getElementById('approved-print-btn');
+      if (printBtn) printBtn.onclick = () => printAdmissionLetter(adm.student_name, adm.class_applied, adm.parent_name);
+      openAdminModal('modal-approved-detail');
+
       await loadAdmissions();
       loadOverviewStats();
-    } catch(e) { toast('⚠️ ' + e.message); }
+    } catch(e) {
+      toast('⚠️ ' + e.message);
+      if (btn) { btn.disabled = false; btn.textContent = '✓'; }
+    }
+  }
+
+  function rejectAdmissionDB(id, name, btn) {
+    /* Fetch the full admission row so we have email & class */
+    _pendingRejectId   = id;
+    _pendingRejectName = name;
+    document.getElementById('reject-note-text').value = '';
+    openAdminModal('modal-reject-note');
+  }
+
+  async function confirmReject() {
+    const note    = document.getElementById('reject-note-text').value.trim();
+    const btn     = document.getElementById('reject-confirm-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Rejecting…'; }
+    try {
+      const adm = await DB.admissions.reject(_pendingRejectId, note);
+
+      /* Send rejection email */
+      await sendAdmissionEmail('reject', {
+        toEmail:      adm.parent_email,
+        parentName:   adm.parent_name  || 'Parent/Guardian',
+        studentName:  adm.student_name,
+        className:    adm.class_applied,
+        rejectionNote: note || 'We regret that we are unable to offer admission at this time.'
+      });
+
+      closeAdminModal('modal-reject-note');
+      toast(`❌ Application for ${_pendingRejectName} rejected. Notification email sent.`);
+      await loadAdmissions();
+      loadOverviewStats();
+    } catch(e) {
+      toast('⚠️ ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '❌ Confirm Rejection'; }
+    }
+  }
+
+  /* ── Email sender (EmailJS) ── */
+  async function sendAdmissionEmail(type, params) {
+    if (typeof emailjs === 'undefined' || EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
+      console.warn('[BFS] EmailJS not configured — skipping email send.');
+      return false;
+    }
+    try {
+      const tmpl   = type === 'approve' ? EMAILJS_APPROVE_TMPL : EMAILJS_REJECT_TMPL;
+      const tplVars = type === 'approve'
+        ? { to_email: params.toEmail, parent_name: params.parentName, student_name: params.studentName,
+            class: params.className, serial: params.serial, temp_password: params.tempPassword,
+            login_url: params.loginUrl }
+        : { to_email: params.toEmail, parent_name: params.parentName, student_name: params.studentName,
+            class: params.className, rejection_note: params.rejectionNote };
+      await emailjs.send(EMAILJS_SERVICE_ID, tmpl, tplVars);
+      return true;
+    } catch(e) {
+      console.error('[BFS] EmailJS send error:', e);
+      return false;
+    }
   }
 
   /* ── Students ── */
