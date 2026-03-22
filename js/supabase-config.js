@@ -7,8 +7,8 @@
    4. Copy "anon / public" key into SUPABASE_ANON_KEY below
    ============================================================ */
 
-const SUPABASE_URL      = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+const SUPABASE_URL      = 'https://uekjhizytlqyzgbljbff.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVla2poaXp5dGxxeXpnYmxqYmZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjE2ODksImV4cCI6MjA4OTY5NzY4OX0.ybH1l7JdcUCYdK3OraeeQ8TQIRzSxyWok4lto1mEMA8';
 
 /* Initialise the Supabase client and expose it globally */
 (function () {
