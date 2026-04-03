@@ -131,6 +131,51 @@ const DB = (function () {
     }
   };
 
-  return { students, subjects, teachers, admissions, fees, stats };
+  /* ══════════════════════════════════════════════════════
+     TIMETABLES
+  ══════════════════════════════════════════════════════ */
+  const timetables = {
+    async getAll() {
+      const { data, error } = await sb().from('timetables').select('*').order('updated_at', { ascending: false });
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    },
+    async updateStatus(id, status) {
+      const { data, error } = await sb().from('timetables').update({ status }).eq('id', id).select().single();
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    }
+  };
+
+  /* ══════════════════════════════════════════════════════
+     RESULTS
+  ══════════════════════════════════════════════════════ */
+  const results = {
+    async getAll() {
+      const { data, error } = await sb().from('results').select('*').order('uploaded_at', { ascending: false });
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    }
+  };
+
+  /* ══════════════════════════════════════════════════════
+     ANNOUNCEMENTS
+  ══════════════════════════════════════════════════════ */
+  const announcements = {
+    async getAll() {
+      const { data, error } = await sb().from('announcements').select('*').order('created_at', { ascending: false });
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    },
+    async create({ title, body, audience, priority }) {
+      const { data, error } = await sb().from('announcements').insert([{
+        title, body, audience: audience || 'Everyone', priority: priority || 'normal'
+      }]).select().single();
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    }
+  };
+
+  return { students, subjects, teachers, admissions, fees, stats, timetables, results, announcements };
 
 })();
