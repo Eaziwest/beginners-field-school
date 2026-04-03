@@ -12,90 +12,12 @@
     .grade-B { color:var(--navy-mid); }
     .grade-C { color:#d97706; }
     .grade-F { color:var(--red); }
-
-    /* ── Payment / receipt section ── */
-    .fee-payment-info {
-      background: var(--yellow-pale); border: 1.5px solid var(--yellow);
-      border-radius: 12px; padding: 18px 20px; font-size: 14px;
-      line-height: 1.9; margin-bottom: 16px;
-    }
-    .fee-payment-info strong { color: var(--navy); }
-    .payment-section-title {
-      font-family: 'Merriweather', serif; font-size: 15px; color: var(--navy);
-      border-left: 4px solid var(--yellow); padding-left: 12px; margin: 24px 0 16px;
-    }
-
-    /* ── Receipt verifier UI ── */
-    .receipt-verifier {
-      border: 2px solid var(--light-gray); border-radius: 14px;
-      padding: 20px; margin-top: 14px; background: var(--off-white);
-      transition: border-color 0.3s;
-    }
-    .receipt-verifier.verifying { border-color: var(--yellow); }
-    .receipt-verifier.ok        { border-color: var(--green-ok); background: #f0fdf4; }
-    .receipt-verifier.fail      { border-color: var(--red); background: #fef2f2; }
-
-    .verify-status {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 14px; font-weight: 700; margin-bottom: 12px;
-    }
-    .verify-icon { font-size: 22px; }
-    .verify-rows { display: flex; flex-direction: column; gap: 8px; }
-    .verify-row {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 13px; padding: 7px 10px; border-radius: 8px;
-      background: rgba(255,255,255,0.7);
-    }
-    .verify-row .vr-label { color: var(--gray); }
-    .verify-row .vr-value { font-weight: 700; color: var(--navy); }
-    .verify-row .vr-pass  { color: var(--green-ok); font-size: 16px; }
-    .verify-row .vr-fail  { color: var(--red); font-size: 16px; }
-
-    .receipt-preview {
-      margin-top: 12px; max-height: 200px; overflow-y: auto;
-      background: #fff; border: 1px solid var(--light-gray); border-radius: 8px;
-      padding: 12px; font-size: 11.5px; color: var(--gray);
-      font-family: monospace; line-height: 1.6; white-space: pre-wrap;
-    }
-    .preview-toggle {
-      font-size: 12px; color: var(--navy-light); cursor: pointer;
-      font-weight: 700; margin-top: 8px; display: inline-block;
-    }
-    .spinner {
-      display: inline-block; width: 16px; height: 16px;
-      border: 2.5px solid var(--yellow); border-top-color: var(--navy);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .fee-payment-info { background: var(--yellow-pale); border: 1.5px solid var(--yellow); border-radius: 12px; padding: 18px 20px; font-size: 14px; line-height: 1.9; margin-bottom: 16px; }
   </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div><span>📧</span> info@beginnersfieldschool.edu.ng &nbsp;&nbsp;|&nbsp;&nbsp; <span>📞</span> +234 800 000 0000</div>
-  <div>
-    <a href="#" onclick="toast('Help Center coming soon.')">Support</a>
-  </div>
-</div>
-<nav>
-  <a href="#" class="logo" onclick="switchToTab('overview')">
-    <div class="logo-crest">🌱</div>
-    <div class="logo-text">
-      <h1>Beginner's Field</h1>
-      <p>Student Portal</p>
-    </div>
-  </a>
-  <div class="nav-links">
-    <a href="#" onclick="switchToTab('overview', this)">Dashboard</a>
-    <a href="#" onclick="switchToTab('results', this)">Results</a>
-    <a href="#" onclick="switchToTab('fees', this)">Fees</a>
-    <a href="#" onclick="switchToTab('timetable', this)">Timetable</a>
-    <button class="btn btn-outline-navy btn-sm" onclick="logout()" style="margin-left: 10px;">🚪 Logout</button>
-  </div>
-</nav>
-
 <div class="dashboard" id="student-dashboard">
-
   <div class="dash-header dash-header-amber">
     <div>
       <h1>🎒 Student Portal</h1>
@@ -107,11 +29,11 @@
         <div class="user-name" data-user-name>Loading...</div>
         <div class="user-role" data-user-title></div>
       </div>
+      <button class="btn btn-sm btn-outline-white" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
 
   <div class="dash-body">
-
     <div class="sidebar" id="student-sidebar">
       <div class="sidebar-section">My Portal</div>
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">🏠</span> Dashboard</div>
@@ -122,24 +44,14 @@
     </div>
 
     <div class="dash-main">
-
       <div id="sp-overview" class="stab-pane active">
-        <div class="stats-row">
-          <div class="stat-card" data-icon="📊"><div class="stat-num">--%</div><div class="stat-label">Term Average Score</div></div>
-          <div class="stat-card" data-icon="📅"><div class="stat-num">--%</div><div class="stat-label">Attendance Rate</div></div>
-          <div class="stat-card" data-icon="🏆"><div class="stat-num">--</div><div class="stat-label">Class Position</div></div>
-        </div>
-        <div class="card">
-          <h3>📢 School Announcements</h3>
-          <div class="notif warn"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Report cards available to download after closing date</p></div></div>
-        </div>
         <div class="card">
           <h3>📊 Quick Results — Current Term</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total</th><th>Grade</th></tr></thead>
               <tbody id="quick-results-tbody">
-                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
+                 <tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
               </tbody>
             </table>
           </div>
@@ -150,92 +62,32 @@
       <div id="sp-results" class="stab-pane">
         <div class="card">
           <h3>📊 My Academic Results</h3>
-          <div class="subtabs">
-            <div class="stab active" onclick="switchResultTab(this,'sr1')">3rd Term 2024/25</div>
-            <div class="stab"        onclick="switchResultTab(this,'sr2')">2nd Term 2024/25</div>
-            <div class="stab"        onclick="switchResultTab(this,'sr3')">1st Term 2024/25</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Remark</th></tr></thead>
+              <tbody id="student-results-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div id="sr1" class="stab-pane active">
-            <div class="result-banner" id="full-result-banner" style="display:none;">
-              <strong>Term Average: <span id="full-avg"></span>% &nbsp;<span class="badge b-green" id="full-position"></span></strong>
-              <button class="btn btn-navy btn-sm" onclick="downloadReport()">⬇️ Download Report Card</button>
-            </div>
-            <div class="tbl-wrap">
-              <table>
-                <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Remark</th></tr></thead>
-                <tbody id="student-results-tbody">
-                  <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="principal-comment" id="principal-comment" style="display:none;"></div>
-          </div>
-          <div id="sr2" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">2nd Term results have not been published yet.</p></div>
-          <div id="sr3" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">1st Term results have not been published yet.</p></div>
         </div>
       </div>
 
       <div id="sp-fees" class="stab-pane">
         <div class="card">
-          <h3>&#128176; School Fees — Current Term</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">
-            Below are all the fees applicable to your class for this term. Please make payment at the school bursar office or reception. Contact the school if you need a payment plan.
-          </p>
-
+          <h3>&#128176; School Fees</h3>
           <div class="fee-summary" style="margin-bottom:20px;">
             <div class="fee-row"><span>School Fees — Tuition</span><span><strong id="sp-fee-tuition">Loading...</strong></span></div>
             <div class="fee-row"><span>Development Levy</span><span><strong id="sp-fee-levy">Loading...</strong></span></div>
             <div class="fee-row"><span>PTA Dues (Annual)</span><span><strong id="sp-fee-pta">Loading...</strong></span></div>
-            <div class="fee-row"><span>Sports / Cultural Levy</span><span><strong id="sp-fee-sports">Loading...</strong></span></div>
-            <div class="fee-row"><span>Medical / Health Check</span><span><strong id="sp-fee-medical">Loading...</strong></span></div>
-            <div class="fee-row"><span>ICT / Computer Levy</span><span><strong id="sp-fee-ict">Loading...</strong></span></div>
-          </div>
-
-          <div class="notif warn">
-            <span>&#128197;</span>
-            <div>
-              <h4>Payment Deadline — Before Resumption</h4>
-              <p>All fees must be paid in full before or on the resumption date. Late payment attracts a penalty of &#x20a6;2,000. Please contact the school bursar for payment arrangements.</p>
-            </div>
-          </div>
-
-          <div style="margin-top:20px;">
-            <h4 style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;">&#127981; How to Pay</h4>
-            <div class="notif info">
-              <span>&#128205;</span>
-              <div>
-                <h4>Visit the School Bursar</h4>
-                <p>Bring cash or a bank transfer confirmation to the bursar&#39;s office during school hours (<strong>Mon–Fri, 8:00AM–3:00PM</strong>). You will receive an official receipt on the spot.</p>
-              </div>
-            </div>
-            <div class="notif info" style="margin-top:10px;">
-              <span>&#128222;</span>
-              <div>
-                <h4>Contact the School</h4>
-                <p>Call <strong>+234 800 000 0000</strong> or email <strong>info@beginnersfieldschool.edu.ng</strong> to discuss payment plans or for any fee-related queries.</p>
-              </div>
-            </div>
+            <div class="fee-row total"><span>Total Amount Due</span><span><strong id="sp-fee-total">Loading...</strong></span></div>
           </div>
         </div>
       </div>
 
-
       <div id="sp-timetable" class="stab-pane">
-        <div id="stu-tt-pending" class="notif warn" style="display:none;margin-bottom:16px;">
-          <span>⏳</span>
-          <div><h4>Timetable Pending Approval</h4>
-            <p>Your class teacher has submitted a timetable. It is waiting for admin approval and will appear here once approved.</p>
-          </div>
-        </div>
-        <div id="stu-tt-draft" class="notif info" style="display:none;margin-bottom:16px;">
-          <span>📋</span>
-          <div><h4>Timetable Not Yet Available</h4>
-            <p>Your class teacher has not yet submitted a timetable for this term. Check back later.</p>
-          </div>
-        </div>
-        <div id="stu-tt-card" class="card">
-          <h3>📅 Class Timetable — <span id="stu-tt-class">Loading...</span> (Current Session)</h3>
-          <p id="stu-tt-meta" style="color:var(--gray);font-size:12.5px;margin-bottom:14px;"></p>
+        <div class="card">
+          <h3>📅 Class Timetable</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
@@ -246,12 +98,9 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
-
-<div id="toast">🔔 <span id="toast-text"></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
@@ -259,125 +108,79 @@
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-  /* ── Auth ── */
-  const _user = (function() {
-    try {
-      const u = typeof requireAuth === 'function' ? requireAuth('student') : { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
-      if (typeof injectUserInfo === 'function') injectUserInfo(u);
-      return u;
-    } catch(e) { return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' }; }
-  })();
+  const _user = requireAuth('student');
+  injectUserInfo(_user);
+  document.getElementById('student-sub').textContent = 'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
-  const sub = document.getElementById('student-sub');
-  if (sub) {
-    sub.textContent = 'Welcome, ' + _user.name + ' — Beginner\'s Field School';
-  }
-
-  /* ── Tab switcher ── */
-  function switchToTab(name, el) {
+  function switchToTab(name) {
     document.querySelectorAll('.dash-main > .stab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(l => l.classList.remove('active'));
-    
-    const pane = document.getElementById('sp-' + name);
-    if (pane) pane.classList.add('active');
-    
-    if (el && el.classList) {
-      el.classList.add('active');
-    } else {
-      document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(link => {
-        if ((link.getAttribute('onclick') || '').includes("'" + name + "'")) link.classList.add('active');
+    document.getElementById('sp-' + name).classList.add('active');
+  }
+
+  /* Fetch Results dynamically */
+  async function loadStudentResults() {
+    const qBody = document.getElementById('quick-results-tbody');
+    const fBody = document.getElementById('student-results-tbody');
+    try {
+      // Assuming db.js has a method to get results for a student. 
+      // Replace with your actual DB fetch logic if different.
+      const { data, error } = await window._supabase.from('student_scores').select('*').eq('student_id', _user.id);
+      
+      if (error || !data || data.length === 0) {
+        qBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No results published yet.</td></tr>';
+        fBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No results published yet.</td></tr>';
+        return;
+      }
+
+      let rowsHtml = '';
+      data.forEach(score => {
+        let total = (score.ca_score || 0) + (score.exam_score || 0);
+        let gradeObj = getGrade(total);
+        rowsHtml += `<tr>
+            <td>${score.subject}</td>
+            <td>${score.ca_score}</td>
+            <td>${score.exam_score}</td>
+            <td><strong>${total}</strong></td>
+            <td><span class="grade ${gradeObj.cls}">${gradeObj.grade}</span></td>
+            <td>${gradeObj.remark}</td>
+          </tr>`;
       });
+      fBody.innerHTML = rowsHtml;
+      
+      // Quick view omits the remark
+      qBody.innerHTML = rowsHtml.replace(/<td>.*?<\/td>$/gm, ''); 
+
+    } catch (err) {
+      console.warn('Error loading results', err);
     }
   }
 
-  /* ── Result sub-tabs ── */
-  function switchResultTab(el, id) {
-    const card = el.closest('.card');
-    card.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
-    card.querySelectorAll('.stab-pane').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    const pane = card.querySelector('#' + id);
-    if (pane) pane.classList.add('active');
+  function getGrade(total) {
+    if (total >= 75) return { grade: 'A', cls: 'grade-A', remark: 'Excellent' };
+    if (total >= 60) return { grade: 'B', cls: 'grade-B', remark: 'Very Good' };
+    if (total >= 50) return { grade: 'C', cls: 'grade-C', remark: 'Good' };
+    return { grade: 'F', cls: 'grade-F', remark: 'Needs Improvement' };
   }
 
-  function toast(msg) {
-    if(typeof window.toast === 'function' && !document.getElementById('toast-text')) return window.toast(msg);
-    var t = document.getElementById('toast');
-    var txt = document.getElementById('toast-text');
-    if (!t || !txt) return;
-    txt.textContent = msg;
-    t.style.display = 'block';
-    clearTimeout(t._timer);
-    t._timer = setTimeout(function() { t.style.display = 'none'; }, 3500);
+  /* Fetch Fees dynamically */
+  async function loadStudentFees() {
+    try {
+      const fees = await DB.fees.get();
+      const tuition = fees.primary_tuition || 45000;
+      const levy = fees.dev_levy || 5000;
+      const pta = fees.pta || 2000;
+      
+      document.getElementById('sp-fee-tuition').textContent = '₦' + tuition.toLocaleString();
+      document.getElementById('sp-fee-levy').textContent = '₦' + levy.toLocaleString();
+      document.getElementById('sp-fee-pta').textContent = '₦' + pta.toLocaleString();
+      document.getElementById('sp-fee-total').textContent = '₦' + (tuition + levy + pta).toLocaleString();
+    } catch(e) { console.warn('Fees error:', e.message); }
   }
 
-  function downloadReport() {
-    toast('Preparing Report Card PDF...');
-    // Same logic as before
-  }
-
-  async function loadStudentTimetable() {
-    // Dynamic loading via DB...
-    const TT_KEY = 'bfs_timetable_primary6a'; 
-    const pending = document.getElementById('stu-tt-pending');
-    const draft   = document.getElementById('stu-tt-draft');
-    const card    = document.getElementById('stu-tt-card');
-    const tbody   = document.getElementById('stu-tt-tbody');
-    const meta    = document.getElementById('stu-tt-meta');
-    if (!card || !tbody) return;
-
-    let data = null;
-    try { data = await DB.timetables.get(TT_KEY); } catch(e) {}
-    // Render default or data based on teacher submit...
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var activePane = document.querySelector('.dash-main > .stab-pane.active');
-    if(activePane && activePane.id) {
-       switchToTab(activePane.id.replace('sp-', ''));
-    }
+  document.addEventListener('DOMContentLoaded', () => {
+    loadStudentResults();
+    loadStudentFees();
   });
-
-  /* --- AUTO LOGOUT --- */
-  function setupAutoLogout() {
-    let timeoutTimer;
-    const INACTIVITY_LIMIT = 2 * 60 * 1000; // 2 minutes
-
-    function resetTimer() {
-      clearTimeout(timeoutTimer);
-      timeoutTimer = setTimeout(() => {
-        if (typeof logout === 'function') logout();
-        else window.location.href = 'login.html';
-      }, INACTIVITY_LIMIT);
-    }
-
-    window.onload = resetTimer;
-    document.onmousemove = resetTimer;
-    document.onkeypress = resetTimer;
-    document.onscroll = resetTimer;
-    document.onclick = resetTimer;
-    document.ontouchstart = resetTimer;
-  }
-  setupAutoLogout();
-
 </script>
-
-<nav class="mobile-bottom-nav">
-  <div class="mobile-bottom-nav-inner">
-    <button class="mbn-item active" onclick="switchToTab('overview', this)">
-      <span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('results', this)">
-      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('fees', this)">
-      <span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('timetable', this)">
-      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span>
-    </button>
-  </div>
-</nav>
-
 </body>
 </html>

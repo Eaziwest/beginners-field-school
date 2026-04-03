@@ -110,7 +110,7 @@
     <p style="color:var(--gray);font-size:13.5px;margin-bottom:22px;">Select your role, then enter your credentials</p>
 
     <!-- Role tabs -->
-    <div class="role-tabs" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+    <div class="role-tabs" style="grid-template-columns:1fr 1fr 1fr;">
       <div class="role-tab active" id="tab-admin"   onclick="selectRole('admin')">
         <span class="rt-icon">🏛️</span><span class="rt-label">Admin</span>
       </div>
@@ -120,9 +120,7 @@
       <div class="role-tab" id="tab-student" onclick="selectRole('student')">
         <span class="rt-icon">🎒</span><span class="rt-label">Student</span>
       </div>
-      <div class="role-tab" id="tab-parent" onclick="selectRole('parent')">
-        <span class="rt-icon">👨‍👩‍👦</span><span class="rt-label">Parent</span>
-      </div>
+      
     </div>
     <input type="hidden" id="selected-role" value="admin" />
 

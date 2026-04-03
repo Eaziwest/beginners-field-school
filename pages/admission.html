@@ -41,13 +41,11 @@
 </head>
 <body>
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <span>📞 +234 800 000 0000 &nbsp;|&nbsp; ✉️ info@beginnersfieldschool.edu.ng</span>
     <div><a href="login.html">🔐 Login</a></div>
   </div>
 
-  <!-- NAVBAR -->
   <nav>
     <a class="logo" href="../index.html">
       <div class="logo-crest">🌱</div>
@@ -63,33 +61,31 @@
     </div>
   </nav>
 
-  <!-- HERO -->
   <div class="adm-hero">
     <div class="hero-badge" style="margin-bottom:16px;">📋 Online Admissions Open — 2025/2026 Session</div>
     <h1>Apply for <span>Admission</span></h1>
     <p>Nursery 1–3 &amp; Primary 1–6 &nbsp;|&nbsp; Quick &amp; Paperless &nbsp;|&nbsp; Instant Application ID</p>
   </div>
 
-  <!-- FORM -->
   <div class="adm-body">
 
     <div id="adm-success" class="alert-success" style="display:none;">
-  ✅ Application submitted successfully! Your Application ID is <strong id="dynamic-app-id"></strong>.
-  We will contact you within 3 working days. Thank you for choosing Beginner's Field School!
-</div>
+      ✅ Application submitted successfully! Your Application ID is <strong id="dynamic-app-id"></strong>.
+      We will contact you within 3 working days. Thank you for choosing Beginner's Field School!
+    </div>
 
     <div class="card">
       <h3>📋 Admission Application Form</h3>
 
       <div class="form-section-title">Child's Information</div>
       <div class="form-row">
-        <div class="form-group"><label>First Name *</label><input type="text" placeholder="Child's first name" /></div>
-        <div class="form-group"><label>Last Name *</label><input type="text" placeholder="Child's last name" /></div>
+        <div class="form-group"><label>First Name *</label><input type="text" id="adm-fname" placeholder="Child's first name" /></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" id="adm-lname" placeholder="Child's last name" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Date of Birth *</label><input type="date" /></div>
+        <div class="form-group"><label>Date of Birth *</label><input type="date" id="adm-dob" /></div>
         <div class="form-group"><label>Gender *</label>
-          <select>
+          <select id="adm-gender">
             <option value="">— Select —</option>
             <option>Male</option>
             <option>Female</option>
@@ -98,7 +94,7 @@
       </div>
       <div class="form-group">
         <label>Class Applying For *</label>
-        <select>
+        <select id="adm-class">
           <option value="">— Select Class —</option>
           <optgroup label="Nursery"><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option></optgroup>
           <optgroup label="Primary"><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></optgroup>
@@ -106,29 +102,29 @@
       </div>
       <div class="form-group">
         <label>Previous School (if any)</label>
-        <input type="text" placeholder="Name of previous school" />
+        <input type="text" id="adm-prev-school" placeholder="Name of previous school" />
       </div>
 
       <div class="form-section-title">Parent / Guardian Information</div>
       <div class="form-row">
-        <div class="form-group"><label>Full Name *</label><input type="text" placeholder="Parent or guardian full name" /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="adm-parent-name" placeholder="Parent or guardian full name" /></div>
         <div class="form-group"><label>Relationship *</label>
-          <select>
+          <select id="adm-relationship">
             <option>Mother</option><option>Father</option><option>Guardian</option>
           </select>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="080X XXX XXXX" /></div>
-        <div class="form-group"><label>Email Address</label><input type="email" placeholder="parent@email.com" /></div>
+        <div class="form-group"><label>Phone Number *</label><input type="tel" id="adm-parent-phone" placeholder="080X XXX XXXX" /></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="adm-parent-email" placeholder="parent@email.com" /></div>
       </div>
       <div class="form-group">
         <label>Home Address *</label>
-        <input type="text" placeholder="Full residential address" />
+        <input type="text" id="adm-address" placeholder="Full residential address" />
       </div>
       <div class="form-group">
         <label>Occupation</label>
-        <input type="text" placeholder="Parent's occupation" />
+        <input type="text" id="adm-occupation" placeholder="Parent's occupation" />
       </div>
 
       <div class="form-section-title">Application Fee Payment</div>
@@ -147,7 +143,6 @@
                onchange="verifyReceipt(this,'adm-verify',false)" />
         <p style="font-size:12px;color:var(--gray);margin-top:5px;">Accepted: JPG, PNG, PDF (Max 5MB) — we will automatically check your receipt</p>
       </div>
-      <!-- Receipt verifier output -->
       <div class="receipt-verifier" id="adm-verify" style="display:none;"></div>
 
       <div class="form-group">
@@ -162,7 +157,6 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <div class="footer-bottom">
       © 2025 Beginner's Field Nursery &amp; Primary School &nbsp;·&nbsp;
@@ -176,23 +170,14 @@
   <script src="../js/db.js"></script>
   <script src="../js/main.js"></script>
   <script>
-    /* ── EmailJS initialisation ──────────────────────────────
-       1. Create a free account at https://www.emailjs.com
-       2. Add a service (Gmail / Outlook / custom SMTP)
-       3. Create ONE template with variables:
-            {{to_email}}  {{parent_name}}  {{student_name}}
-            {{class}}     {{app_id}}
-       4. Paste your Public Key, Service ID, Template ID below
-    ──────────────────────────────────────────────────────── */
     const EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
     const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
-    const EMAILJS_SUBMIT_TMPL = 'bfs_admission_received';  // template for submission confirmation
+    const EMAILJS_SUBMIT_TMPL = 'bfs_admission_received';
 
     if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
       emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
     }
 
-    /* PDF.js worker */
     if (typeof pdfjsLib !== 'undefined') {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -203,7 +188,6 @@
       'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
       'ref','reference','date','success','successful','approved'];
 
-    /* ── Submit Admission (live Supabase) ── */
     async function submitAdmission() {
       const fname   = document.getElementById('adm-fname').value.trim();
       const lname   = document.getElementById('adm-lname').value.trim();
@@ -217,15 +201,17 @@
       const rel     = document.getElementById('adm-relationship').value;
       const prevSch = document.getElementById('adm-prev-school').value.trim();
       const occ     = document.getElementById('adm-occupation').value.trim();
+      const payProof = document.getElementById('adm-pay-proof');
 
-      if (!fname || !lname) { showToastAdm('⚠️ Please enter the child's first and last name.'); return; }
-      if (!cls)             { showToastAdm('⚠️ Please select the class applying for.'); return; }
-      if (!pName)           { showToastAdm('⚠️ Please enter the parent/guardian name.'); return; }
-      if (!pPhone)          { showToastAdm('⚠️ Please enter a phone number.'); return; }
-      if (!pEmail || !pEmail.includes('@')) { showToastAdm('⚠️ A valid email address is required — admission result will be sent there.'); return; }
-      if (!address)         { showToastAdm('⚠️ Please enter your home address.'); return; }
+      if (!fname || !lname) { showToastAdm("⚠️ Please enter the child's first and last name."); return; }
+      if (!cls)             { showToastAdm("⚠️ Please select the class applying for."); return; }
+      if (!pName)           { showToastAdm("⚠️ Please enter the parent/guardian name."); return; }
+      if (!pPhone)          { showToastAdm("⚠️ Please enter a phone number."); return; }
+      if (!pEmail || !pEmail.includes('@')) { showToastAdm("⚠️ A valid email address is required."); return; }
+      if (!address)         { showToastAdm("⚠️ Please enter your home address."); return; }
+      if (!payProof.files || payProof.files.length === 0) { showToastAdm("⚠️ Please upload proof of payment."); return; }
 
-      const btn = document.querySelector('.btn.btn-navy[onclick]');
+      const btn = document.querySelector('.btn.btn-navy');
       if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
 
       try {
@@ -243,37 +229,30 @@
           relationship:   rel
         });
 
-        /* Show success banner */
+        const appID = result.id.substring(0, 8).toUpperCase();
+        document.getElementById('dynamic-app-id').textContent = appID;
         const successEl = document.getElementById('adm-success');
-        const refEl     = document.getElementById('adm-ref-display');
-        if (refEl)     refEl.textContent = result.id.substring(0, 8).toUpperCase();
         if (successEl) { successEl.style.display = 'block'; successEl.scrollIntoView({ behavior:'smooth' }); }
 
-        /* Send confirmation email via EmailJS (non-blocking) */
         if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
           emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_SUBMIT_TMPL, {
             to_email:    pEmail,
             parent_name: pName,
             student_name:`${fname} ${lname}`,
             class:       cls,
-            app_id:      result.id.substring(0, 8).toUpperCase()
+            app_id:      appID
           }).catch(e => console.warn('Email send failed:', e));
         }
 
-        /* Clear form */
-        ['adm-fname','adm-lname','adm-parent-name','adm-parent-phone',
-         'adm-parent-email','adm-address','adm-occupation','adm-prev-school'].forEach(id => {
-          const el = document.getElementById(id); if (el) el.value = '';
+        // Reset form
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.id !== 'adm-pay-proof') el.value = '';
         });
-        ['adm-class','adm-gender'].forEach(id => {
-          const el = document.getElementById(id); if (el) el.value = '';
-        });
-        document.getElementById('adm-dob').value = '';
 
       } catch(err) {
         showToastAdm('⚠️ Submission failed: ' + err.message);
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Application'; }
+        if (btn) { btn.disabled = true; btn.textContent = '✅ Submitted'; }
       }
     }
 
@@ -299,14 +278,7 @@
     }
 
     async function extractImageInfo(file) {
-      const name = file.name.toLowerCase();
-      let text = '[Image file: ' + file.name + ' | Size: ' + (file.size/1024).toFixed(1) + 'KB]';
-      if (name.includes('receipt') || name.includes('transfer') || name.includes('debit') ||
-          name.includes('teller') || name.includes('payment') || name.includes('moniepoint') ||
-          name.includes('bank') || name.includes('txn') || name.includes('trx')) {
-        text += '\n[Filename suggests: bank receipt]';
-      }
-      return text;
+      return `[Image file: ${file.name} | Size: ${(file.size/1024).toFixed(1)}KB]`;
     }
 
     function parseAmounts(text) {
@@ -332,31 +304,29 @@
       return { ok: hits.length >= 2, hits, score: hits.length };
     }
 
-    function hasAccountNumber(text) { return text.includes(SCHOOL_ACCOUNT); }
-
     async function verifyReceipt(input, containerId, isShop) {
       const el = document.getElementById(containerId);
       if (!el || !input.files || input.files.length === 0) { if(el) el.style.display='none'; return; }
       const file = input.files[0];
 
-      // FIX: enforce 5 MB file size limit
       if (file.size > 5 * 1024 * 1024) {
         el.style.display = 'block';
         el.className = 'receipt-verifier fail';
-        el.innerHTML = '<div class="verify-status" style="color:var(--red);"><span class="verify-icon">❌</span><span>File is too large. Maximum allowed size is 5MB.</span></div>';
+        el.innerHTML = '<div class="verify-status" style="color:var(--red);"><span class="verify-icon">❌</span><span>File is too large. Max 5MB.</span></div>';
         input.value = '';
         return;
       }
 
       el.style.display = 'block';
       el.className = 'receipt-verifier verifying';
-      el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading receipt — please wait…</span></div>';
+      el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span>Reading receipt...</span></div>';
 
-      let extractedText = '', isPdf = false;
+      let extractedText = '';
+      let isPdf = false;
       try {
         if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
           isPdf = true;
-          extractedText = typeof pdfjsLib !== 'undefined' ? await extractPdfText(file) : '[PDF — reader not available]';
+          extractedText = typeof pdfjsLib !== 'undefined' ? await extractPdfText(file) : '[PDF reader unavailable]';
         } else {
           extractedText = await extractImageInfo(file);
         }
@@ -365,115 +335,29 @@
       const expectedAmt  = 5000;
       const receiptCheck = isBankReceipt(extractedText);
       const amounts      = parseAmounts(extractedText);
-      const acctCheck    = hasAccountNumber(extractedText);
-      const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) / Math.max(expectedAmt,1) < 0.015);
-      const canVerifyAmt = isPdf || !extractedText.startsWith('[Image');
+      const acctCheck    = extractedText.includes(SCHOOL_ACCOUNT);
+      const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) < 5);
       const amountStatus = amounts.length === 0 ? 'unverifiable' : amountMatch ? 'match' : 'mismatch';
       const overallOk    = receiptCheck.ok && (amountStatus === 'match' || amountStatus === 'unverifiable');
 
-      el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
+      const statusColor = overallOk ? 'var(--green-ok)' : 'var(--red)';
+      const statusMsg = overallOk ? '✅ Receipt looks valid' : '❌ Invalid receipt';
 
-      // FIX: removed all backslashes before ${ } so variables are correctly interpolated
-      const amtLabel = amountStatus === 'match'
-        ? `Matches ₦${expectedAmt.toLocaleString()}`
-        : amountStatus === 'unverifiable'
-        ? `Ensure amount is ₦${expectedAmt.toLocaleString()}`
-        : `Expected ₦${expectedAmt.toLocaleString()} · found: ${amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ')}`;
-
-      const statusMsg = overallOk
-        ? (amountStatus === 'unverifiable' ? '⚠️ Receipt uploaded — admin will verify amount' : '✅ Receipt looks valid and amount matches!')
-        : (receiptCheck.ok ? '⚠️ Receipt found but amount may not match — double-check' : '❌ This does not look like a valid bank receipt');
-
-      const statusColor = overallOk && amountStatus !== 'unverifiable' ? 'var(--green-ok)' : overallOk ? '#d97706' : 'var(--red)';
-
-      const fileTypeLabel = isPdf ? 'PDF document' : `Image (${file.type.split('/')[1].toUpperCase()})`;
-      const bankKeywordsLabel = receiptCheck.ok ? receiptCheck.hits.slice(0,4).join(', ') : 'Not found';
-      const acctLabel = acctCheck ? `${SCHOOL_ACCOUNT} found` : 'Not detected';
-
-      let previewShort = extractedText.substring(0,300).trim();
-      if (previewShort.startsWith('[')) previewShort = '';
-
-      el.innerHTML = \`
-        <div class="verify-status" style="color:\${statusColor};">
-          <span class="verify-icon">\${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
-          <span>\${statusMsg}</span>
+      el.className = `receipt-verifier ${overallOk ? 'ok' : 'fail'}`;
+      el.innerHTML = `
+        <div class="verify-status" style="color:${statusColor};">
+          <span>${statusMsg}</span>
         </div>
         <div class="verify-rows">
-          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">\${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">\${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">\${amtLabel}</span><span class="\${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">\${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">\${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="\${acctCheck?'vr-pass':''}">\${acctCheck?'✅':'⚠️'}</span></div>
+          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf ? 'PDF' : 'Image'}</span></div>
+          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value">₦${expectedAmt.toLocaleString()}</span></div>
         </div>
-        \${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
-      \`;
-      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      `;
     }
 
     function togglePreview(btn) {
       const pre = btn.nextElementSibling;
-      if (pre.style.display === 'none') { pre.style.display = 'block'; btn.textContent = '▲ Hide text'; }
-      else { pre.style.display = 'none'; btn.textContent = '▼ Show extracted text'; }
-    }
-
-    // FIX: submitAdmission was missing entirely — added below
-    function submitAdmission() {
-      // Collect values
-      const childFirst    = document.getElementById('child-first').value.trim();
-      const childLast     = document.getElementById('child-last').value.trim();
-      const childDob      = document.getElementById('child-dob').value;
-      const childGender   = document.getElementById('child-gender').value;
-      const childClass    = document.getElementById('child-class').value;
-      const parentName    = document.getElementById('parent-name').value.trim();
-      const parentPhone   = document.getElementById('parent-phone').value.trim();
-      const parentAddress = document.getElementById('parent-address').value.trim();
-      const payProof      = document.getElementById('adm-pay-proof');
-
-      // Validate required fields
-      if (!childFirst || !childLast) { showToast('Please enter the child\'s full name.'); return; }
-      if (!childDob)                 { showToast('Please enter the child\'s date of birth.'); return; }
-      if (!childGender)              { showToast('Please select the child\'s gender.'); return; }
-      if (!childClass)               { showToast('Please select the class applying for.'); return; }
-      if (!parentName)               { showToast('Please enter the parent/guardian name.'); return; }
-      if (!parentPhone)              { showToast('Please enter a phone number.'); return; }
-      if (!parentAddress)            { showToast('Please enter the home address.'); return; }
-      if (!payProof.files || payProof.files.length === 0) {
-        showToast('Please upload proof of payment.');
-        return;
-      }
-
-      // Generate a unique Application ID: BFS-YEAR-RANDOM6
-      const year  = new Date().getFullYear();
-      const rand  = Math.random().toString(36).substring(2,8).toUpperCase();
-      const appId = `BFS-${year}-${rand}`;
-
-      // Show success banner
-      document.getElementById('dynamic-app-id').textContent = appId;
-      const successBanner = document.getElementById('adm-success');
-      successBanner.style.display = 'block';
-      successBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      // Optionally disable the submit button to prevent double submission
-      const submitBtn = document.querySelector('.btn-navy');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = '✅ Application Submitted';
-        submitBtn.style.opacity = '0.6';
-        submitBtn.style.cursor = 'not-allowed';
-      }
-    }
-
-    // Fallback toast helper in case main.js does not expose one
-    function showToast(msg) {
-      if (typeof toast === 'function') { toast(msg); return; }
-      const el = document.getElementById('toast');
-      const tx = document.getElementById('toast-text');
-      if (el && tx) {
-        tx.textContent = msg;
-        el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), 3500);
-      } else {
-        alert(msg);
-      }
+      pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
     }
   </script>
 </body>

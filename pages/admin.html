@@ -11,25 +11,11 @@
   <script src="../js/supabase-config.js"></script>
   <script src="../js/db.js"></script>
   <style>
-    .admin-modal-overlay {
-      display:none; position:fixed; inset:0;
-      background:rgba(10,31,68,0.65); backdrop-filter:blur(4px);
-      z-index:2000; align-items:center; justify-content:center; padding:20px;
-    }
+    .admin-modal-overlay { display:none; position:fixed; inset:0; background:rgba(10,31,68,0.65); backdrop-filter:blur(4px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
     .admin-modal-overlay.open { display:flex; }
-    .admin-modal {
-      background:#fff; border-radius:22px; padding:36px 32px;
-      width:100%; max-width:520px; position:relative;
-      box-shadow:0 10px 40px rgba(10,31,68,0.2);
-      max-height:90vh; overflow-y:auto; animation:modalIn 0.3s ease;
-    }
+    .admin-modal { background:#fff; border-radius:22px; padding:36px 32px; width:100%; max-width:520px; position:relative; box-shadow:0 10px 40px rgba(10,31,68,0.2); max-height:90vh; overflow-y:auto; animation:modalIn 0.3s ease; }
     .admin-modal h2 { font-family:'Merriweather',serif; font-size:20px; color:var(--navy); margin-bottom:20px; }
-    .admin-modal-close {
-      position:absolute; top:14px; right:18px;
-      background:var(--light-gray); border:none; width:30px; height:30px;
-      border-radius:50%; cursor:pointer; font-size:16px;
-      display:flex; align-items:center; justify-content:center;
-    }
+    .admin-modal-close { position:absolute; top:14px; right:18px; background:var(--light-gray); border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
     .ann-item { padding:14px 18px; border-radius:12px; margin-bottom:10px; border-left:4px solid; }
     .ann-item.normal    { background:#eff6ff; border-color:#3b82f6; }
     .ann-item.important { background:#fffbeb; border-color:var(--yellow); }
@@ -39,35 +25,17 @@
     .field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(220,38,38,0.12) !important; }
     .receipt-detail { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f3f8; font-size:13.5px; }
     .receipt-detail:last-child { border-bottom:none; }
-    
-    /* Fee management styles */
-    .fee-edit-card {
-      background: var(--white); border: 1.5px solid var(--light-gray);
-      border-radius: 14px; padding: 20px 22px; margin-bottom: 14px;
-    }
-    .fee-edit-card h4 {
-      font-size: 14px; font-weight: 800; color: var(--navy);
-      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-    }
-    .fee-edit-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 0; border-bottom: 1px solid var(--light-gray); gap: 12px; flex-wrap: wrap;
-    }
+    .fee-edit-card { background: var(--white); border: 1.5px solid var(--light-gray); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
+    .fee-edit-card h4 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .fee-edit-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--light-gray); gap: 12px; flex-wrap: wrap; }
     .fee-edit-row:last-child { border-bottom: none; }
     .fee-edit-label { font-size: 13.5px; color: var(--navy); font-weight: 600; flex: 1; min-width: 140px; }
     .fee-edit-label span { font-size: 11.5px; color: var(--gray); font-weight: 400; display: block; }
     .fee-amount-wrap { display: flex; align-items: center; gap: 6px; }
     .fee-prefix { font-weight: 800; color: var(--navy); font-size: 15px; }
-    .fee-amount-wrap input {
-      width: 110px; padding: 8px 10px; border: 1.5px solid var(--light-gray);
-      border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--navy);
-      font-family: inherit; text-align: right;
-    }
+    .fee-amount-wrap input { width: 110px; padding: 8px 10px; border: 1.5px solid var(--light-gray); border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--navy); font-family: inherit; text-align: right; }
     .fee-amount-wrap input:focus { border-color: var(--navy); outline: none; }
-    .fee-save-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px; margin-top: 6px;
-    }
+    .fee-save-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
     .fee-last-saved { font-size: 12px; color: var(--gray); }
     .fee-summary-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
     .fee-summary-table th { background: var(--navy); color: #fff; padding: 9px 12px; text-align: left; font-weight: 700; }
@@ -85,10 +53,7 @@
 <nav>
   <a href="#" class="logo" onclick="switchToTab('overview')">
     <div class="logo-crest">🌱</div>
-    <div class="logo-text">
-      <h1>Beginner's Field</h1>
-      <p>Admin Portal</p>
-    </div>
+    <div class="logo-text"><h1>Beginner's Field</h1><p>Admin Portal</p></div>
   </a>
   <div class="nav-links">
     <a href="#" onclick="switchToTab('overview', this)">Dashboard</a>
@@ -99,7 +64,6 @@
 </nav>
 
 <div class="dashboard" id="admin-dashboard">
-
   <div class="dash-header">
     <div>
       <h1>🏛️ Admin Portal</h1>
@@ -115,7 +79,6 @@
   </div>
 
   <div class="dash-body">
-
     <div class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Main</div>
       <div class="sidebar-link active" onclick="switchToTab('overview',this)"><span class="icon">📊</span> Overview</div>
@@ -140,35 +103,12 @@
           <div class="stat-card" data-icon="📅"><div class="stat-num">--%</div><div class="stat-label">Attendance Rate</div></div>
         </div>
         <div class="card">
-          <h3>🔔 Recent Alerts</h3>
-          <div class="notif warn"><span>⚠️</span><div><h4>Pending Admissions Awaiting Review</h4><p>Check the admissions tab to approve or reject</p></div></div>
-        </div>
-        <div class="card">
           <h3>📋 Recent Admission Applications</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Name</th><th>Class</th><th>Parent</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody>
-                <tr id="ov-row-chidera">
-                  <td><strong>Chidera Obi</strong></td><td>Primary 1</td><td>Mr. Obi — 0801 234 5678</td><td>Mar 18</td>
-                  <td><span class="badge b-yellow" id="ov-badge-chidera">Pending</span></td>
-                  <td><button class="btn btn-green btn-sm" id="ov-btn-chidera" onclick="approveOverview('chidera','Chidera Obi')">✓ Approve</button></td>
-                </tr>
-                <tr>
-                  <td><strong>Fatima Bello</strong></td><td>Nursery 2</td><td>Mrs. Bello — 0802 345 6789</td><td>Mar 17</td>
-                  <td><span class="badge b-green">Approved</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('Fatima Bello','Nursery 2','Mrs. Bello')">📄 Letter</button></td>
-                </tr>
-                <tr>
-                  <td><strong>Emeka Johnson</strong></td><td>Primary 3</td><td>Mr. Johnson — 0803 456 7890</td><td>Mar 16</td>
-                  <td><span class="badge b-red">Rejected</span></td>
-                  <td><button class="btn btn-outline-navy btn-sm" onclick="viewApplication('Emeka Johnson','Primary 3','Mr. Johnson','0803 456 7890','Rejected')">View</button></td>
-                </tr>
-                <tr id="ov-row-ngozi">
-                  <td><strong>Ngozi Adeleke</strong></td><td>Nursery 3</td><td>Dr. Adeleke — 0804 567 8901</td><td>Mar 14</td>
-                  <td><span class="badge b-yellow" id="ov-badge-ngozi">Pending</span></td>
-                  <td><button class="btn btn-green btn-sm" id="ov-btn-ngozi" onclick="approveOverview('ngozi','Ngozi Adeleke')">✓ Approve</button></td>
-                </tr>
+              <tbody id="overview-admissions-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading recent admissions…</td></tr>
               </tbody>
             </table>
           </div>
@@ -181,22 +121,15 @@
           <h3>📋 All Admission Applications</h3>
           <div class="filter-bar">
             <input id="adm-search" placeholder="🔍 Search by name..." oninput="filterAdmissions()" />
-            <select id="adm-class-filter" onchange="filterAdmissions()">
-              <option value="">All Classes</option>
-              <option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option>
-              <option>Primary 1</option><option>Primary 2</option><option>Primary 3</option>
-              <option>Primary 4</option><option>Primary 5</option><option>Primary 6</option>
-            </select>
             <select id="adm-status-filter" onchange="filterAdmissions()">
-              <option value="">All Status</option>
-              <option>Pending</option><option>Approved</option><option>Rejected</option>
+              <option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option>
             </select>
           </div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Parent</th><th>Email</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody id="admissions-tbody">
-                <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading admissions…</td></tr>
+                <tr><td colspan="9" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading admissions…</td></tr>
               </tbody>
             </table>
           </div>
@@ -208,11 +141,6 @@
           <h3>🎒 Student Management</h3>
           <div class="filter-bar">
             <input id="stu-search" placeholder="🔍 Search student..." oninput="filterStudents()" />
-            <select id="stu-class-filter" onchange="filterStudents()">
-              <option value="">All Classes</option>
-              <option>Nursery 1</option><option>Nursery 3</option>
-              <option>Primary 2</option><option>Primary 4</option><option>Primary 6</option>
-            </select>
             <button class="btn btn-yellow btn-sm" onclick="openAdminModal('modal-add-student')">+ Add Student</button>
           </div>
           <div class="tbl-wrap">
@@ -235,9 +163,9 @@
           </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Class</th><th>Subject</th><th>Phone</th><th>Attendance</th><th>Results</th><th>Status</th><th>Action</th></tr></thead>
+              <thead><tr><th>Name</th><th>Class</th><th>Subject</th><th>Phone</th><th>Attendance</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="teachers-tbody">
-                <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading teachers…</td></tr>
+                <tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading teachers…</td></tr>
               </tbody>
             </table>
           </div>
@@ -252,77 +180,36 @@
           <div class="stat-card" data-icon="📋"><div class="stat-num">3rd Term</div><div class="stat-label">Current Term</div></div>
         </div>
         <div class="card">
-          <h3>&#128176; Edit School Fees — 3rd Term 2025</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">
-            Update fee amounts below and click <strong>Save Changes</strong>. Students will see the updated amounts in their portal.
-          </p>
+          <h3>&#128176; Edit School Fees</h3>
+          <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">Update fee amounts below and click <strong>Save Changes</strong>.</p>
           <div class="fee-edit-card">
-            <h4>&#127968; Nursery School (Nursery 1 – 3)</h4>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">School Fees — Per Term<span>Covers tuition, learning materials &amp; activities</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-nursery-tuition" value="35000" min="0" step="500" onchange="updateFeeStats()" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Creche / Extra Hours<span>Optional extended care programme</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-nursery-creche" value="8000" min="0" step="500" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Uniform (per set)<span>Official school uniform — purchased once</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-uniform" value="3500" min="0" step="100" /></div>
-            </div>
+            <h4>&#127968; Nursery School</h4>
+            <div class="fee-edit-row"><div class="fee-edit-label">School Fees</div><div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-nursery-tuition" onchange="updateFeeStats()" /></div></div>
           </div>
           <div class="fee-edit-card">
-            <h4>&#127979; Primary School (Primary 1 – 6)</h4>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">School Fees — Per Term<span>Covers tuition, learning materials &amp; activities</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-primary-tuition" value="45000" min="0" step="500" onchange="updateFeeStats()" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Computer / ICT Levy<span>Lab usage and software licences</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-ict" value="3000" min="0" step="500" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Exam Fees (Primary 6)<span>External examinations and registration</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-exam" value="10000" min="0" step="500" /></div>
-            </div>
+            <h4>&#127979; Primary School</h4>
+            <div class="fee-edit-row"><div class="fee-edit-label">School Fees</div><div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-primary-tuition" onchange="updateFeeStats()" /></div></div>
           </div>
           <div class="fee-edit-card">
             <h4>&#128203; Other Compulsory Fees (All Classes)</h4>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Development Levy — Per Term<span>School infrastructure &amp; maintenance</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-dev-levy" value="5000" min="0" step="500" onchange="updateFeeStats()" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">PTA Dues — Per Session<span>Parent-Teacher Association annual dues</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-pta" value="2000" min="0" step="500" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Sports / Cultural Levy<span>Annual inter-house sports and cultural day</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-sports" value="1500" min="0" step="500" /></div>
-            </div>
-            <div class="fee-edit-row">
-              <div class="fee-edit-label">Medical / Health Check<span>Annual school health screening</span></div>
-              <div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-medical" value="1000" min="0" step="500" /></div>
-            </div>
+            <div class="fee-edit-row"><div class="fee-edit-label">Development Levy</div><div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-dev-levy" onchange="updateFeeStats()" /></div></div>
+            <div class="fee-edit-row"><div class="fee-edit-label">PTA Dues</div><div class="fee-amount-wrap"><span class="fee-prefix">&#x20a6;</span><input type="number" id="fee-pta" /></div></div>
           </div>
           <div class="fee-save-bar">
-            <span class="fee-last-saved" id="fee-last-saved">Last saved: not yet saved this session</span>
-            <div style="display:flex;gap:10px;">
-              <button class="btn btn-outline-navy btn-sm" onclick="resetFees()">&#8635; Reset to Default</button>
-              <button class="btn btn-navy" onclick="saveFees()">&#128190; Save Changes</button>
-            </div>
+            <span class="fee-last-saved" id="fee-last-saved"></span>
+            <div style="display:flex;gap:10px;"><button class="btn btn-navy" onclick="saveFees()">&#128190; Save Changes</button></div>
           </div>
         </div>
       </div>
 
       <div id="ap-results" class="stab-pane">
         <div class="card">
-          <h3>&#128202; Results Management &mdash; 3rd Term 2024/2025</h3>
+          <h3>&#128202; Results Management</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Class</th><th>Class Teacher</th><th>Students</th><th>Upload Status</th><th>Uploaded</th><th>Action</th></tr></thead>
-              <tbody>
-                <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading data from database…</td></tr>
+              <tbody id="results-tbody">
+                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
               </tbody>
             </table>
           </div>
@@ -330,46 +217,15 @@
       </div>
 
       <div id="ap-timetables" class="stab-pane">
-        <div class="stats-row">
-          <div class="stat-card" data-icon="✅"><div class="stat-num" id="adm-tt-approved-count">0</div><div class="stat-label">Approved</div></div>
-          <div class="stat-card" data-icon="⏳"><div class="stat-num" id="adm-tt-pending-count">0</div><div class="stat-label">Pending Review</div></div>
-          <div class="stat-card" data-icon="📋"><div class="stat-num" id="adm-tt-draft-count">0</div><div class="stat-label">Not Submitted</div></div>
-          <div class="stat-card" data-icon="📅"><div class="stat-num">3rd Term</div><div class="stat-label">Current Term</div></div>
-        </div>
         <div class="card">
-          <h3>📅 Timetable Submissions — 2024/2025 Session</h3>
-          <p style="color:var(--gray);font-size:13.5px;margin-bottom:18px;">
-            Teachers submit their class timetables here for review. Click <strong>Review</strong> to view and approve or reject.
-          </p>
+          <h3>📅 Timetable Submissions</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Class</th><th>Teacher</th><th>Status</th><th>Last Updated</th><th>Action</th></tr></thead>
               <tbody id="adm-tt-list">
+                 <tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading timetables…</td></tr>
               </tbody>
             </table>
-          </div>
-        </div>
-        <div class="card" id="adm-tt-review-card" style="display:none;">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-            <h3 style="margin:0;">📋 Reviewing: <span id="adm-tt-review-title">—</span></h3>
-            <button class="btn btn-outline-navy btn-sm" onclick="closeAdminTTReview()">✕ Close</button>
-          </div>
-          <div id="adm-tt-review-status" class="notif info" style="margin-bottom:16px;">
-            <span>📋</span><div><h4 id="adm-tt-review-status-title">Pending Review</h4><p id="adm-tt-review-status-text">Review the timetable below then approve or reject.</p></div>
-          </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
-              <tbody id="adm-tt-review-tbody"></tbody>
-            </table>
-          </div>
-          <div class="form-group" style="margin-top:16px;">
-            <label>Review Note (optional — shown to teacher)</label>
-            <textarea id="adm-tt-note" rows="2" placeholder="e.g. Approved. Please ensure PE is scheduled once a week. / Rejected — please add ICT lesson."></textarea>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;" id="adm-tt-action-btns">
-            <button class="btn btn-green" onclick="approveAdminTT()">✅ Approve Timetable</button>
-            <button class="btn btn-red"   onclick="rejectAdminTT()">❌ Reject Timetable</button>
           </div>
         </div>
       </div>
@@ -377,112 +233,19 @@
       <div id="ap-announcements" class="stab-pane">
         <div class="card">
           <h3>&#128226; Create Announcement</h3>
-          <div class="form-row">
-            <div class="form-group"><label>Target Audience *</label>
-              <select id="ann-audience">
-                <option value="">&#8212; Select audience &#8212;</option>
-                <option>Everyone (Students, Teachers &amp; Parents)</option>
-                <option>All Students</option><option>All Teachers</option>
-                <option>All Parents</option><option>Specific Class</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Priority Level</label>
-              <select id="ann-priority">
-                <option value="normal">Normal</option>
-                <option value="important">Important &#11088;</option>
-                <option value="urgent">Urgent &#128680;</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group"><label>Announcement Title *</label><input id="ann-title" placeholder="e.g. Third Term Closing Date — March 28, 2025" /></div>
-          <div class="form-group"><label>Message Body *</label><textarea id="ann-body" rows="5" placeholder="Type your full announcement here..."></textarea></div>
-          <button class="btn btn-navy" onclick="sendAnnouncement()">&#128226; Send Announcement</button>
+          <div class="form-group"><label>Title *</label><input id="ann-title" placeholder="Announcement Title" /></div>
+          <div class="form-group"><label>Body *</label><textarea id="ann-body" rows="3"></textarea></div>
+          <button class="btn btn-navy" onclick="sendAnnouncement()">Send Announcement</button>
         </div>
         <div class="card">
           <h3>&#128196; Recent Announcements</h3>
           <div id="announcements-list">
-            </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="admin-modal-overlay" id="modal-application"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-application')">&#10005;</button><h2>&#128203; Application Details</h2><div id="modal-application-body"></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;" id="modal-application-actions"></div></div></div>
-<div class="admin-modal-overlay" id="modal-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-student')">&#10005;</button><h2>&#127952; Student Profile</h2><div id="modal-student-body"></div></div></div>
-<div class="admin-modal-overlay" id="modal-teacher"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-teacher')">&#10005;</button><h2>&#128105;&#8205;&#127979; Teacher Profile</h2><div id="modal-teacher-body"></div></div></div>
-
-<div class="admin-modal-overlay" id="modal-results">
-  <div class="admin-modal">
-    <button class="admin-modal-close" onclick="closeAdminModal('modal-results')">&#10005;</button>
-    <h2 id="modal-results-title">&#128202; Results Preview</h2>
-    <div id="modal-results-body"></div>
-    <div id="modal-results-actions" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"></div>
-  </div>
-</div>
-
-<div class="admin-modal-overlay" id="modal-contact"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-contact')">&#10005;</button><h2>&#128172; Send Message</h2><div id="modal-contact-name" style="font-weight:700;color:var(--navy);margin-bottom:16px;font-size:15px;"></div><div class="form-group"><label>Subject *</label><input id="contact-subject" placeholder="e.g. Results submission reminder" /></div><div class="form-group"><label>Message *</label><textarea id="contact-body" rows="4" placeholder="Type your message..."></textarea></div><button class="btn btn-navy" onclick="sendContactMessage()">&#128228; Send</button></div></div>
-<div class="admin-modal-overlay" id="modal-add-student"><div class="admin-modal"><button class="admin-modal-close" onclick="closeAdminModal('modal-add-student')">&#10005;</button><h2>&#10133; Add New Student</h2><div class="form-row"><div class="form-group"><label>First Name *</label><input id="new-stu-fname" placeholder="First name" /></div><div class="form-group"><label>Last Name *</label><input id="new-stu-lname" placeholder="Last name" /></div></div><div class="form-row"><div class="form-group"><label>Class *</label><select id="new-stu-class"><option value="">&#8212; Select &#8212;</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></select></div><div class="form-group"><label>Gender *</label><select id="new-stu-gender"><option value="">&#8212; Select &#8212;</option><option>Male</option><option>Female</option></select></div></div><div class="form-group"><label>Parent/Guardian Name *</label><input id="new-stu-parent" placeholder="Full name" /></div><div class="form-group"><label>Parent Phone *</label><input id="new-stu-phone" placeholder="080X XXX XXXX" /></div><button class="btn btn-navy" onclick="saveNewStudent()">&#128190; Save Student</button></div></div>
-
-<div class="admin-modal-overlay" id="modal-add-teacher">
-  <div class="admin-modal">
-    <button class="admin-modal-close" onclick="closeAdminModal('modal-add-teacher')">&#10005;</button>
-    <h2>&#10133; Add New Teacher</h2>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Full Name *</label>
-        <input id="new-tch-name" placeholder="e.g. Mrs. Ada Nwosu" />
-      </div>
-      <div class="form-group">
-        <label>Phone *</label>
-        <input id="new-tch-phone" placeholder="080X XXX XXXX" />
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Class Assigned *</label>
-        <select id="new-tch-class">
-          <option value="">&#8212; Select &#8212;</option>
-          <option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option>
-          <option>Primary 1</option><option>Primary 2</option><option>Primary 3</option>
-          <option>Primary 4</option><option>Primary 5</option><option>Primary 6</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label>Subjects * <span style="font-size: 11.5px; color: var(--gray); font-weight: normal;">(Add one or more)</span></label>
-        
-        <div style="display: flex; gap: 8px; align-items: flex-start; flex-direction: column;">
-          <div style="display: flex; gap: 8px; width: 100%;">
-            <select id="new-tch-subject" onchange="toggleNewSubjectInput(this)" style="flex: 1;">
-              <option value="">— Select Subject —</option>
-              <option value="Mathematics">Mathematics</option>
-              <option value="English Language">English Language</option>
-              <option value="Basic Science">Basic Science</option>
-              <option value="Social Studies">Social Studies</option>
-              <option value="ADD_NEW" style="font-weight: bold; color: var(--navy);">+ Register New Subject...</option>
-            </select>
-            <button class="btn btn-navy" type="button" onclick="addTeacherSubject()" style="padding: 8px 16px;">Add</button>
+             <p style="color:var(--gray);padding:14px;text-align:center;">⏳ Loading announcements...</p>
           </div>
-          
-          <input id="new-tch-subject-custom" type="text" placeholder="Enter new subject name" style="display:none; width: 100%; margin-top: 4px;" />
         </div>
-
-        <div id="tch-subjects-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;"></div>
-        
-        <input type="hidden" id="tch-selected-subjects-list" value="[]" />
       </div>
+
     </div>
-    
-    <div class="form-group">
-      <label>Email Address *</label>
-      <input id="new-tch-email" type="email" placeholder="teacher@beginnersfieldschool.edu.ng" />
-    </div>
-    
-    <button class="btn btn-navy" onclick="saveNewTeacher()">&#128190; Save Teacher</button>
   </div>
 </div>
 
@@ -491,7 +254,6 @@
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-  /* ── Auth Safe Wrapper ── */
   const _user = (function() {
     try {
       const u = typeof requireAuth === 'function' ? requireAuth('admin') : null;
@@ -504,38 +266,15 @@
     } catch(e) { return null; }
   })();
 
-  /* ── Safely Tab Switcher (handles Sidebar, Navbar, and Mobile Nav) ── */
   function switchToTab(name, el) {
     document.querySelectorAll('.stab-pane').forEach(function(p) { p.classList.remove('active'); });
     document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(function(l) { l.classList.remove('active'); });
     var pane = document.getElementById('ap-' + name);
     if (pane) pane.classList.add('active');
-
-    if (el && el.classList) {
-      el.classList.add('active');
-    } else {
-      document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(function(link) {
-        if ((link.getAttribute('onclick') || '').includes("'" + name + "'")) link.classList.add('active');
-      });
-    }
+    if (el && el.classList) el.classList.add('active');
   }
 
-  /* ── Modal Helpers ── */
-  function openAdminModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.add('open');
-  }
-  function closeAdminModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.remove('open');
-  }
-  document.querySelectorAll('.admin-modal-overlay').forEach(function(o) {
-    o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
-  });
-
-  /* ── Toast Helper (Fallback if main.js is missing) ── */
   function toast(msg) {
-    if(typeof window.toast === 'function' && !document.getElementById('toast-text')) return window.toast(msg);
     var t = document.getElementById('toast');
     var txt = document.getElementById('toast-text');
     if (!t || !txt) return;
@@ -545,640 +284,10 @@
     t._timer = setTimeout(function() { t.style.display = 'none'; }, 3500);
   }
 
-  /* ── Overview Actions ── */
-  function approveOverview(key, name) {
-    var badge = document.getElementById('ov-badge-' + key);
-    var btn   = document.getElementById('ov-btn-' + key);
-    if (badge) { badge.textContent = 'Approved'; badge.className = 'badge b-green'; }
-    if (btn)   { btn.disabled = true; btn.textContent = '\u2713 Approved'; btn.style.opacity = '0.5'; }
-    toast('\u2705 ' + name + ' approved!');
-  }
-
-  /* ── Admissions Table ── */
-  function approveAdmission(btn, name) {
-    var row   = btn.closest('tr');
-    var badge = row.querySelector('.adm-badge');
-    if (badge) { badge.textContent = 'Approved'; badge.className = 'adm-badge badge b-green'; }
-    row.setAttribute('data-status', 'Approved');
-    var td = btn.closest('td');
-    td.innerHTML = '<button class="btn btn-outline-navy btn-sm adm-letter-btn">&#128196; Letter</button>';
-    td.querySelector('.adm-letter-btn').dataset.name = name;
-    toast('\u2705 ' + name + ' approved! Letter is ready.');
-  }
-
-  function rejectAdmission(btn, name) {
-    if (!confirm('Reject application for ' + name + '?')) return;
-    var row   = btn.closest('tr');
-    var badge = row.querySelector('.adm-badge');
-    if (badge) { badge.textContent = 'Rejected'; badge.className = 'adm-badge badge b-red'; }
-    row.setAttribute('data-status', 'Rejected');
-    btn.closest('td').innerHTML = '<button class="btn btn-outline-navy btn-sm">Details</button>';
-    toast('Application for ' + name + ' rejected.');
-  }
-
-  /* ── Application Details ── */
-  function viewApplication(name, cls, parent, phone, status) {
-    var col = status === 'Approved' ? '#15803d' : status === 'Rejected' ? '#dc2626' : '#92400e';
-    var body = document.getElementById('modal-application-body');
-    if (!body) return;
-    body.innerHTML = 
-      '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
-        '<div class="receipt-detail"><span>Student Name</span><strong>' + name + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class Applied</span><strong>' + (cls||'\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Parent/Guardian</span><strong>' + (parent||'\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Phone</span><strong>' + (phone||'\u2014') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
-      '</div>';
-    var actEl = document.getElementById('modal-application-actions');
-    if (actEl) {
-      if (status === 'Pending') {
-        actEl.innerHTML =
-          '<button class="btn btn-green modal-appr-btn">&#10003; Approve</button>' +
-          '<button class="btn btn-red  modal-rejt-btn">&#10007; Reject</button>';
-        actEl.querySelector('.modal-appr-btn').onclick = function() { toast(name + ' approved!'); closeAdminModal('modal-application'); };
-        actEl.querySelector('.modal-rejt-btn').onclick = function() { toast(name + ' rejected.'); closeAdminModal('modal-application'); };
-      } else { actEl.innerHTML = ''; }
-    }
-    openAdminModal('modal-application');
-  }
-
-  /* ── Print Admission Letter ── 
-     (Safely split HTML string tags to prevent parsing leakages) */
-  function printAdmissionLetter(name, cls, parent) {
-    var win   = window.open('', '_blank');
-    if (!win) { toast('\u26a0\ufe0f Popup blocked — please allow popups.'); return; }
-    var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
-    win.document.write(
-      '<!DOCTYPE html><html><head><title>Admission Letter</title>' +
-      '<style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}' +
-      '.header{text-align:center;border-bottom:3px solid #0a1f44;padding-bottom:20px;margin-bottom:30px;}' +
-      'h1{color:#0a1f44;font-size:20px;margin-bottom:4px;}.sub{color:#6b7280;font-size:12px;}' +
-      '.body-text{font-size:14px;line-height:1.9;}' +
-      '.highlight{background:#fffbea;border-left:4px solid #f5c200;padding:14px 18px;border-radius:6px;margin:20px 0;}' +
-      '.footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:40px;border-top:1px solid #e5e7eb;padding-top:14px;}' +
-      '@media print{button{display:none;}}</style' + '></head><body>' +
-      '<div class="header"><h1>\ud83c\udf31 Beginner\'s Field Nursery &amp; Primary School</h1>' +
-      '<p class="sub">12 Education Avenue, Lekki, Lagos &middot; info@beginnersfieldschool.edu.ng</p></div>' +
-      '<p style="text-align:right;font-size:13px;color:#6b7280;">' + today + '</p>' +
-      '<p class="body-text">Dear <strong>' + (parent||'Parent/Guardian') + '</strong>,</p>' +
-      '<p class="body-text">We are delighted to inform you that the application for <strong>' + name + '</strong> has been <strong>successful</strong>.</p>' +
-      '<div class="highlight"><strong>Class:</strong> ' + (cls||'As discussed') + '<br><strong>Session:</strong> 2025/2026</div>' +
-      '<p class="body-text">Please visit the school office to complete enrolment and collect the registration pack.</p>' +
-      '<p class="body-text">We look forward to welcoming ' + name.split(' ')[0] + ' into our school family.</p>' +
-      '<br><p class="body-text">Yours sincerely,<br><br><strong>Mrs. Adaeze Okafor</strong><br>Principal</p>' +
-      '<div class="footer">Generated by the Beginner\'s Field School Portal</div>' +
-      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;">&#128424;&#65039; Print Letter</button>' +
-      '</body' + '></html>'
-    );
-    win.document.close();
-    toast('Admission letter opened in new tab.');
-  }
-
-  /* ── Student Profile Modal ── */
-  function viewStudentProfile(name, cls, gender, id, att, fees, status) {
-    var safeName = String(name || 'Student');
-    var safeClass = String(cls || '-');
-    var safeGender = String(gender || '-');
-    var safeld = String(id || '-');
-    var safeAtt = String(att || '-');
-    var safeFees = String(fees || 'Pending');
-    var safeStatus = String(status || '-');
-
-    var fc = safeFees.includes('Owing') ? 'var(--red)' : safeFees === 'Partial' ? '#d97706' : 'var(--green-ok)';
-    var body = document.getElementById('modal-student-body');
-    if (!body) return;
-    body.innerHTML =
-      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
-        '<div class="receipt-detail"><span>Student ID</span><strong>' + safeld + '</strong></div>' +
-        '<div class="receipt-detail"><span>Full Name</span><strong>' + safeName + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class</span><strong>' + safeClass + '</strong></div>' +
-        '<div class="receipt-detail"><span>Gender</span><strong>' + safeGender + '</strong></div>' +
-        '<div class="receipt-detail"><span>Attendance</span><strong>' + safeAtt + '</strong></div>' +
-        '<div class="receipt-detail"><span>Fee Status</span><strong style="color:' + fc + '">' + safeFees + '</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong style="color:var(--green-ok)">' + safeStatus + '</strong></div>' +
-      '</div>' +
-      '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" id="stu-edit-btn">&#9999;&#65039; Edit</button>' +
-        '<button class="btn btn-outline-navy btn-sm" id="stu-fee-btn">&#128179; Send Fee Reminder</button>' +
-      '</div>';
-    body.querySelector('#stu-edit-btn').onclick = function() { toast('Edit student \u2014 coming soon.'); };
-    body.querySelector('#stu-fee-btn').onclick  = function() { toast('Fee reminder sent to parent.'); };
-    openAdminModal('modal-student');
-  }
-
-  /* ── Teacher View/Contact ── */
-  function viewTeacher(name, cls, subject, phone, att, status) {
-    var safeName = String(name || 'Teacher');
-    var safeClass = String(cls || '-');
-    var safeSubject = String(subject || '-');
-    var safePhone = String(phone || '-');
-    var safeAtt = String(att || '-');
-    var safeStatus = String(status || '-');
-
-    var body = document.getElementById('modal-teacher-body');
-    if (!body) return;
-    body.innerHTML =
-      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
-        '<div class="receipt-detail"><span>Full Name</span><strong>' + safeName + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class</span><strong>' + safeClass + '</strong></div>' +
-        '<div class="receipt-detail"><span>Subject</span><strong>' + safeSubject + '</strong></div>' +
-        '<div class="receipt-detail"><span>Phone</span><strong>' + safePhone + '</strong></div>' +
-        '<div class="receipt-detail"><span>Attendance</span><strong>' + safeAtt + '</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong>' + safeStatus + '</strong></div>' +
-      '</div>' +
-      '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
-        '<button class="btn btn-navy btn-sm" id="teacher-msg-btn">&#128231;&#65039; Send Message</button>' +
-        '<button class="btn btn-outline-navy btn-sm" id="teacher-edit-btn">&#9999;&#65039; Edit</button>' +
-      '</div>';
-    body.querySelector('#teacher-msg-btn').onclick  = function() { closeAdminModal('modal-teacher'); contactTeacher(name); };
-    body.querySelector('#teacher-edit-btn').onclick = function() { toast('Edit teacher \u2014 coming soon.'); };
-    openAdminModal('modal-teacher');
-  }
-
-  var _contactName = '';
-  function contactTeacher(name) {
-    _contactName = name;
-    var el = document.getElementById('modal-contact-name');
-    if (el) el.textContent = 'To: ' + name;
-    var s = document.getElementById('contact-subject');
-    var b = document.getElementById('contact-body');
-    if (s) s.value = '';
-    if (b) b.value = '';
-    openAdminModal('modal-contact');
-  }
-
-  function sendContactMessage() {
-    var s = document.getElementById('contact-subject');
-    var b = document.getElementById('contact-body');
-    [s, b].forEach(function(el) { if (el) el.classList.remove('field-error'); });
-    var valid = true;
-    if (!s || !s.value.trim()) { if (s) s.classList.add('field-error'); valid = false; }
-    if (!b || !b.value.trim()) { if (b) b.classList.add('field-error'); valid = false; }
-    if (!valid) { toast('\u26a0\ufe0f Please fill in subject and message.'); return; }
-    toast('\u2705 Message sent to ' + _contactName + '!');
-    closeAdminModal('modal-contact');
-  }
-
-  /* ── Results Review & Publish Functionality ── */
-  
-  // Opens the review modal for pending results
-  function reviewPendingResults(key, cls, teacher) {
-    document.getElementById('modal-results-title').innerHTML = '&#128202; Review Results — ' + cls;
-    var rb = document.getElementById('modal-results-body');
-    var ra = document.getElementById('modal-results-actions');
-    if (!rb || !ra) return;
-    
-    rb.innerHTML =
-      '<div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">' +
-        '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
-        '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong style="color:#d97706">Awaiting Approval</strong></div>' +
-      '</div>' +
-      '<div class="card" style="box-shadow:none; border:1px solid var(--light-gray); padding:16px;">' +
-        '<h4 style="margin-bottom:12px; font-size:14px; color:var(--navy);">Class Performance Summary</h4>' +
-        '<div class="receipt-detail"><span>Students Evaluated</span><strong>' + (cls === 'Primary 5B' ? 38 : 25) + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class Average</span><strong>' + (cls === 'Primary 5B' ? '76.4%' : '82.1%') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Highest Score</span><strong>' + (cls === 'Primary 5B' ? '98%' : '100%') + '</strong></div>' +
-        '<div class="receipt-detail"><span>Lowest Score</span><strong>' + (cls === 'Primary 5B' ? '41%' : '55%') + '</strong></div>' +
-      '</div>' +
-      '<div class="form-group" style="margin-top:16px;">' +
-        '<label>Review Note (optional)</label>' +
-        '<textarea id="res-review-note" rows="2" placeholder="e.g. Approved, great work. / Rejected: Please double check the exam scores for math."></textarea>' +
-      '</div>';
-      
-    ra.innerHTML = 
-      '<button class="btn btn-green" onclick="approveAndPublishResults(\'' + key + '\', \'' + cls + '\', \'' + teacher + '\')">✅ Approve & Publish</button>' +
-      '<button class="btn btn-red" onclick="rejectPendingResults(\'' + key + '\', \'' + cls + '\', \'' + teacher + '\')">❌ Reject & Return</button>';
-      
-    openAdminModal('modal-results');
-  }
-
-  // Handles the approval flow
-  function approveAndPublishResults(key, cls, teacher) {
-    var badge = document.getElementById('res-badge-' + key);
-    var td   = document.getElementById('res-td-' + key);
-    
-    if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
-    if (td) {
-      td.innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'' + teacher + '\',\'Published\')">View</button>';
-    }
-    toast('\u2705 ' + cls + ' results approved and published to students!');
-    closeAdminModal('modal-results');
-  }
-
-  // Handles the rejection flow
-  function rejectPendingResults(key, cls, teacher) {
-    var note = document.getElementById('res-review-note');
-    if(!note || !note.value.trim()) {
-      if(note) note.classList.add('field-error');
-      toast('⚠️ Please provide a review note before rejecting.');
-      setTimeout(function() { if(note) note.classList.remove('field-error'); }, 2500);
-      return;
-    }
-    
-    var badge = document.getElementById('res-badge-' + key);
-    var td   = document.getElementById('res-td-' + key);
-    
-    if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
-    if (td) {
-      td.innerHTML = '<button class="btn btn-outline-navy btn-sm" onclick="viewResults(\'' + cls + '\',\'' + teacher + '\',\'Rejected\')">View</button>';
-    }
-    toast('❌ ' + cls + ' results rejected and returned to teacher.');
-    closeAdminModal('modal-results');
-  }
-
-  // General View for published or rejected results
-  function viewResults(cls, teacher, status) {
-    document.getElementById('modal-results-title').innerHTML = '&#128202; Results Preview — ' + cls;
-    var rb = document.getElementById('modal-results-body');
-    var ra = document.getElementById('modal-results-actions');
-    if (!rb) return;
-    if (ra) ra.innerHTML = ''; // Clear action buttons for view mode
-    
-    var col = status === 'Published' ? 'var(--green-ok)' : 'var(--red)';
-    var notif = status === 'Published' 
-      ? '<div class="notif ok" style="margin-top: 16px;"><span>\u2705</span><div><h4>Results Published</h4><p>Students can now view results in their portal.</p></div></div>'
-      : '<div class="notif err" style="margin-top: 16px;"><span>❌</span><div><h4>Results Rejected</h4><p>Returned to teacher for corrections.</p></div></div>';
-
-    rb.innerHTML =
-      '<div style="background:var(--off-white);border-radius:12px;padding:20px;">' +
-        '<div class="receipt-detail"><span>Class</span><strong>' + cls + '</strong></div>' +
-        '<div class="receipt-detail"><span>Class Teacher</span><strong>' + teacher + '</strong></div>' +
-        '<div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>' +
-        '<div class="receipt-detail"><span>Status</span><strong style="color:' + col + '">' + status + '</strong></div>' +
-      '</div>' + notif;
-      
-    openAdminModal('modal-results');
-  }
-
-  function sendReminder(teacher, cls) {
-    toast('\ud83d\udce2 Reminder sent to ' + teacher + ' (' + cls + ') to upload results.');
-  }
-
-  /* ── Announcements ── */
-  function sendAnnouncement() {
-    var aud   = document.getElementById('ann-audience');
-    var title = document.getElementById('ann-title');
-    var body  = document.getElementById('ann-body');
-    var pri   = document.getElementById('ann-priority');
-    [aud, title, body].forEach(function(el) { if (el) el.classList.remove('field-error'); });
-    var valid = true;
-    if (!aud  || !aud.value)          { if (aud)   aud.classList.add('field-error');   valid = false; }
-    if (!title|| !title.value.trim()) { if (title) title.classList.add('field-error'); valid = false; }
-    if (!body || !body.value.trim())  { if (body)  body.classList.add('field-error');  valid = false; }
-    if (!valid) { toast('\u26a0\ufe0f Please fill in all required fields.'); return; }
-    
-    var audience = aud.options[aud.selectedIndex].text;
-    var today    = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
-    var div      = document.createElement('div');
-    div.className = 'ann-item ' + pri.value;
-    div.innerHTML = '<h4>' + title.value.trim() + '</h4><p>Sent to ' + audience + ' \u00b7 ' + today + '</p>';
-    var list = document.getElementById('announcements-list');
-    if (list) list.insertBefore(div, list.firstChild);
-    toast('\ud83d\udce2 Announcement sent to ' + audience + '!');
-    title.value = ''; body.value = ''; aud.value = '';
-  }
-
-  /* ── Add Student (DB) ── */
-  async function saveNewStudent() {
-    const fname  = document.getElementById('new-stu-fname').value.trim();
-    const lname  = document.getElementById('new-stu-lname').value.trim();
-    const cls    = document.getElementById('new-stu-class').value;
-    const gender = document.getElementById('new-stu-gender').value;
-    const parent = document.getElementById('new-stu-parent').value.trim();
-    const phone  = document.getElementById('new-stu-phone').value.trim();
-    if (!fname||!lname||!cls||!gender||!parent||!phone) { toast('⚠️ Please fill in all fields.'); return; }
-
-    try {
-      const student = await DB.students.add({ firstName: fname, lastName: lname, className: cls, gender, parentName: parent, parentPhone: phone });
-      toast(`✅ ${student.first_name} ${student.last_name} added to ${cls}!`);
-      closeAdminModal('modal-add-student');
-      ['new-stu-fname','new-stu-lname','new-stu-parent','new-stu-phone'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-      });
-      document.getElementById('new-stu-class').value  = '';
-      document.getElementById('new-stu-gender').value = '';
-      await loadStudents();
-    } catch(err) {
-      toast('⚠️ ' + err.message);
-    }
-  }
-
-  /* ── Add Teacher (DB) ── */
-  async function saveNewTeacher() {
-    const name    = document.getElementById('new-tch-name').value.trim();
-    const phone   = document.getElementById('new-tch-phone').value.trim();
-    const cls     = document.getElementById('new-tch-class').value;
-    const subject = document.getElementById('new-tch-subject').value.trim();
-    const email   = document.getElementById('new-tch-email').value.trim();
-    if (!name||!phone||!cls||!subject||!email) { toast('⚠️ Please fill in all fields.'); return; }
-
-    try {
-      const teacher = await DB.teachers.add({ name, phone, classAssigned: cls, subject, email });
-      toast(`✅ ${teacher.name} added as teacher for ${cls}!`);
-      closeAdminModal('modal-add-teacher');
-      ['new-tch-name','new-tch-phone','new-tch-subject','new-tch-email'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-      });
-      document.getElementById('new-tch-class').value = '';
-      await loadTeachers();
-    } catch(err) {
-      toast('⚠️ ' + err.message);
-    }
-  }
-
-  /* ── Live Filters ── */
-  function filterAdmissions() {
-    var s  = document.getElementById('adm-search').value.toLowerCase();
-    var cl = document.getElementById('adm-class-filter').value;
-    var st = document.getElementById('adm-status-filter').value;
-    document.querySelectorAll('#admissions-tbody tr').forEach(function(row) {
-      var show = (!s  || (row.dataset.name||'').toLowerCase().includes(s))
-              && (!cl || row.dataset['class'] === cl)
-              && (!st || row.dataset.status   === st);
-      row.style.display = show ? '' : 'none';
-    });
-  }
-  function filterStudents() {
-    var s  = document.getElementById('stu-search').value.toLowerCase();
-    var cl = document.getElementById('stu-class-filter').value;
-    document.querySelectorAll('#students-tbody tr').forEach(function(row) {
-      var show = (!s  || (row.dataset.name||'').toLowerCase().includes(s))
-              && (!cl || row.dataset['class'] === cl);
-      row.style.display = show ? '' : 'none';
-    });
-  }
-  function filterTeachers() {
-    var s = document.getElementById('tch-search').value.toLowerCase();
-    document.querySelectorAll('#teachers-tbody tr').forEach(function(row) {
-      row.style.display = (!s || (row.dataset.name||'').toLowerCase().includes(s)) ? '' : 'none';
-    });
-  }
-
-  /* ── School Fee Management ── */
-  var FEE_DEFAULTS = {
-    'fee-nursery-tuition': 35000, 'fee-nursery-creche': 8000, 'fee-uniform': 3500,
-    'fee-primary-tuition': 45000, 'fee-ict': 3000, 'fee-exam': 10000,
-    'fee-dev-levy': 5000, 'fee-pta': 2000, 'fee-sports': 1500, 'fee-medical': 1000
-  };
-
-  function updateFeeStats() {
-    var t = document.getElementById('fee-nursery-tuition');
-    if (!t) return;
-    var nursery = parseInt(t.value) || 0;
-    var primary = parseInt((document.getElementById('fee-primary-tuition')||{value:0}).value) || 0;
-    var levy    = parseInt((document.getElementById('fee-dev-levy')||{value:0}).value) || 0;
-    var ns = document.getElementById('fee-stat-nursery');
-    var ps = document.getElementById('fee-stat-primary');
-    var ls = document.getElementById('fee-stat-levy');
-    if (ns) ns.textContent = '\u20a6' + nursery.toLocaleString();
-    if (ps) ps.textContent = '\u20a6' + primary.toLocaleString();
-    if (ls) ls.textContent = '\u20a6' + levy.toLocaleString();
-    renderFeeSummary();
-  }
-
-  function renderFeeSummary() {
-    var t = document.getElementById('fee-nursery-tuition');
-    if (!t) return;
-    var get = function(id) { var e = document.getElementById(id); return e ? (parseInt(e.value)||0) : 0; };
-    var nursery = get('fee-nursery-tuition'), creche = get('fee-nursery-creche'), uniform = get('fee-uniform');
-    var primary = get('fee-primary-tuition'), ict = get('fee-ict'), exam = get('fee-exam');
-    var levy = get('fee-dev-levy'), pta = get('fee-pta'), sports = get('fee-sports'), medical = get('fee-medical');
-    var fmt = function(n) { return '\u20a6' + n.toLocaleString(); };
-    var na  = '<span style="color:var(--gray);">N/A</span>';
-    var nurseryTotal  = nursery + levy + pta + sports + medical;
-    var primaryTotal  = primary + levy + pta + sports + medical;
-    var primary6Total = primary + levy + pta + sports + medical + exam;
-    var rows = [
-      ['School Fees (Tuition)', fmt(nursery), fmt(primary), fmt(primary)],
-      ['Development Levy',      fmt(levy),    fmt(levy),    fmt(levy)],
-      ['PTA Dues',              fmt(pta),     fmt(pta),     fmt(pta)],
-      ['Sports / Cultural',     fmt(sports),  fmt(sports),  fmt(sports)],
-      ['Medical / Health',      fmt(medical), fmt(medical), fmt(medical)],
-      ['ICT / Computer Levy',   na,           fmt(ict),     fmt(ict)],
-      ['External Exam Fees',    na,           na,           fmt(exam)],
-      ['Uniform (per set)',      fmt(uniform), fmt(uniform), fmt(uniform)],
-    ];
-    var tbody = document.getElementById('fee-summary-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = rows.map(function(r) {
-      return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>';
-    }).join('') +
-    '<tr class="total-row"><td><strong>Total (excl. uniform)</strong></td>' +
-      '<td><strong>' + fmt(nurseryTotal)  + '</strong></td>' +
-      '<td><strong>' + fmt(primaryTotal)  + '</strong></td>' +
-      '<td><strong>' + fmt(primary6Total) + '</strong></td></tr>';
-  }
-
-  async function saveFees() {
-    updateFeeStats();
-    const get = id => { const e = document.getElementById(id); return e ? (parseInt(e.value)||0) : 0; };
-    const feeMap = {
-      nursery_tuition: get('fee-nursery-tuition'),
-      nursery_creche:  get('fee-nursery-creche'),
-      uniform:         get('fee-uniform'),
-      primary_tuition: get('fee-primary-tuition'),
-      ict:             get('fee-ict'),
-      exam:            get('fee-exam'),
-      dev_levy:        get('fee-dev-levy'),
-      pta:             get('fee-pta'),
-      sports:          get('fee-sports'),
-      medical:         get('fee-medical')
-    };
-    try {
-      await DB.fees.save(feeMap);
-      const now = new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      const el  = document.getElementById('fee-last-saved');
-      if (el) el.textContent = 'Last saved: ' + now;
-      toast('✅ Fee schedule saved! Students will see the updated amounts.');
-    } catch(err) {
-      toast('⚠️ Could not save fees: ' + err.message);
-    }
-  }
-
-  function resetFees() {
-    if (!confirm('Reset all fees to default values?')) return;
-    Object.keys(FEE_DEFAULTS).forEach(function(id) {
-      var el = document.getElementById(id); if (el) el.value = FEE_DEFAULTS[id];
-    });
-    updateFeeStats();
-    toast('Fees reset to default values.');
-  }
-
-  function saveDeadline() {
-    var d = document.getElementById('fee-deadline');
-    var n = document.getElementById('fee-note');
-    if (!d || !d.value)         { toast('\u26a0\ufe0f Please set a payment deadline.'); return; }
-    if (!n || !n.value.trim())  { toast('\u26a0\ufe0f Please enter a payment note.'); return; }
-    var fmt = new Date(d.value).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
-    toast('\u2705 Deadline set to ' + fmt + '. Note saved.');
-  }
-
-  document.addEventListener('DOMContentLoaded', function() { renderFeeSummary(); });
-
-  /* ── Timetable Management (Supabase DB) ── */
-  var ADM_TT_CLASSES = [
-    { key:'bfs_timetable_primary6a', label:'Primary 6A', teacher:'Mr. Emeka Chukwu' },
-    { key:'bfs_timetable_primary5b', label:'Primary 5B', teacher:'Mrs. Kemi Adamu' },
-    { key:'bfs_timetable_primary3a', label:'Primary 3A', teacher:'Mr. Femi Lawal' },
-    { key:'bfs_timetable_nursery2',  label:'Nursery 2',  teacher:'Miss Grace Okoye' },
-    { key:'bfs_timetable_nursery1',  label:'Nursery 1',  teacher:'Mrs. Balogun' },
-  ];
-
-  var _adm_tt_current_key = null;
-
-  async function loadAdminTimetables() {
-    var tbody = document.getElementById('adm-tt-list');
-    if (!tbody) return;
-    var approved = 0, pending = 0, draft = 0;
-    tbody.innerHTML = '';
-    var allTT = [];
-    try { allTT = await DB.timetables.getAll(); } catch(e) { console.warn('[BFS] TT load:', e.message); }
-    var ttMap = {};
-    allTT.forEach(function(t) { ttMap[t.class_key] = t; });
-
-    ADM_TT_CLASSES.forEach(function(cls) {
-      var data = ttMap[cls.key] || null;
-      var status  = data ? (data.status || 'draft') : 'draft';
-      var updated = (data && data.updated_at)
-        ? new Date(data.updated_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
-        : '\u2014';
-      if (status === 'approved') approved++;
-      else if (status === 'pending') pending++;
-      else draft++;
-      var badgeMap = {
-        draft:    '<span class="badge b-blue">Not Submitted</span>',
-        pending:  '<span class="badge b-yellow">Pending Review</span>',
-        approved: '<span class="badge b-green">Approved</span>',
-        rejected: '<span class="badge b-red">Rejected</span>',
-      };
-      var badge = badgeMap[status] || badgeMap.draft;
-      var hasData = data && data.rows && data.rows.length;
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td><strong>' + cls.label + '</strong></td>' +
-        '<td>' + cls.teacher + '</td>' +
-        '<td>' + badge + '</td>' +
-        '<td>' + updated + '</td>' +
-        '<td>' + ((status === 'pending' || (status !== 'draft' && hasData))
-          ? '<button class="btn btn-navy btn-sm tt-review-btn" data-key="' + cls.key + '" data-label="' + cls.label + '" data-teacher="' + cls.teacher + '">&#128269; Review</button>'
-          : '<span style="color:var(--gray);font-size:12.5px;">No submission yet</span>') + '</td>';
-      tbody.appendChild(tr);
-    });
-    var ac = document.getElementById('adm-tt-approved-count');
-    var pc = document.getElementById('adm-tt-pending-count');
-    var dc = document.getElementById('adm-tt-draft-count');
-    if (ac) ac.textContent = approved;
-    if (pc) pc.textContent = pending;
-    if (dc) dc.textContent = draft;
-  }
-
-  async function openAdminTTReview(key, label, teacher) {
-    _adm_tt_current_key = key;
-    var data = null;
-    try { data = await DB.timetables.get(key); } catch(e) {}
-    var card   = document.getElementById('adm-tt-review-card');
-    var title  = document.getElementById('adm-tt-review-title');
-    var tbody  = document.getElementById('adm-tt-review-tbody');
-    var banner = document.getElementById('adm-tt-review-status');
-    var sTitle = document.getElementById('adm-tt-review-status-title');
-    var sTxt   = document.getElementById('adm-tt-review-status-text');
-    var noteEl = document.getElementById('adm-tt-note');
-    if (!card || !title || !tbody) return;
-    title.textContent = label + ' \u2014 ' + teacher;
-    if (noteEl) noteEl.value = (data && data.admin_note) || '';
-    var status = data ? (data.status || 'draft') : 'draft';
-    var statusMap = {
-      pending:  { cls:'notif warn', icon:'\u23f3', t:'Pending Review',      tx:'Review the timetable and approve or reject below.' },
-      approved: { cls:'notif ok',   icon:'\u2705', t:'Currently Approved',   tx:'This timetable is live. You can still reject it if needed.' },
-      rejected: { cls:'notif err',  icon:'\u274c', t:'Previously Rejected',  tx:'This timetable was rejected. Teacher may resubmit.' },
-      draft:    { cls:'notif info', icon:'\ud83d\udccb', t:'Draft / Not Submitted', tx:'Teacher has not submitted this for review yet.' },
-    };
-    var sm = statusMap[status] || statusMap.draft;
-    if (banner) {
-      banner.className = sm.cls;
-      var ic = banner.querySelector('span');
-      if (ic) ic.textContent = sm.icon;
-    }
-    if (sTitle) sTitle.textContent = sm.t;
-    if (sTxt)   sTxt.textContent   = sm.tx;
-    var btns = document.getElementById('adm-tt-action-btns');
-    if (btns) btns.style.display = 'flex';
-    var rows = (data && data.rows) || [];
-    if (rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No timetable data submitted yet.</td></tr>';
-    } else {
-      var esc = function(s) {
-        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      };
-      tbody.innerHTML = rows.map(function(row) {
-        if (row.type === 'lesson') {
-          return '<tr><td><strong>' + esc(row.time) + '</strong></td>' +
-            (row.days||[]).map(function(d) { return '<td>' + esc(d) + '</td>'; }).join('') + '</tr>';
-        }
-        var cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
-        return '<tr class="' + cls + '"><td><strong>' + esc(row.time) + '</strong></td>' +
-          '<td colspan="5">' + esc(row.label||'') + '</td></tr>';
-      }).join('');
-    }
-    card.style.display = 'block';
-    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-
-  function closeAdminTTReview() {
-    var card = document.getElementById('adm-tt-review-card');
-    if (card) card.style.display = 'none';
-    _adm_tt_current_key = null;
-  }
-
-  async function approveAdminTT() {
-    if (!_adm_tt_current_key) return;
-    try {
-      var note = document.getElementById('adm-tt-note');
-      await DB.timetables.updateStatus(_adm_tt_current_key, 'approved', note ? note.value.trim() : '');
-      toast('\u2705 Timetable approved! Students can now view it.');
-      closeAdminTTReview();
-      await loadAdminTimetables();
-    } catch(e) { toast('\u26a0\ufe0f ' + e.message); }
-  }
-
-  async function rejectAdminTT() {
-    if (!_adm_tt_current_key) return;
-    var note = document.getElementById('adm-tt-note');
-    if (!note || !note.value.trim()) {
-      if (note) note.classList.add('field-error');
-      toast('\u26a0\ufe0f Please add a note explaining the rejection.');
-      setTimeout(function() { if (note) note.classList.remove('field-error'); }, 2500);
-      return;
-    }
-    try {
-      await DB.timetables.updateStatus(_adm_tt_current_key, 'rejected', note.value.trim());
-      toast('Timetable rejected. Teacher notified to revise.');
-      closeAdminTTReview();
-      await loadAdminTimetables();
-    } catch(e) { toast('\u26a0\ufe0f ' + e.message); }
-  }
-
-  /* ── Event delegation ── */
-  document.addEventListener('click', function(e) {
-    var rb = e.target.closest('.tt-review-btn');
-    if (rb) { openAdminTTReview(rb.dataset.key, rb.dataset.label, rb.dataset.teacher); return; }
-    var lb = e.target.closest('.adm-letter-btn');
-    if (lb) { printAdmissionLetter(lb.dataset.name, '', ''); return; }
-  });
-
-  document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(function(link) {
-    if ((link.getAttribute('onclick')||'').includes("'timetables'")) {
-      link.addEventListener('click', function() { setTimeout(loadAdminTimetables, 50); });
-    }
-  });
-
-  /* Set initial tab correctly based on active panel */
   /* ══════════════════════════════════════════════════════════
      DB LOAD FUNCTIONS — populate all tabs from Supabase
   ══════════════════════════════════════════════════════════ */
 
-  /* ── Overview stats ── */
   async function loadOverviewStats() {
     try {
       const s = await DB.stats.getOverview();
@@ -1186,294 +295,153 @@
       if (cards[0]) cards[0].textContent = s.totalStudents;
       if (cards[1]) cards[1].textContent = s.totalTeachers;
       if (cards[2]) cards[2].textContent = s.pendingAdmissions;
-    } catch(e) { console.warn('[BFS] Overview stats:', e.message); }
+    } catch(e) { console.warn('Overview stats:', e.message); }
   }
 
-  /* ── Overview recent admissions ── */
   async function loadOverviewAdmissions() {
     try {
       const all = await DB.admissions.getAll();
       const recent = all.slice(0, 4);
-      const tbody = document.querySelector('#ap-overview tbody');
+      const tbody = document.getElementById('overview-admissions-tbody');
       if (!tbody) return;
-      tbody.innerHTML = recent.map(a => {
-        const d = new Date(a.applied_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-        const badgeCls = a.status === 'Approved' ? 'b-green' : a.status === 'Rejected' ? 'b-red' : 'b-yellow';
-        const btn = a.status === 'Approved'
-          ? `<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}')">📄 Letter</button>`
-          : a.status === 'Pending'
-          ? `<button class="btn btn-green btn-sm" onclick="quickApprove('${a.id}','${a.student_name}',this)">✓ Approve</button>`
-          : `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">View</button>`;
-        return `<tr>
+      if (!recent.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No recent admissions.</td></tr>'; return; }
+      tbody.innerHTML = recent.map(a => `<tr>
           <td><strong>${a.student_name}</strong></td>
           <td>${a.class_applied}</td>
-          <td>${a.parent_name||'—'} — ${a.parent_phone||'—'}</td>
-          <td>${d}</td>
-          <td><span class="badge ${badgeCls}">${a.status}</span></td>
-          <td>${btn}</td>
-        </tr>`;
-      }).join('');
-    } catch(e) { console.warn('[BFS] Overview admissions:', e.message); }
+          <td>${a.parent_name||'—'}</td>
+          <td>${new Date(a.applied_date).toLocaleDateString()}</td>
+          <td><span class="badge ${a.status === 'Approved' ? 'b-green' : 'b-yellow'}">${a.status}</span></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="switchToTab('admissions')">View</button></td>
+        </tr>`).join('');
+    } catch(e) { console.warn('Overview admissions:', e.message); }
   }
 
-  async function quickApprove(id, name, btn) {
-    try {
-      await DB.admissions.updateStatus(id, 'Approved');
-      btn.closest('td').innerHTML = `<button class="btn btn-outline-navy btn-sm">📄 Letter</button>`;
-      btn.closest('tr').querySelector('.badge').textContent = 'Approved';
-      btn.closest('tr').querySelector('.badge').className = 'badge b-green';
-      toast(`✅ ${name} approved!`);
-      loadOverviewStats();
-    } catch(e) { toast('⚠️ ' + e.message); }
-  }
-
-  /* ── Full admissions table ── */
   async function loadAdmissions() {
     const tbody = document.getElementById('admissions-tbody');
     if (!tbody) return;
     try {
       const list = await DB.admissions.getAll();
-      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No admission applications yet.</td></tr>'; return; }
-      tbody.innerHTML = list.map((a, i) => {
-        const d = new Date(a.applied_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-        const badgeCls = a.status === 'Approved' ? 'b-green' : a.status === 'Rejected' ? 'b-red' : 'b-yellow';
-        let btns = '';
-        if (a.status === 'Pending') {
-          btns = `<div style="display:flex;gap:5px;">
-            <button class="btn btn-green btn-sm" onclick="approveAdmissionDB('${a.id}','${a.student_name}',this)">✓</button>
-            <button class="btn btn-red btn-sm"   onclick="rejectAdmissionDB('${a.id}','${a.student_name}',this)">✗</button>
-            <button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">👁</button>
-          </div>`;
-        } else if (a.status === 'Approved') {
-          btns = `<button class="btn btn-outline-navy btn-sm" onclick="printAdmissionLetter('${a.student_name}','${a.class_applied}','${a.parent_name||''}')">📄 Letter</button>`;
-        } else {
-          btns = `<button class="btn btn-outline-navy btn-sm" onclick="viewApplication('${a.student_name}','${a.class_applied}','${a.parent_name||''}','${a.parent_phone||''}','${a.status}')">Details</button>`;
-        }
-        return `<tr data-id="${a.id}" data-name="${a.student_name}" data-class="${a.class_applied}" data-status="${a.status}">
-          <td>${String(i+1).padStart(3,'0')}</td>
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No admissions yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map((a, i) => `<tr>
+          <td>${i+1}</td>
           <td><strong>${a.student_name}</strong></td>
           <td>${a.class_applied}</td>
           <td>${a.parent_name||'—'}</td>
+          <td>${a.parent_email||'—'}</td>
           <td>${a.parent_phone||'—'}</td>
-          <td>${d}</td>
-          <td><span class="adm-badge badge ${badgeCls}">${a.status}</span></td>
-          <td>${btns}</td>
-        </tr>`;
-      }).join('');
-    } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
-    }
+          <td>${new Date(a.applied_date).toLocaleDateString()}</td>
+          <td><span class="badge ${a.status === 'Approved' ? 'b-green' : 'b-yellow'}">${a.status}</span></td>
+          <td><button class="btn btn-outline-navy btn-sm">Details</button></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
 
-  async function approveAdmissionDB(id, name, btn) {
-    try {
-      await DB.admissions.updateStatus(id, 'Approved');
-      toast(`✅ ${name} approved!`);
-      await loadAdmissions();
-      loadOverviewStats();
-    } catch(e) { toast('⚠️ ' + e.message); }
-  }
-  async function rejectAdmissionDB(id, name, btn) {
-    if (!confirm(`Reject application for ${name}?`)) return;
-    try {
-      await DB.admissions.updateStatus(id, 'Rejected');
-      toast(`Application for ${name} rejected.`);
-      await loadAdmissions();
-      loadOverviewStats();
-    } catch(e) { toast('⚠️ ' + e.message); }
-  }
-
-  /* ── Students ── */
   async function loadStudents() {
     const tbody = document.getElementById('students-tbody');
     if (!tbody) return;
     try {
       const list = await DB.students.getAll();
-      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No students yet. Add one above.</td></tr>'; return; }
-      tbody.innerHTML = list.map(s => {
-        const name = `${s.first_name} ${s.last_name}`;
-        const feeCls = s.fee_status === 'Paid' ? 'b-green' : s.fee_status === 'Partial' ? 'b-yellow' : s.fee_status === 'Pending' ? 'b-yellow' : 'b-red';
-        return `<tr data-name="${name}" data-class="${s.class}">
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No students yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map(s => `<tr>
           <td>${s.student_id}</td>
-          <td><strong>${name}</strong></td>
+          <td><strong>${s.first_name} ${s.last_name}</strong></td>
           <td>${s.class}</td>
           <td>${s.gender||'—'}</td>
-          <td><span class="badge ${feeCls}">${s.fee_status}</span></td>
+          <td><span class="badge ${s.fee_status === 'Paid' ? 'b-green' : 'b-red'}">${s.fee_status}</span></td>
           <td>${s.attendance||'—'}</td>
           <td><span class="badge b-green">${s.status}</span></td>
-          <td><button class="btn btn-outline-navy btn-sm" onclick="viewStudentProfile('${name}','${s.class}','${s.gender||''}','${s.student_id}','${s.attendance||'—'}','${s.fee_status}','${s.status}')">View</button></td>
-        </tr>`;
-      }).join('');
-    } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
-    }
+          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
 
-  /* ── Teachers ── */
   async function loadTeachers() {
     const tbody = document.getElementById('teachers-tbody');
     if (!tbody) return;
     try {
       const list = await DB.teachers.getAll();
-      if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No teachers yet.</td></tr>'; return; }
-      tbody.innerHTML = list.map(t => {
-        const resCls  = t.results_status === 'Uploaded' ? 'b-green' : t.results_status === 'Not Done' ? 'b-red' : 'b-yellow';
-        const statCls = t.employment_status === 'Active' ? 'b-green' : 'b-yellow';
-        return `<tr data-name="${t.name}">
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No teachers yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map(t => `<tr>
           <td><strong>${t.name}</strong></td>
           <td>${t.class_assigned||'—'}</td>
           <td>${t.subject||'—'}</td>
           <td>${t.phone||'—'}</td>
           <td>${t.attendance||'—'}</td>
-          <td><span class="badge ${resCls}">${t.results_status}</span></td>
-          <td><span class="badge ${statCls}">${t.employment_status}</span></td>
-          <td style="display:flex;gap:5px;">
-            <button class="btn btn-outline-navy btn-sm" onclick="viewTeacher('${t.name}','${t.class_assigned||''}','${t.subject||''}','${t.phone||''}','${t.attendance||'—'}','${t.employment_status}')">View</button>
-            <button class="btn btn-navy btn-sm" onclick="contactTeacher('${t.name}')">📧</button>
-          </td>
-        </tr>`;
-      }).join('');
-    } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
-    }
+          <td><span class="badge b-green">${t.employment_status}</span></td>
+          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
 
-  /* ── Fees ── */
   async function loadFees() {
     try {
       const fees = await DB.fees.get();
-      const map = {
-        'fee-nursery-tuition': fees.nursery_tuition,
-        'fee-nursery-creche':  fees.nursery_creche,
-        'fee-uniform':         fees.uniform,
-        'fee-primary-tuition': fees.primary_tuition,
-        'fee-ict':             fees.ict,
-        'fee-exam':            fees.exam,
-        'fee-dev-levy':        fees.dev_levy,
-        'fee-pta':             fees.pta,
-        'fee-sports':          fees.sports,
-        'fee-medical':         fees.medical
-      };
-      Object.entries(map).forEach(([id, val]) => {
-        const el = document.getElementById(id);
-        if (el && val !== undefined) el.value = val;
-      });
+      if(document.getElementById('fee-nursery-tuition')) document.getElementById('fee-nursery-tuition').value = fees.nursery_tuition || 35000;
+      if(document.getElementById('fee-primary-tuition')) document.getElementById('fee-primary-tuition').value = fees.primary_tuition || 45000;
+      if(document.getElementById('fee-dev-levy')) document.getElementById('fee-dev-levy').value = fees.dev_levy || 5000;
+      if(document.getElementById('fee-pta')) document.getElementById('fee-pta').value = fees.pta || 2000;
       updateFeeStats();
-    } catch(e) { console.warn('[BFS] Load fees:', e.message); }
+    } catch(e) { console.warn('Load fees:', e.message); }
   }
 
-  /* ── Results ── */
+  function updateFeeStats() {
+    const getVal = (id) => parseInt(document.getElementById(id)?.value) || 0;
+    if(document.getElementById('fee-stat-nursery')) document.getElementById('fee-stat-nursery').textContent = '₦' + getVal('fee-nursery-tuition').toLocaleString();
+    if(document.getElementById('fee-stat-primary')) document.getElementById('fee-stat-primary').textContent = '₦' + getVal('fee-primary-tuition').toLocaleString();
+    if(document.getElementById('fee-stat-levy')) document.getElementById('fee-stat-levy').textContent = '₦' + getVal('fee-dev-levy').toLocaleString();
+  }
+
   async function loadResults() {
-    const tbody = document.querySelector('#ap-results tbody');
+    const tbody = document.getElementById('results-tbody');
     if (!tbody) return;
     try {
       const list = await DB.results.getAll();
-      tbody.innerHTML = list.map(r => {
-        const badgeCls = r.upload_status === 'Published' ? 'b-green'
-          : r.upload_status === 'Awaiting Approval' ? 'b-yellow'
-          : r.upload_status === 'Rejected' ? 'b-red' : 'b-red';
-        const d = r.uploaded_at
-          ? new Date(r.uploaded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
-          : '—';
-        let btn = '';
-        if (r.upload_status === 'Awaiting Approval') {
-          btn = `<button class="btn btn-yellow btn-sm" onclick="reviewPendingResultsDB('${r.id}','${r.class_name}','${r.teacher_name||''}',${r.students_count})">🔍 Review</button>`;
-        } else if (r.upload_status === 'Not Uploaded') {
-          btn = `<button class="btn btn-outline-navy btn-sm" onclick="sendReminder('${r.teacher_name||''}','${r.class_name}')">📣 Remind</button>`;
-        } else {
-          btn = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${r.class_name}','${r.teacher_name||''}','${r.upload_status}')">View</button>`;
-        }
-        return `<tr>
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No results uploaded yet.</td></tr>'; return; }
+      tbody.innerHTML = list.map(r => `<tr>
           <td><strong>${r.class_name}</strong></td>
           <td>${r.teacher_name||'—'}</td>
-          <td>${r.students_count}</td>
-          <td><span class="badge ${badgeCls}" id="res-badge-${r.id}">${r.upload_status}</span></td>
-          <td>${d}</td>
-          <td id="res-td-${r.id}">${btn}</td>
-        </tr>`;
-      }).join('');
-    } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
-    }
+          <td>${r.students_count || 0}</td>
+          <td><span class="badge ${r.upload_status === 'Published' ? 'b-green' : 'b-yellow'}">${r.upload_status}</span></td>
+          <td>${r.uploaded_at ? new Date(r.uploaded_at).toLocaleDateString() : '—'}</td>
+          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
 
-  async function reviewPendingResultsDB(id, cls, teacher, count) {
-    document.getElementById('modal-results-title').innerHTML = '📊 Review Results — ' + cls;
-    const rb = document.getElementById('modal-results-body');
-    const ra = document.getElementById('modal-results-actions');
-    if (!rb || !ra) return;
-    rb.innerHTML = `
-      <div style="background:var(--off-white);border-radius:12px;padding:20px;margin-bottom:16px;">
-        <div class="receipt-detail"><span>Class Teacher</span><strong>${teacher}</strong></div>
-        <div class="receipt-detail"><span>Term</span><strong>3rd Term 2024/2025</strong></div>
-        <div class="receipt-detail"><span>Students</span><strong>${count}</strong></div>
-        <div class="receipt-detail"><span>Status</span><strong style="color:#d97706">Awaiting Approval</strong></div>
-      </div>
-      <div class="form-group" style="margin-top:16px;">
-        <label>Review Note (optional)</label>
-        <textarea id="res-review-note" rows="2" placeholder="e.g. Approved, great work. / Rejected: Please double-check exam scores."></textarea>
-      </div>`;
-    ra.innerHTML = `
-      <button class="btn btn-green" onclick="approveResultsDB('${id}','${cls}','${teacher}')">✅ Approve & Publish</button>
-      <button class="btn btn-red"   onclick="rejectResultsDB('${id}','${cls}','${teacher}')">❌ Reject & Return</button>`;
-    openAdminModal('modal-results');
-  }
-
-  async function approveResultsDB(id, cls, teacher) {
+  async function loadAdminTimetables() {
+    const tbody = document.getElementById('adm-tt-list');
+    if (!tbody) return;
     try {
-      await DB.results.updateStatus(id, 'Published');
-      const badge = document.getElementById('res-badge-' + id);
-      const td    = document.getElementById('res-td-' + id);
-      if (badge) { badge.textContent = 'Published'; badge.className = 'badge b-green'; }
-      if (td) td.innerHTML = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${cls}','${teacher}','Published')">View</button>`;
-      toast(`✅ ${cls} results approved and published!`);
-      closeAdminModal('modal-results');
-    } catch(e) { toast('⚠️ ' + e.message); }
+      const allTT = await DB.timetables.getAll();
+      if (!allTT.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No timetables submitted yet.</td></tr>'; return; }
+      tbody.innerHTML = allTT.map(t => `<tr>
+          <td><strong>${t.class_label}</strong></td>
+          <td>${t.teacher_name || '—'}</td>
+          <td><span class="badge ${t.status === 'approved' ? 'b-green' : 'b-yellow'}">${t.status}</span></td>
+          <td>${new Date(t.updated_at).toLocaleDateString()}</td>
+          <td><button class="btn btn-outline-navy btn-sm">Review</button></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
 
-  async function rejectResultsDB(id, cls, teacher) {
-    const note = document.getElementById('res-review-note');
-    if (!note || !note.value.trim()) {
-      if (note) note.classList.add('field-error');
-      toast('⚠️ Please add a note before rejecting.');
-      setTimeout(() => { if (note) note.classList.remove('field-error'); }, 2500);
-      return;
-    }
-    try {
-      await DB.results.updateStatus(id, 'Rejected', note.value.trim());
-      const badge = document.getElementById('res-badge-' + id);
-      const td    = document.getElementById('res-td-' + id);
-      if (badge) { badge.textContent = 'Rejected'; badge.className = 'badge b-red'; }
-      if (td) td.innerHTML = `<button class="btn btn-outline-navy btn-sm" onclick="viewResults('${cls}','${teacher}','Rejected')">View</button>`;
-      toast(`❌ ${cls} results rejected and returned.`);
-      closeAdminModal('modal-results');
-    } catch(e) { toast('⚠️ ' + e.message); }
-  }
-
-  /* ── Announcements list ── */
   async function loadAnnouncements() {
     const list = document.getElementById('announcements-list');
     if (!list) return;
     try {
       const anns = await DB.announcements.getAll();
-      if (!anns.length) { list.innerHTML = '<p style="color:var(--gray);padding:14px;">No announcements yet.</p>'; return; }
-      list.innerHTML = anns.map(a => {
-        const d = new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-        return `<div class="ann-item ${a.priority||'normal'}">
+      if (!anns.length) { list.innerHTML = '<p style="color:var(--gray);text-align:center;">No announcements yet.</p>'; return; }
+      list.innerHTML = anns.map(a => `<div class="ann-item ${a.priority||'normal'}">
           <h4>${a.title}</h4>
-          <p>Sent to ${a.audience||'Everyone'} · ${d}</p>
-        </div>`;
-      }).join('');
-    } catch(e) { console.warn('[BFS] Announcements:', e.message); }
+          <p>Sent to ${a.audience||'Everyone'} · ${new Date(a.created_at).toLocaleDateString()}</p>
+        </div>`).join('');
+    } catch(e) { console.warn('Announcements:', e.message); }
   }
 
   /* ── INIT: run on page load ── */
   document.addEventListener('DOMContentLoaded', async function() {
-    // Tab routing
     const activePane = document.querySelector('.stab-pane.active');
     if (activePane && activePane.id) switchToTab(activePane.id.replace('ap-', ''));
 
-    // Load all data in parallel
     try {
       await Promise.all([
         loadOverviewStats(),
@@ -1486,35 +454,8 @@
         loadAnnouncements(),
         loadAdminTimetables()
       ]);
-    } catch(e) {
-      console.warn('[BFS] Init load error:', e.message);
-    }
-
-    renderFeeSummary();
+    } catch(e) { console.warn('Init load error:', e.message); }
   });
 </script>
-
-<nav class="mobile-bottom-nav">
-  <div class="mobile-bottom-nav-inner">
-    <button class="mbn-item active" onclick="switchToTab('overview')">
-      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Overview</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('admissions')">
-      <span class="mbn-icon">&#128203;</span><span class="mbn-label">Admissions</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('students')">
-      <span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('payments')">
-      <span class="mbn-icon">&#128176;</span><span class="mbn-label">Fees</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('timetables')">
-      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetables</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('announcements')">
-      <span class="mbn-icon">&#128226;</span><span class="mbn-label">More</span>
-    </button>
-  </div>
-</nav>
 </body>
 </html>

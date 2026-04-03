@@ -7,19 +7,14 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
   <link rel="stylesheet" href="../css/style.css" />
   <style>
-    /* Live score feedback in results table */
     .score-total { font-weight: 800; font-size: 15px; color: var(--navy); }
     .grade-cell  { font-family: 'Merriweather', serif; font-size: 18px; font-weight: 900; }
     .grade-A { color: var(--green-ok); }
     .grade-B { color: var(--navy-mid); }
     .grade-C { color: #d97706; }
     .grade-F { color: var(--red); }
-    /* Attendance validation highlight */
     tr.att-missing td { background: #fef2f2; }
-    /* Message validation */
     .field-error { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important; }
-
-    /* ── Timetable editor ── */
     .tt-cell-input, .tt-time-input {
       width: 100%; border: 1px solid transparent; background: transparent;
       font-size: 13px; font-family: inherit; color: var(--navy);
@@ -28,10 +23,7 @@
     .tt-cell-input:hover, .tt-time-input:hover { border-color: var(--light-gray); background: var(--off-white); }
     .tt-cell-input:focus, .tt-time-input:focus { border-color: var(--navy); background: #fff; outline: none; }
     .tt-time-input { font-weight: 700; width: 100px; }
-    .tt-del-btn {
-      background: none; border: none; cursor: pointer; color: var(--red);
-      font-size: 14px; padding: 2px 5px; border-radius: 4px; opacity: 0.5;
-    }
+    .tt-del-btn { background: none; border: none; cursor: pointer; color: var(--red); font-size: 14px; padding: 2px 5px; border-radius: 4px; opacity: 0.5; }
     .tt-del-btn:hover { opacity: 1; background: #fef2f2; }
     #tt-editor-table td { padding: 5px 6px; vertical-align: middle; }
     #tt-editor-table th { padding: 9px 10px; }
@@ -40,7 +32,6 @@
 <body>
 
 <div class="dashboard" id="teacher-dashboard">
-
   <div class="dash-header dash-header-blue">
     <div>
       <h1>👩‍🏫 Teacher Portal</h1>
@@ -57,7 +48,6 @@
   </div>
 
   <div class="dash-body">
-
     <div class="sidebar" id="teacher-sidebar">
       <div class="sidebar-section">Main</div>
       <div class="sidebar-link active" onclick="teacherTab('overview', this)"><span class="icon">🏠</span> Dashboard</div>
@@ -70,78 +60,44 @@
     </div>
 
     <div class="dash-main">
-
       <div id="tp-overview" class="stab-pane active">
         <div class="stats-row">
-          <div class="stat-card" data-icon="🎒"><div class="stat-num">42</div><div class="stat-label">Students in My Class</div></div>
-          <div class="stat-card" data-icon="✅"><div class="stat-num">39</div><div class="stat-label">Present Today</div></div>
-          <div class="stat-card" data-icon="📊"><div class="stat-num">85%</div><div class="stat-label">Results Uploaded</div></div>
+          <div class="stat-card" data-icon="🎒"><div class="stat-num" id="stat-student-count">—</div><div class="stat-label">Students in My Class</div></div>
+          <div class="stat-card" data-icon="✅"><div class="stat-num">--</div><div class="stat-label">Present Today</div></div>
+          <div class="stat-card" data-icon="📊"><div class="stat-num">--%</div><div class="stat-label">Results Uploaded</div></div>
         </div>
 
-        <!-- New Students Notification (shown when newly admitted students exist) -->
         <div id="new-students-notif" class="card" style="display:none;border-left:4px solid var(--green-ok);">
           <h3 style="color:var(--green-ok);">🆕 New Students Admitted to Your Class</h3>
-          <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">The following students were recently admitted and added to your class register:</p>
           <div id="new-students-list"></div>
-          <button class="btn btn-outline-navy btn-sm" style="margin-top:14px;" onclick="teacherTab('students',null)">🎒 View All Students →</button>
         </div>
 
         <div class="card">
-          <h3>📅 Today's Snapshot — <span id="snapshot-class-label">Loading...</span></h3>
+          <h3>📅 Today's Snapshot</h3>
           <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">Data pulling from attendance records...</p>
-          <button class="btn btn-navy" style="margin-top:18px;" onclick="switchToTab('attendance')">
-            📅 Mark Today's Attendance
-          </button>
-        </div>
-
-        <div class="card">
-          <h3>📊 Results Upload Progress — Current Term</h3>
-          <p style="color:var(--gray);font-size:13px;">Check your specific subjects in the Results tab to upload data.</p>
-          <button class="btn btn-yellow" style="margin-top:18px;" onclick="switchToTab('results')">📊 Upload Results Now</button>
+          <button class="btn btn-navy" onclick="switchToTab('attendance')">📅 Mark Today's Attendance</button>
         </div>
       </div>
 
       <div id="tp-attendance" class="stab-pane">
         <div class="card">
           <h3>📅 Mark Attendance</h3>
-
           <div class="form-row" style="margin-bottom:18px;">
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="att-date" />
-            </div>
+            <div class="form-group"><label>Date</label><input type="date" id="att-date" /></div>
             <div class="form-group">
               <label>Period / Subject</label>
-              <select id="att-period">
-                <option>Morning Roll Call</option>
-                <option>Mathematics</option>
-                <option>English Language</option>
-                <option>Basic Science</option>
-                <option>Social Studies</option>
-              </select>
+              <select id="att-period"><option>Morning Roll Call</option><option>Mathematics</option><option>English Language</option></select>
             </div>
           </div>
-
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Student Name</th>
-                  <th>Present ✅</th>
-                  <th>Absent ❌</th>
-                  <th>Late 🕐</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
+              <thead><tr><th>#</th><th>Student Name</th><th>Present ✅</th><th>Absent ❌</th><th>Late 🕐</th><th>Note</th></tr></thead>
               <tbody id="att-tbody">
                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
-
           <div id="att-summary" style="display:none;margin-top:14px;padding:12px 16px;background:var(--off-white);border-radius:10px;font-size:13.5px;color:var(--gray);"></div>
-
           <button class="btn btn-navy" style="margin-top:18px;" onclick="saveAttendance()">💾 Save Attendance</button>
         </div>
       </div>
@@ -149,69 +105,26 @@
       <div id="tp-results" class="stab-pane">
         <div class="card">
           <h3>📊 Upload Student Results</h3>
-
           <div class="form-row" style="margin-bottom:4px;">
-            <div class="form-group">
-              <label>Class</label>
-              <select id="res-class"><option>Loading...</option></select>
-            </div>
-            
+            <div class="form-group"><label>Class</label><select id="res-class"><option>Loading...</option></select></div>
             <div class="form-group">
               <label>Subject</label>
-              <div style="display:flex; gap:8px;">
-                <select id="res-subject" style="flex:1;">
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English Language">English Language</option>
-                  <option value="Basic Science">Basic Science</option>
-                  <option value="Social Studies">Social Studies</option>
-                  <option value="Yoruba Language">Yoruba Language</option>
-                </select>
-                <button class="btn btn-outline-navy" onclick="deleteSubject()" title="Delete Selected Subject" style="padding:0 12px; border-color:var(--red); color:var(--red);">🗑️</button>
-              </div>
-              <div style="display:flex; gap:8px; margin-top:8px;">
-                <input type="text" id="new-subject-input" placeholder="Add a new subject..." style="flex:1; padding: 8px 12px; border: 2px solid var(--light-gray); border-radius: 8px; font-size: 13px;" />
-                <button class="btn btn-navy btn-sm" onclick="addSubject()">+ Add</button>
-              </div>
+              <select id="res-subject" style="flex:1;"><option value="Mathematics">Mathematics</option><option value="English Language">English Language</option></select>
             </div>
           </div>
-
           <div class="form-row" style="margin-bottom:18px;">
-            <div class="form-group">
-              <label>Term</label>
-              <select id="res-term">
-                <option>3rd Term 2024/2025</option>
-                <option>2nd Term 2024/2025</option>
-                <option>1st Term 2024/2025</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>CA Max Score</label>
-              <input type="number" id="ca-max" value="30" min="1" max="100"
-                style="width:100%;padding:11px 15px;border:2px solid var(--light-gray);border-radius:11px;font-size:14px;font-family:'Nunito',sans-serif;"
-                oninput="recalcAllTotals()" />
-            </div>
+            <div class="form-group"><label>Term</label><select id="res-term"><option>3rd Term 2024/2025</option></select></div>
+            <div class="form-group"><label>CA Max Score</label><input type="number" id="ca-max" value="30" min="1" max="100" oninput="recalcAllTotals()" /></div>
           </div>
-
           <div class="tbl-wrap">
             <table id="results-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>CA Score</th>
-                  <th>Exam Score</th>
-                  <th>Total (/100)</th>
-                  <th>Grade</th>
-                  <th>Remark</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Student Name</th><th>CA Score</th><th>Exam Score</th><th>Total (/100)</th><th>Grade</th><th>Remark</th></tr></thead>
               <tbody id="results-table-tbody">
                  <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
-
           <div id="results-summary" style="margin-top:14px;padding:12px 16px;background:var(--yellow-pale);border:1.5px solid var(--yellow);border-radius:10px;font-size:13.5px;color:var(--navy);font-weight:700;"></div>
-
           <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
             <button class="btn btn-outline-navy" onclick="saveDraftResults()">💾 Save as Draft</button>
             <button class="btn btn-navy" onclick="submitResults()">📤 Submit for Approval</button>
@@ -221,18 +134,10 @@
 
       <div id="tp-students" class="stab-pane">
         <div class="card">
-          <h3>🎒 My Students — <span id="teacher-class-label">My Class</span> (<span id="teacher-student-count">—</span> students)</h3>
-          <div class="filter-bar" style="margin-bottom:14px;">
-            <input id="tp-stu-search" placeholder="🔍 Search student..." oninput="filterTeacherStudents()" />
-          </div>
+          <h3>🎒 My Students — (<span id="teacher-student-count">—</span> students)</h3>
           <div class="tbl-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Student ID</th><th>Name</th><th>Gender</th>
-                  <th>Attendance</th><th>Fee Status</th><th>Badge</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Student ID</th><th>Name</th><th>Gender</th><th>Attendance</th><th>Fee Status</th><th>Status</th></tr></thead>
               <tbody id="teacher-students-tbody">
                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
@@ -241,89 +146,20 @@
         </div>
       </div>
 
-      <div id="tp-messages" class="stab-pane">
-        <div class="card">
-          <h3>📢 School Announcements</h3>
-          <div class="notif info"><span>📅</span><div><h4>School Closes March 28, 2025</h4><p>From Admin (Mrs. Okafor) · Mar 10, 2025</p></div></div>
-          <div class="notif warn"><span>⚠️</span><div><h4>Results Deadline — Submit All by Friday 5PM</h4><p>From Principal's Office · Mar 15, 2025</p></div></div>
-          <div class="notif ok"><span>✅</span><div><h4>Your Mathematics Results Have Been Approved &amp; Published</h4><p>From Admin · Mar 18, 2025</p></div></div>
-        </div>
-
-        <div class="card">
-          <h3>💬 Message a Parent</h3>
-          <div class="form-group">
-            <label>Select Student *</label>
-            <select id="msg-student">
-              <option value="">— Loading students —</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Subject *</label>
-            <input id="msg-subject" placeholder="e.g. Concern about attendance" />
-          </div>
-          <div class="form-group">
-            <label>Message *</label>
-            <textarea id="msg-body" rows="4" placeholder="Type your message to the parent..."></textarea>
-          </div>
-          <button class="btn btn-navy" onclick="sendMessage()">📤 Send Message</button>
-        </div>
-      </div>
-
       <div id="tp-timetable" class="stab-pane">
-        <div id="tt-status-banner" class="notif info" style="margin-bottom:18px;">
-          <span>📋</span>
-          <div><h4 id="tt-status-title">Draft Timetable</h4>
-            <p id="tt-status-text">Edit your class timetable below and submit to admin for approval. Students will see it once approved.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
-            <h3 style="margin:0;">📅 Class Timetable — <span id="tt-class-label">Loading...</span></h3>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-outline-navy btn-sm" onclick="resetTimetable()">↺ Reset</button>
-              <button class="btn btn-yellow btn-sm" onclick="saveTimetableDraft()">💾 Save Draft</button>
-              <button class="btn btn-navy" onclick="submitTimetable()" id="tt-submit-btn">📤 Submit for Approval</button>
-            </div>
-          </div>
-
-          <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">
-            Click any subject cell to edit it. Add time slots using the button below. Breaks and dismissal rows are fixed.
-          </p>
-
+         <div class="card">
+          <h3 style="margin:0;">📅 Class Timetable</h3>
+          <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">Click any subject cell to edit it. Breaks and dismissal rows are fixed.</p>
           <div class="tbl-wrap">
             <table id="tt-editor-table" style="min-width:620px;">
-              <thead>
-                <tr>
-                  <th style="width:110px;">Time Slot</th>
-                  <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th>
-                  <th style="width:40px;"></th>
-                </tr>
-              </thead>
-              <tbody id="tt-tbody">
-              </tbody>
+              <thead><tr><th style="width:110px;">Time Slot</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th style="width:40px;"></th></tr></thead>
+              <tbody id="tt-tbody"></tbody>
             </table>
           </div>
-
           <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
             <button class="btn btn-outline-navy btn-sm" onclick="addTimetableRow()">+ Add Time Slot</button>
-            <button class="btn btn-outline-navy btn-sm" onclick="addBreakRow()">+ Add Break Row</button>
+            <button class="btn btn-yellow btn-sm" onclick="saveTimetableDraft()">💾 Save Draft</button>
           </div>
-        </div>
-
-        <div class="card" id="tt-preview-card" style="display:none;">
-          <h3>👁 Preview — How Students Will See It</h3>
-          <div class="tbl-wrap">
-            <table id="tt-preview-table">
-              <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
-              <tbody id="tt-preview-tbody"></tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline-navy btn-sm" style="margin-top:12px;" onclick="document.getElementById('tt-preview-card').style.display='none'">✕ Close Preview</button>
-        </div>
-
-        <div style="margin-top:8px;">
-          <button class="btn btn-outline-navy btn-sm" onclick="showTimetablePreview()">👁 Preview Student View</button>
         </div>
       </div>
 
@@ -339,440 +175,119 @@
 <script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
-
-  /* ── Auth guard ── */
   const _user = requireAuth('teacher');
   injectUserInfo(_user);
+  document.getElementById('teacher-sub').textContent = 'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
-  /* ── Update subtitle with logged-in name ── */
-  document.getElementById('teacher-sub').textContent =
-    'Welcome, ' + _user.name + ' — Beginner\'s Field School';
+  const _teacherClass = (_user.class_assigned || '').trim() || ((_user.title || '').match(/Primary \d+[A-Z]?|Nursery \d+[A-Z]?/i) || [])[0] || '';
+  if(document.getElementById('res-class')) document.getElementById('res-class').innerHTML = `<option>${_teacherClass}</option>`;
+  document.getElementById('att-date').valueAsDate = new Date();
 
+  let _allTeacherStudents = [];
 
-  /* ── Safe tab switcher ── */
+  async function loadTeacherStudents() {
+    const tbody = document.getElementById('teacher-students-tbody');
+    if (!tbody) return;
+    try {
+      const list = await DB.students.getByClass(_teacherClass);
+      _allTeacherStudents = list;
+
+      if(document.getElementById('stat-student-count')) document.getElementById('stat-student-count').textContent = list.length;
+      if(document.getElementById('teacher-student-count')) document.getElementById('teacher-student-count').textContent = list.length;
+
+      renderTeacherStudents(list);
+      renderAttendanceTable(list);
+      renderResultsTable(list);
+    } catch(e) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
+    }
+  }
+
+  function renderTeacherStudents(list) {
+    const tbody = document.getElementById('teacher-students-tbody');
+    if (!tbody) return;
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students in this class yet.</td></tr>'; return; }
+    tbody.innerHTML = list.map(s => `<tr>
+        <td>${s.student_id}</td><td><strong>${s.first_name} ${s.last_name}</strong></td>
+        <td>${s.gender||'—'}</td><td>${s.attendance||'—'}</td>
+        <td><span class="badge ${s.fee_status === 'Paid' ? 'b-green' : 'b-red'}">${s.fee_status||'Pending'}</span></td>
+        <td><span class="badge b-green">${s.status||'Active'}</span></td>
+      </tr>`).join('');
+  }
+
+  /* Dynamically build Attendance table */
+  function renderAttendanceTable(list) {
+    const tbody = document.getElementById('att-tbody');
+    if (!tbody) return;
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students.</td></tr>'; return; }
+    tbody.innerHTML = list.map((s, idx) => `<tr>
+        <td>${idx + 1}</td><td>${s.first_name} ${s.last_name}</td>
+        <td><input type="radio" name="a${idx}" value="present" checked /></td>
+        <td><input type="radio" name="a${idx}" value="absent" /></td>
+        <td><input type="radio" name="a${idx}" value="late" /></td>
+        <td><input class="att-note" placeholder="Optional note" /></td>
+      </tr>`).join('');
+  }
+
+  /* Dynamically build Results table */
+  function renderResultsTable(list) {
+    const tbody = document.getElementById('results-table-tbody');
+    if (!tbody) return;
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students.</td></tr>'; return; }
+    tbody.innerHTML = list.map(s => `<tr data-student="${s.first_name} ${s.last_name}">
+        <td>${s.first_name} ${s.last_name}</td>
+        <td><input type="number" class="ca-score" value="0" min="0" max="30" oninput="recalcRow(this)" /></td>
+        <td><input type="number" class="exam-score" value="0" min="0" max="70" oninput="recalcRow(this)" /></td>
+        <td><span class="score-total">0</span></td>
+        <td><span class="grade-cell grade-F">F</span></td>
+        <td class="remark-cell">—</td>
+      </tr>`).join('');
+      updateResultsSummary();
+  }
+
   function switchToTab(name) {
     document.querySelectorAll('#teacher-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
-
     const pane = document.getElementById('tp-' + name);
     if (pane) pane.classList.add('active');
-
-    document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(link => {
-      if (link.getAttribute('onclick') && link.getAttribute('onclick').includes("'" + name + "'")) {
-        link.classList.add('active');
-      }
-    });
+    if (name === 'students' || name === 'attendance' || name === 'results') loadTeacherStudents();
   }
 
-  /* ── Subject Management Functions ── */
-  function addSubject() {
-    const input = document.getElementById('new-subject-input');
-    const select = document.getElementById('res-subject');
-    const val = input.value.trim();
-
-    if (!val) { toast('⚠️ Please enter a subject name first.'); return; }
-    for (let i = 0; i < select.options.length; i++) {
-      if (select.options[i].value.toLowerCase() === val.toLowerCase()) {
-        toast('⚠️ Subject "' + val + '" already exists.'); return;
-      }
-    }
-    const opt = document.createElement('option');
-    opt.value = val;
-    opt.textContent = val;
-    select.appendChild(opt);
-    select.value = val;
-    
-    input.value = ''; // clear input
-    toast('✅ Subject "' + val + '" added!');
-  }
-
-  function deleteSubject() {
-    const select = document.getElementById('res-subject');
-    if (select.selectedIndex === -1 || select.options.length === 0) {
-      toast('⚠️ No subject to delete.'); return;
-    }
-    const val = select.options[select.selectedIndex].value;
-    if (!confirm('Are you sure you want to remove "' + val + '" from the list?')) return;
-    select.remove(select.selectedIndex);
-    toast('🗑️ Subject "' + val + '" removed.');
-  }
-
-  /* ── Attendance logic ── */
-  function saveAttendance() {
-    const date    = document.getElementById('att-date').value;
-    const period  = document.getElementById('att-period').value;
-    const rows    = document.querySelectorAll('#att-tbody tr');
-
-    let present = 0, absent = 0, late = 0, missing = 0;
-
-    rows.forEach(row => {
-      row.classList.remove('att-missing');
-      const checked = row.querySelector('input[type="radio"]:checked');
-      if (!checked) {
-        row.classList.add('att-missing');
-        missing++;
-      } else {
-        if (checked.value === 'present') present++;
-        else if (checked.value === 'absent')  absent++;
-        else if (checked.value === 'late')    late++;
-      }
-    });
-
-    if (missing > 0) {
-      toast('⚠️ Please mark attendance for all ' + missing + ' highlighted student(s).');
-      return;
-    }
-
-    if (!date) { toast('⚠️ Please select a date.'); return; }
-
-    const summary = document.getElementById('att-summary');
-    summary.style.display = 'block';
-    summary.innerHTML =
-      '✅ Attendance saved for <strong>' + period + '</strong> on <strong>' + date + '</strong> — ' +
-      '<span style="color:var(--green-ok);">Present: ' + present + '</span> · ' +
-      '<span style="color:var(--red);">Absent: ' + absent + '</span> · ' +
-      '<span style="color:#d97706;">Late: ' + late + '</span>' +
-      (absent > 0 ? ' &nbsp;|&nbsp; 📱 Parents of absent students notified.' : '');
-
-    toast('Attendance saved! ' + (absent ? absent + ' parent(s) notified.' : 'All students present.'));
-  }
-
-
-  /* ── Results scoring ── */
+  /* Scoring logic */
   function getGrade(total) {
     if (total >= 75) return { grade: 'A', cls: 'grade-A', remark: 'Excellent' };
     if (total >= 60) return { grade: 'B', cls: 'grade-B', remark: 'Very Good' };
     if (total >= 50) return { grade: 'C', cls: 'grade-C', remark: 'Good' };
     if (total >= 40) return { grade: 'D', cls: 'grade-C', remark: 'Fair' };
-    return               { grade: 'F', cls: 'grade-F', remark: 'Needs Improvement' };
+    return { grade: 'F', cls: 'grade-F', remark: 'Needs Improvement' };
   }
 
   function recalcRow(input) {
-    const row      = input.closest('tr');
-    const ca       = parseFloat(row.querySelector('.ca-score').value)   || 0;
-    const exam     = parseFloat(row.querySelector('.exam-score').value) || 0;
-    const caMax    = parseFloat(document.getElementById('ca-max').value) || 30;
-    const examMax  = 100 - caMax;
-
-    const caInput   = row.querySelector('.ca-score');
-    const examInput = row.querySelector('.exam-score');
-    caInput.max   = caMax;
-    examInput.max = examMax;
-    if (ca   > caMax)   caInput.value   = caMax;
-    if (exam > examMax) examInput.value = examMax;
-
-    const total = (parseFloat(caInput.value) || 0) + (parseFloat(examInput.value) || 0);
+    const row = input.closest('tr');
+    const ca = parseFloat(row.querySelector('.ca-score').value) || 0;
+    const exam = parseFloat(row.querySelector('.exam-score').value) || 0;
+    const total = ca + exam;
     const { grade, cls, remark } = getGrade(total);
-
     row.querySelector('.score-total').textContent = total;
-    const gradeEl = row.querySelector('.grade-cell');
-    gradeEl.textContent = grade;
-    gradeEl.className   = 'grade-cell ' + cls;
+    row.querySelector('.grade-cell').textContent = grade;
+    row.querySelector('.grade-cell').className = 'grade-cell ' + cls;
     row.querySelector('.remark-cell').textContent = remark;
-
     updateResultsSummary();
   }
 
-  function recalcAllTotals() {
-    document.querySelectorAll('#results-table tbody tr').forEach(row => {
-      const input = row.querySelector('.ca-score');
-      if (input) recalcRow(input);
-    });
-  }
-
   function updateResultsSummary() {
-    const totals = Array.from(
-      document.querySelectorAll('#results-table .score-total')
-    ).map(el => parseFloat(el.textContent) || 0);
-
+    const totals = Array.from(document.querySelectorAll('#results-table .score-total')).map(el => parseFloat(el.textContent) || 0);
     if (!totals.length) return;
-    const avg    = (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1);
-    const highest = Math.max(...totals);
-    const lowest  = Math.min(...totals);
-
+    const avg = (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1);
     const el = document.getElementById('results-summary');
-    if (el) el.innerHTML =
-      '📊 Class Average: <strong>' + avg + '%</strong> &nbsp;·&nbsp; ' +
-      'Highest: <strong>' + highest + '</strong> &nbsp;·&nbsp; ' +
-      'Lowest: <strong>' + lowest + '</strong> &nbsp;·&nbsp; ' +
-      'Students: <strong>' + totals.length + '</strong>';
+    if (el) el.innerHTML = `📊 Class Average: <strong>${avg}%</strong>`;
   }
 
-  /* ── Save/Submit Results ── */
-  function validateScores() {
-    let valid = true;
-    document.querySelectorAll('#results-table tbody tr').forEach(row => {
-      const ca   = parseFloat(row.querySelector('.ca-score').value);
-      const exam = parseFloat(row.querySelector('.exam-score').value);
-      if (isNaN(ca) || isNaN(exam)) valid = false;
-    });
-    return valid;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTeacherStudents);
+  } else {
+    loadTeacherStudents();
   }
 
-  function saveDraftResults() {
-    if (!validateScores()) { toast('⚠️ Please fill in all score fields before saving.'); return; }
-    toast('💾 Draft saved successfully!');
-  }
-
-  function submitResults() {
-    if (!validateScores()) { toast('⚠️ Please fill in all score fields before submitting.'); return; }
-    const subject = document.getElementById('res-subject').value;
-    toast('📤 ' + subject + ' results submitted to Admin for approval!');
-  }
-
-
-  /* ── Messages ── */
-  function sendMessage() {
-    const studentEl  = document.getElementById('msg-student');
-    const subjectEl  = document.getElementById('msg-subject');
-    const bodyEl     = document.getElementById('msg-body');
-
-    let valid = true;
-
-    [studentEl, subjectEl, bodyEl].forEach(el => el.classList.remove('field-error'));
-
-    if (!studentEl.value) { studentEl.classList.add('field-error'); valid = false; }
-    if (!subjectEl.value.trim()) { subjectEl.classList.add('field-error'); valid = false; }
-    if (!bodyEl.value.trim())    { bodyEl.classList.add('field-error');    valid = false; }
-
-    if (!valid) { toast('⚠️ Please fill in all required fields before sending.'); return; }
-
-    toast('✅ Message sent to ' + studentEl.value + "'s parent successfully!");
-
-    studentEl.value  = '';
-    subjectEl.value  = '';
-    bodyEl.value     = '';
-  }
-
-
-  /* ── TIMETABLE EDITOR ── */
-  const TT_KEY = 'bfs_timetable_primary6a';
-
-  const TT_DEFAULT = [
-    { type:'lesson', time:'8:00 – 9:00',   days:['Mathematics','English','Mathematics','Science','Social Studies'] },
-    { type:'lesson', time:'9:00 – 10:00',  days:['English','Mathematics','Science','English','Mathematics'] },
-    { type:'break',  time:'10:00 – 10:30', label:'☕ Morning Break' },
-    { type:'lesson', time:'10:30 – 11:30', days:['Science','Social Studies','Yoruba','Mathematics','English'] },
-    { type:'lesson', time:'11:30 – 12:30', days:['Social Studies','Yoruba','English','Social Studies','Assembly / Games'] },
-    { type:'break',  time:'12:30 – 1:30',  label:'🍽️ Lunch Break' },
-    { type:'lesson', time:'1:30 – 2:30',   days:['Yoruba','Science','Social Studies','Yoruba','—'] },
-    { type:'dismiss',time:'2:30',           label:'🏠 School Dismissal' },
-  ];
-
-  let ttRows = [];
-  let ttStatus = 'draft';
-
-  async function loadTimetable() {
-    try {
-      const data = await DB.timetables.get(TT_KEY);
-      if (data && data.rows && data.rows.length) {
-        ttRows   = data.rows;
-        ttStatus = data.status || 'draft';
-      } else {
-        ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
-        ttStatus = (data && data.status) || 'draft';
-      }
-    } catch(e) {
-      ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
-      ttStatus = 'draft';
-    }
-    updateStatusBanner();
-    renderTimetableEditor();
-  }
-
-  async function saveTT(status) {
-    try {
-      await DB.timetables.save(TT_KEY, {
-        rows:        ttRows,
-        status:      status || ttStatus,
-        classLabel:  _teacherClass || 'Unassigned',
-        teacherName: _user.name || 'Unknown'
-      });
-    } catch(e) { console.warn('[BFS] saveTT:', e.message); }
-  }
-
-  function updateStatusBanner() {
-    const title = document.getElementById('tt-status-title');
-    const text  = document.getElementById('tt-status-text');
-    const banner= document.getElementById('tt-status-banner');
-    const btn   = document.getElementById('tt-submit-btn');
-    if (!title) return;
-    const map = {
-      draft:    { cls:'notif info',  icon:'📋', t:'Draft Timetable',      tx:'Edit and submit to admin for approval. Students cannot see it yet.' },
-      pending:  { cls:'notif warn',  icon:'⏳', t:'Awaiting Admin Approval', tx:'Your timetable has been submitted and is pending review by admin.' },
-      approved: { cls:'notif ok',    icon:'✅', t:'Timetable Approved',    tx:'Your timetable is live. Students can view it in their portal.' },
-      rejected: { cls:'notif err',   icon:'❌', t:'Timetable Rejected',    tx:'Admin rejected this timetable. Please revise and resubmit.' },
-    };
-    const s = map[ttStatus] || map.draft;
-    banner.className = s.cls;
-    banner.querySelector('span').textContent = s.icon;
-    title.textContent = s.t;
-    text.textContent  = s.tx;
-    if (btn) btn.disabled = (ttStatus === 'pending');
-  }
-
-  function renderTimetableEditor() {
-    const tbody = document.getElementById('tt-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    ttRows.forEach((row, idx) => {
-      const tr = document.createElement('tr');
-      if (row.type === 'break')   tr.className = 'tt-break';
-      if (row.type === 'dismiss') tr.className = 'tt-dismiss';
-
-      if (row.type === 'lesson') {
-        tr.innerHTML =
-          '<td><input class="tt-time-input" value="' + escHtml(row.time) + '" onchange="ttRows[' + idx + '].time=this.value" /></td>' +
-          row.days.map((d, di) =>
-            '<td><input class="tt-cell-input" value="' + escHtml(d) + '" onchange="ttRows[' + idx + '].days[' + di + ']=this.value" /></td>'
-          ).join('') +
-          '<td><button class="tt-del-btn" onclick="deleteTTRow(' + idx + ')" title="Delete row">✕</button></td>';
-      } else {
-        const isLast = (row.type === 'dismiss');
-        tr.innerHTML =
-          '<td><input class="tt-time-input" value="' + escHtml(row.time) + '" onchange="ttRows[' + idx + '].time=this.value" /></td>' +
-          '<td colspan="5" style="font-weight:700;color:var(--navy);text-align:center;">' +
-            '<input style="width:100%;border:none;background:transparent;text-align:center;font-weight:700;color:var(--navy);font-size:13.5px;font-family:inherit;" ' +
-            'value="' + escHtml(row.label || '') + '" onchange="ttRows[' + idx + '].label=this.value" /></td>' +
-          '<td>' + (isLast ? '' : '<button class="tt-del-btn" onclick="deleteTTRow(' + idx + ')" title="Delete">✕</button>') + '</td>';
-      }
-      tbody.appendChild(tr);
-    });
-  }
-
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function addTimetableRow() {
-    const insertBefore = ttRows.findIndex(r => r.type === 'dismiss');
-    const newRow = { type:'lesson', time:'', days:['','','','',''] };
-    if (insertBefore > -1) ttRows.splice(insertBefore, 0, newRow);
-    else ttRows.push(newRow);
-    renderTimetableEditor();
-  }
-
-  function addBreakRow() {
-    const insertBefore = ttRows.findIndex(r => r.type === 'dismiss');
-    const newRow = { type:'break', time:'', label:'Break' };
-    if (insertBefore > -1) ttRows.splice(insertBefore, 0, newRow);
-    else ttRows.push(newRow);
-    renderTimetableEditor();
-  }
-
-  function deleteTTRow(idx) {
-    ttRows.splice(idx, 1);
-    renderTimetableEditor();
-  }
-
-  async function resetTimetable() {
-    if (!confirm('Reset to default timetable? All edits will be lost.')) return;
-    ttRows   = JSON.parse(JSON.stringify(TT_DEFAULT));
-    ttStatus = 'draft';
-    await saveTT('draft');
-    updateStatusBanner();
-    renderTimetableEditor();
-    toast('Timetable reset to default.');
-  }
-
-  async function saveTimetableDraft() {
-    ttStatus = ttStatus === 'approved' ? 'approved' : 'draft';
-    await saveTT(ttStatus);
-    toast('✅ Timetable draft saved.');
-  }
-
-  async function submitTimetable() {
-    const empty = ttRows.filter(r => r.type === 'lesson' && r.days.every(d => !d.trim()));
-    if (empty.length > 0) {
-      toast('⚠️ Please fill in at least some subject cells before submitting.');
-      return;
-    }
-    ttStatus = 'pending';
-    await saveTT('pending');
-    updateStatusBanner();
-    toast('📤 Timetable submitted to admin for approval!');
-  }
-
-  function showTimetablePreview() {
-    const card  = document.getElementById('tt-preview-card');
-    const tbody = document.getElementById('tt-preview-tbody');
-    if (!card || !tbody) return;
-    tbody.innerHTML = ttRows.map(row => {
-      if (row.type === 'lesson') {
-        return '<tr><td><strong>' + escHtml(row.time) + '</strong></td>' +
-          row.days.map(d => '<td>' + escHtml(d) + '</td>').join('') + '</tr>';
-      }
-      const cls = row.type === 'break' ? 'tt-break' : 'tt-dismiss';
-      return '<tr class="' + cls + '"><td><strong>' + escHtml(row.time) + '</strong></td>' +
-        '<td colspan="5">' + escHtml(row.label || '') + '</td></tr>';
-    }).join('');
-    card.style.display = 'block';
-    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-
-  document.querySelectorAll('.sidebar-link').forEach(link => {
-    if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
-      link.addEventListener('click', function() {
-        setTimeout(loadTimetable, 50);
-      });
-    }
-  });
-  if (document.getElementById('tp-timetable') && document.getElementById('tp-timetable').classList.contains('active')) {
-    loadTimetable();
-  }
-</script>
-
-<nav class="mobile-bottom-nav">
-  <div class="mobile-bottom-nav-inner">
-    <button class="mbn-item active" onclick="switchToTab('overview');setMbn(this)">
-      <span class="mbn-icon">&#127968;</span><span class="mbn-label">Home</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('attendance');setMbn(this)">
-      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Attendance</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('results');setMbn(this)">
-      <span class="mbn-icon">&#128202;</span><span class="mbn-label">Results</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('students');setMbn(this)">
-      <span class="mbn-icon">&#127952;</span><span class="mbn-label">Students</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('messages');setMbn(this)">
-      <span class="mbn-icon">&#128172;</span><span class="mbn-label">Messages</span>
-    </button>
-    <button class="mbn-item" onclick="switchToTab('timetable');setMbn(this)">
-      <span class="mbn-icon">&#128197;</span><span class="mbn-label">Timetable</span>
-    </button>
-  </div>
-</nav>
-<script>
-function setMbn(btn) {
-  const nav = btn.closest('.mobile-bottom-nav');
-  if (!nav) return;
-  nav.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-/* --- AUTO LOGOUT --- */
-function setupAutoLogout() {
-  let timeoutTimer;
-  const INACTIVITY_LIMIT = 2 * 60 * 1000; // 2 minutes
-
-  function resetTimer() {
-    clearTimeout(timeoutTimer);
-    timeoutTimer = setTimeout(() => {
-      if (typeof logout === 'function') logout();
-      else window.location.href = 'login.html';
-    }, INACTIVITY_LIMIT);
-  }
-
-  window.onload = resetTimer;
-  document.onmousemove = resetTimer;
-  document.onkeypress = resetTimer;
-  document.onscroll = resetTimer;
-  document.onclick = resetTimer;
-  document.ontouchstart = resetTimer;
-}
-setupAutoLogout();
 </script>
 </body>
 </html>
