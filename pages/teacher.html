@@ -47,10 +47,10 @@
       <div class="sub" id="teacher-sub">Welcome — Beginner's Field School</div>
     </div>
     <div class="user-badge">
-      <div class="user-avatar user-avatar-blue" data-user-initials>EC</div>
+      <div class="user-avatar user-avatar-blue" data-user-initials></div>
       <div>
-        <div class="user-name" data-user-name>Mr. E. Chukwu</div>
-        <div class="user-role" data-user-title>Class Teacher — P6A</div>
+        <div class="user-name" data-user-name>Loading...</div>
+        <div class="user-role" data-user-title></div>
       </div>
       <button class="btn btn-sm btn-outline-white" onclick="logout()">🚪 Logout</button>
     </div>
@@ -73,7 +73,7 @@
 
       <div id="tp-overview" class="stab-pane active">
         <div class="stats-row">
-          <div class="stat-card" data-icon="🎒"><div class="stat-num" id="stat-student-count">—</div><div class="stat-label">Students in My Class</div></div>
+          <div class="stat-card" data-icon="🎒"><div class="stat-num">42</div><div class="stat-label">Students in My Class</div></div>
           <div class="stat-card" data-icon="✅"><div class="stat-num">39</div><div class="stat-label">Present Today</div></div>
           <div class="stat-card" data-icon="📊"><div class="stat-num">85%</div><div class="stat-label">Results Uploaded</div></div>
         </div>
@@ -87,46 +87,28 @@
         </div>
 
         <div class="card">
-          <h3>📅 Today's Snapshot — Primary 6A</h3>
-          <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">39 present · 2 absent · 1 late · 93% attendance rate today</p>
-          <div class="prog-bar"><div class="prog-fill" style="width:93%;"></div></div>
+          <h3>📅 Today's Snapshot — <span id="snapshot-class-label">Loading...</span></h3>
+          <p style="color:var(--gray);font-size:13px;margin-bottom:14px;">Data pulling from attendance records...</p>
           <button class="btn btn-navy" style="margin-top:18px;" onclick="switchToTab('attendance')">
             📅 Mark Today's Attendance
           </button>
         </div>
 
         <div class="card">
-          <h3>📊 Results Upload Progress — 3rd Term 2024/2025</h3>
-          <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>Mathematics</span><span style="color:var(--green-ok);font-weight:700;">✅ Uploaded &amp; Published</span>
-            </div>
-            <div class="prog-bar"><div class="prog-fill" style="width:100%;"></div></div>
-          </div>
-          <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>English Language</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span>
-            </div>
-            <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow);"></div></div>
-          </div>
-          <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;">
-              <span>Basic Science</span><span style="color:#d97706;font-weight:700;">⏳ Pending Upload</span>
-            </div>
-            <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow);"></div></div>
-          </div>
-          <button class="btn btn-yellow" onclick="switchToTab('results')">📊 Upload Results Now</button>
+          <h3>📊 Results Upload Progress — Current Term</h3>
+          <p style="color:var(--gray);font-size:13px;">Check your specific subjects in the Results tab to upload data.</p>
+          <button class="btn btn-yellow" style="margin-top:18px;" onclick="switchToTab('results')">📊 Upload Results Now</button>
         </div>
       </div>
 
       <div id="tp-attendance" class="stab-pane">
         <div class="card">
-          <h3>📅 Mark Attendance — Primary 6A</h3>
+          <h3>📅 Mark Attendance</h3>
 
           <div class="form-row" style="margin-bottom:18px;">
             <div class="form-group">
               <label>Date</label>
-              <input type="date" id="att-date" value="2025-03-20" />
+              <input type="date" id="att-date" />
             </div>
             <div class="form-group">
               <label>Period / Subject</label>
@@ -153,41 +135,7 @@
                 </tr>
               </thead>
               <tbody id="att-tbody">
-                <tr>
-                  <td>1</td><td>Adaeze Nwosu</td>
-                  <td><input type="radio" name="a1" value="present" checked /></td>
-                  <td><input type="radio" name="a1" value="absent" /></td>
-                  <td><input type="radio" name="a1" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>2</td><td>Babatunde Afolabi</td>
-                  <td><input type="radio" name="a2" value="present" checked /></td>
-                  <td><input type="radio" name="a2" value="absent" /></td>
-                  <td><input type="radio" name="a2" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>3</td><td>Chioma Eze</td>
-                  <td><input type="radio" name="a3" value="present" /></td>
-                  <td><input type="radio" name="a3" value="absent" checked /></td>
-                  <td><input type="radio" name="a3" value="late" /></td>
-                  <td><input class="att-note" value="Sick" /></td>
-                </tr>
-                <tr>
-                  <td>4</td><td>Daniel Okoye</td>
-                  <td><input type="radio" name="a4" value="present" checked /></td>
-                  <td><input type="radio" name="a4" value="absent" /></td>
-                  <td><input type="radio" name="a4" value="late" /></td>
-                  <td><input class="att-note" placeholder="Optional note" /></td>
-                </tr>
-                <tr>
-                  <td>5</td><td>Esther Lawal</td>
-                  <td><input type="radio" name="a5" value="present" /></td>
-                  <td><input type="radio" name="a5" value="absent" /></td>
-                  <td><input type="radio" name="a5" value="late" checked /></td>
-                  <td><input class="att-note" value="Arrived 8:45AM" /></td>
-                </tr>
+                <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
@@ -205,7 +153,7 @@
           <div class="form-row" style="margin-bottom:4px;">
             <div class="form-group">
               <label>Class</label>
-              <select id="res-class"><option>Primary 6A</option></select>
+              <select id="res-class"><option>Loading...</option></select>
             </div>
             
             <div class="form-group">
@@ -256,47 +204,8 @@
                   <th>Remark</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr data-student="Adaeze Nwosu">
-                  <td>Adaeze Nwosu</td>
-                  <td><input type="number" class="ca-score" value="28" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="65" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">93</span></td>
-                  <td><span class="grade-cell grade-A">A</span></td>
-                  <td class="remark-cell">Excellent</td>
-                </tr>
-                <tr data-student="Babatunde Afolabi">
-                  <td>Babatunde Afolabi</td>
-                  <td><input type="number" class="ca-score" value="22" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="55" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">77</span></td>
-                  <td><span class="grade-cell grade-B">B</span></td>
-                  <td class="remark-cell">Very Good</td>
-                </tr>
-                <tr data-student="Chioma Eze">
-                  <td>Chioma Eze</td>
-                  <td><input type="number" class="ca-score" value="18" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="48" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">66</span></td>
-                  <td><span class="grade-cell grade-C">C</span></td>
-                  <td class="remark-cell">Good</td>
-                </tr>
-                <tr data-student="Daniel Okoye">
-                  <td>Daniel Okoye</td>
-                  <td><input type="number" class="ca-score" value="29" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="62" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">91</span></td>
-                  <td><span class="grade-cell grade-A">A</span></td>
-                  <td class="remark-cell">Excellent</td>
-                </tr>
-                <tr data-student="Esther Lawal">
-                  <td>Esther Lawal</td>
-                  <td><input type="number" class="ca-score" value="15" min="0" max="30" oninput="recalcRow(this)" /></td>
-                  <td><input type="number" class="exam-score" value="40" min="0" max="70" oninput="recalcRow(this)" /></td>
-                  <td><span class="score-total">55</span></td>
-                  <td><span class="grade-cell grade-C">C</span></td>
-                  <td class="remark-cell">Good</td>
-                </tr>
+              <tbody id="results-table-tbody">
+                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading students…</td></tr>
               </tbody>
             </table>
           </div>
@@ -345,12 +254,7 @@
           <div class="form-group">
             <label>Select Student *</label>
             <select id="msg-student">
-              <option value="">— Select student —</option>
-              <option>Adaeze Nwosu</option>
-              <option>Babatunde Afolabi</option>
-              <option>Chioma Eze</option>
-              <option>Daniel Okoye</option>
-              <option>Esther Lawal</option>
+              <option value="">— Loading students —</option>
             </select>
           </div>
           <div class="form-group">
@@ -365,9 +269,7 @@
         </div>
       </div>
 
-
       <div id="tp-timetable" class="stab-pane">
-
         <div id="tt-status-banner" class="notif info" style="margin-bottom:18px;">
           <span>📋</span>
           <div><h4 id="tt-status-title">Draft Timetable</h4>
@@ -377,7 +279,7 @@
 
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
-            <h3 style="margin:0;">📅 Class Timetable — <span id="tt-class-label">Primary 6A</span></h3>
+            <h3 style="margin:0;">📅 Class Timetable — <span id="tt-class-label">Loading...</span></h3>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button class="btn btn-outline-navy btn-sm" onclick="resetTimetable()">↺ Reset</button>
               <button class="btn btn-yellow btn-sm" onclick="saveTimetableDraft()">💾 Save Draft</button>
@@ -446,101 +348,8 @@
   document.getElementById('teacher-sub').textContent =
     'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
-  /* ── Derive the teacher's assigned class from their profile title or stored class ── */
-  /* The profile.title is e.g. "Class Teacher — P6A"; we also check profile.class_assigned */
-  const _teacherClass = (_user.class_assigned || '').trim() ||
-    ((_user.title || '').match(/Primary \d+[A-Z]?|Nursery \d+[A-Z]?/i) || [])[0] || '';
 
-  /* ── Load live students from Supabase for this teacher's class ── */
-  let _allTeacherStudents = [];
-
-  async function loadTeacherStudents() {
-    const tbody = document.getElementById('teacher-students-tbody');
-    if (!tbody) return;
-    if (!_teacherClass) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No class assigned to your profile yet. Contact admin.</td></tr>';
-      return;
-    }
-    try {
-      const list = await DB.students.getByClass(_teacherClass);
-      _allTeacherStudents = list;
-
-      /* Update stat cards + header */
-      const countEl = document.getElementById('stat-student-count');
-      const countEl2 = document.getElementById('teacher-student-count');
-      const labelEl  = document.getElementById('teacher-class-label');
-      if (countEl)  countEl.textContent  = list.length;
-      if (countEl2) countEl2.textContent = list.length;
-      if (labelEl)  labelEl.textContent  = _teacherClass;
-
-      /* Detect newly admitted students (created in last 7 days) */
-      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      const newStudents  = list.filter(s => new Date(s.created_at).getTime() > sevenDaysAgo);
-
-      const notifCard = document.getElementById('new-students-notif');
-      const newList   = document.getElementById('new-students-list');
-      if (notifCard && newList) {
-        if (newStudents.length > 0) {
-          notifCard.style.display = 'block';
-          newList.innerHTML = newStudents.map(s => `
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--off-white);border-radius:10px;margin-bottom:8px;">
-              <div style="width:38px;height:38px;border-radius:50%;background:var(--green-ok);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">
-                ${s.first_name.charAt(0)}${s.last_name.charAt(0)}
-              </div>
-              <div>
-                <strong>${s.first_name} ${s.last_name}</strong>
-                <div style="font-size:12px;color:var(--gray);">${s.student_id} · ${s.class} · Admitted ${new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
-              </div>
-              <span class="badge b-green" style="margin-left:auto;">🆕 New</span>
-            </div>`).join('');
-        } else {
-          notifCard.style.display = 'none';
-        }
-      }
-
-      renderTeacherStudents(list);
-    } catch(e) {
-      if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">⚠️ ${e.message}</td></tr>`;
-    }
-  }
-
-  function renderTeacherStudents(list) {
-    const tbody = document.getElementById('teacher-students-tbody');
-    if (!tbody) return;
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No students in this class yet.</td></tr>';
-      return;
-    }
-    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    tbody.innerHTML = list.map(s => {
-      const name     = `${s.first_name} ${s.last_name}`;
-      const isNew    = new Date(s.created_at).getTime() > sevenDaysAgo;
-      const feeCls   = s.fee_status === 'Paid' ? 'b-green' : s.fee_status === 'Partial' ? 'b-yellow' : 'b-red';
-      const newBadge = isNew ? '<span class="badge b-green" style="margin-left:6px;font-size:10px;">🆕 New</span>' : '';
-      return `<tr data-name="${name.toLowerCase()}">
-        <td>${s.student_id}</td>
-        <td><strong>${name}</strong>${newBadge}</td>
-        <td>${s.gender||'—'}</td>
-        <td>${s.attendance||'—'}</td>
-        <td><span class="badge ${feeCls}">${s.fee_status||'Pending'}</span></td>
-        <td><span class="badge b-green">${s.status||'Active'}</span></td>
-      </tr>`;
-    }).join('');
-  }
-
-  function filterTeacherStudents() {
-    const q = (document.getElementById('tp-stu-search').value || '').toLowerCase();
-    const filtered = _allTeacherStudents.filter(s =>
-      (`${s.first_name} ${s.last_name}`).toLowerCase().includes(q) ||
-      (s.student_id || '').toLowerCase().includes(q)
-    );
-    renderTeacherStudents(filtered);
-  }
-
-  /* Load students when the students tab is opened */
-  const _origSwitchToTab = null;
-
-
+  /* ── Safe tab switcher ── */
   function switchToTab(name) {
     document.querySelectorAll('#teacher-dashboard .stab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('#teacher-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
@@ -553,16 +362,6 @@
         link.classList.add('active');
       }
     });
-
-    /* Load live students when tab opened */
-    if (name === 'students') loadTeacherStudents();
-  }
-
-  /* Trigger student load on page init (for overview new-student notification card) */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadTeacherStudents);
-  } else {
-    loadTeacherStudents();
   }
 
   /* ── Subject Management Functions ── */
@@ -571,20 +370,12 @@
     const select = document.getElementById('res-subject');
     const val = input.value.trim();
 
-    if (!val) {
-      toast('⚠️ Please enter a subject name first.');
-      return;
-    }
-
-    // Check for duplicates
+    if (!val) { toast('⚠️ Please enter a subject name first.'); return; }
     for (let i = 0; i < select.options.length; i++) {
       if (select.options[i].value.toLowerCase() === val.toLowerCase()) {
-        toast('⚠️ Subject "' + val + '" already exists.');
-        return;
+        toast('⚠️ Subject "' + val + '" already exists.'); return;
       }
     }
-
-    // Add and auto-select new subject
     const opt = document.createElement('option');
     opt.value = val;
     opt.textContent = val;
@@ -597,18 +388,11 @@
 
   function deleteSubject() {
     const select = document.getElementById('res-subject');
-    
     if (select.selectedIndex === -1 || select.options.length === 0) {
-      toast('⚠️ No subject to delete.');
-      return;
+      toast('⚠️ No subject to delete.'); return;
     }
-    
     const val = select.options[select.selectedIndex].value;
-    
-    if (!confirm('Are you sure you want to remove "' + val + '" from the list?')) {
-      return;
-    }
-    
+    if (!confirm('Are you sure you want to remove "' + val + '" from the list?')) return;
     select.remove(select.selectedIndex);
     toast('🗑️ Subject "' + val + '" removed.');
   }
@@ -714,9 +498,6 @@
       'Students: <strong>' + totals.length + '</strong>';
   }
 
-  updateResultsSummary();
-
-
   /* ── Save/Submit Results ── */
   function validateScores() {
     let valid = true;
@@ -804,8 +585,8 @@
       await DB.timetables.save(TT_KEY, {
         rows:        ttRows,
         status:      status || ttStatus,
-        classLabel:  'Primary 6A',
-        teacherName: 'Mr. Emeka Chukwu'
+        classLabel:  _teacherClass || 'Unassigned',
+        teacherName: _user.name || 'Unknown'
       });
     } catch(e) { console.warn('[BFS] saveTT:', e.message); }
   }
@@ -929,7 +710,6 @@
     card.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 
-  const _origTeacherTab = typeof teacherTab === 'function' ? teacherTab : null;
   document.querySelectorAll('.sidebar-link').forEach(link => {
     if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
       link.addEventListener('click', function() {
@@ -940,8 +720,6 @@
   if (document.getElementById('tp-timetable') && document.getElementById('tp-timetable').classList.contains('active')) {
     loadTimetable();
   }
-
-
 </script>
 
 <nav class="mobile-bottom-nav">
@@ -973,6 +751,28 @@ function setMbn(btn) {
   nav.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
+
+/* --- AUTO LOGOUT --- */
+function setupAutoLogout() {
+  let timeoutTimer;
+  const INACTIVITY_LIMIT = 2 * 60 * 1000; // 2 minutes
+
+  function resetTimer() {
+    clearTimeout(timeoutTimer);
+    timeoutTimer = setTimeout(() => {
+      if (typeof logout === 'function') logout();
+      else window.location.href = 'login.html';
+    }, INACTIVITY_LIMIT);
+  }
+
+  window.onload = resetTimer;
+  document.onmousemove = resetTimer;
+  document.onkeypress = resetTimer;
+  document.onscroll = resetTimer;
+  document.onclick = resetTimer;
+  document.ontouchstart = resetTimer;
+}
+setupAutoLogout();
 </script>
 </body>
-</html>npx live-server --port=8080
+</html>

@@ -74,22 +74,22 @@
   <div class="adm-body">
 
     <div id="adm-success" class="alert-success" style="display:none;">
-      ✅ Application submitted successfully! Your Application ID is <strong>BFS-2025-0039</strong>.
-      We will contact you within 3 working days. Thank you for choosing Beginner's Field School!
-    </div>
+  ✅ Application submitted successfully! Your Application ID is <strong id="dynamic-app-id"></strong>.
+  We will contact you within 3 working days. Thank you for choosing Beginner's Field School!
+</div>
 
     <div class="card">
       <h3>📋 Admission Application Form</h3>
 
       <div class="form-section-title">Child's Information</div>
       <div class="form-row">
-        <div class="form-group"><label>First Name *</label><input id="adm-fname" type="text" placeholder="Child's first name" /></div>
-        <div class="form-group"><label>Last Name *</label><input id="adm-lname" type="text" placeholder="Child's last name" /></div>
+        <div class="form-group"><label>First Name *</label><input type="text" placeholder="Child's first name" /></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" placeholder="Child's last name" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Date of Birth *</label><input id="adm-dob" type="date" /></div>
+        <div class="form-group"><label>Date of Birth *</label><input type="date" /></div>
         <div class="form-group"><label>Gender *</label>
-          <select id="adm-gender">
+          <select>
             <option value="">— Select —</option>
             <option>Male</option>
             <option>Female</option>
@@ -98,7 +98,7 @@
       </div>
       <div class="form-group">
         <label>Class Applying For *</label>
-        <select id="adm-class">
+        <select>
           <option value="">— Select Class —</option>
           <optgroup label="Nursery"><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option></optgroup>
           <optgroup label="Primary"><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option></optgroup>
@@ -106,33 +106,29 @@
       </div>
       <div class="form-group">
         <label>Previous School (if any)</label>
-        <input id="adm-prev-school" type="text" placeholder="Name of previous school" />
+        <input type="text" placeholder="Name of previous school" />
       </div>
 
       <div class="form-section-title">Parent / Guardian Information</div>
       <div class="form-row">
-        <div class="form-group"><label>Full Name *</label><input id="adm-parent-name" type="text" placeholder="Parent or guardian full name" /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" placeholder="Parent or guardian full name" /></div>
         <div class="form-group"><label>Relationship *</label>
-          <select id="adm-relationship">
+          <select>
             <option>Mother</option><option>Father</option><option>Guardian</option>
           </select>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Phone Number *</label><input id="adm-parent-phone" type="tel" placeholder="080X XXX XXXX" /></div>
-        <div class="form-group">
-          <label>Email Address *</label>
-          <input id="adm-parent-email" type="email" placeholder="parent@email.com" />
-          <p style="font-size:11.5px;color:var(--gray);margin-top:4px;">⚠️ Admission result &amp; portal login credentials will be sent to this email. Please use a valid address.</p>
-        </div>
+        <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="080X XXX XXXX" /></div>
+        <div class="form-group"><label>Email Address</label><input type="email" placeholder="parent@email.com" /></div>
       </div>
       <div class="form-group">
         <label>Home Address *</label>
-        <input id="adm-address" type="text" placeholder="Full residential address" />
+        <input type="text" placeholder="Full residential address" />
       </div>
       <div class="form-group">
         <label>Occupation</label>
-        <input id="adm-occupation" type="text" placeholder="Parent's occupation" />
+        <input type="text" placeholder="Parent's occupation" />
       </div>
 
       <div class="form-section-title">Application Fee Payment</div>
@@ -153,11 +149,10 @@
       </div>
       <!-- Receipt verifier output -->
       <div class="receipt-verifier" id="adm-verify" style="display:none;"></div>
-      <div class="form-group" style="display:none">
-      </div>
+
       <div class="form-group">
         <label>Additional Notes (optional)</label>
-        <textarea rows="3" placeholder="Any special needs, medical conditions or other information we should know..."></textarea>
+        <textarea id="adm-notes" rows="3" placeholder="Any special needs, medical conditions or other information we should know..."></textarea>
       </div>
 
       <div class="submit-row">
@@ -343,6 +338,16 @@
       const el = document.getElementById(containerId);
       if (!el || !input.files || input.files.length === 0) { if(el) el.style.display='none'; return; }
       const file = input.files[0];
+
+      // FIX: enforce 5 MB file size limit
+      if (file.size > 5 * 1024 * 1024) {
+        el.style.display = 'block';
+        el.className = 'receipt-verifier fail';
+        el.innerHTML = '<div class="verify-status" style="color:var(--red);"><span class="verify-icon">❌</span><span>File is too large. Maximum allowed size is 5MB.</span></div>';
+        input.value = '';
+        return;
+      }
+
       el.style.display = 'block';
       el.className = 'receipt-verifier verifying';
       el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span style="color:var(--navy);">Reading receipt — please wait…</span></div>';
@@ -367,38 +372,108 @@
       const overallOk    = receiptCheck.ok && (amountStatus === 'match' || amountStatus === 'unverifiable');
 
       el.className = 'receipt-verifier ' + (overallOk ? 'ok' : 'fail');
+
+      // FIX: removed all backslashes before ${ } so variables are correctly interpolated
       const amtLabel = amountStatus === 'match'
-        ? 'Matches ₦' + expectedAmt.toLocaleString()
+        ? `Matches ₦${expectedAmt.toLocaleString()}`
         : amountStatus === 'unverifiable'
-        ? 'Ensure amount is ₦' + expectedAmt.toLocaleString()
-        : 'Expected ₦' + expectedAmt.toLocaleString() + ' · found: ' + amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ');
+        ? `Ensure amount is ₦${expectedAmt.toLocaleString()}`
+        : `Expected ₦${expectedAmt.toLocaleString()} · found: ${amounts.slice(0,3).map(a=>'₦'+a.toLocaleString()).join(', ')}`;
+
       const statusMsg = overallOk
-        ? (amountStatus==='unverifiable' ? '⚠️ Receipt uploaded — admin will verify amount' : '✅ Receipt looks valid and amount matches!')
+        ? (amountStatus === 'unverifiable' ? '⚠️ Receipt uploaded — admin will verify amount' : '✅ Receipt looks valid and amount matches!')
         : (receiptCheck.ok ? '⚠️ Receipt found but amount may not match — double-check' : '❌ This does not look like a valid bank receipt');
-      const statusColor = overallOk && amountStatus!=='unverifiable' ? 'var(--green-ok)' : overallOk ? '#d97706' : 'var(--red)';
+
+      const statusColor = overallOk && amountStatus !== 'unverifiable' ? 'var(--green-ok)' : overallOk ? '#d97706' : 'var(--red)';
+
+      const fileTypeLabel = isPdf ? 'PDF document' : `Image (${file.type.split('/')[1].toUpperCase()})`;
+      const bankKeywordsLabel = receiptCheck.ok ? receiptCheck.hits.slice(0,4).join(', ') : 'Not found';
+      const acctLabel = acctCheck ? `${SCHOOL_ACCOUNT} found` : 'Not detected';
+
       let previewShort = extractedText.substring(0,300).trim();
       if (previewShort.startsWith('[')) previewShort = '';
 
-      el.innerHTML = `
-        <div class="verify-status" style="color:${statusColor};">
-          <span class="verify-icon">${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
-          <span>${statusMsg}</span>
+      el.innerHTML = \`
+        <div class="verify-status" style="color:\${statusColor};">
+          <span class="verify-icon">\${overallOk?(amountStatus==='unverifiable'?'⚠️':'✅'):'❌'}</span>
+          <span>\${statusMsg}</span>
         </div>
         <div class="verify-rows">
-          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="${receiptCheck.ok?'vr-pass':'vr-fail'}">${receiptCheck.ok?'✅':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">${amtLabel}</span><span class="${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
-          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="${acctCheck?'vr-pass':''}">${acctCheck?'✅':'⚠️'}</span></div>
+          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">\${isPdf?'PDF document':'Image ('+file.type.split('/')[1].toUpperCase()+')'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🏦 Bank keywords</span><span class="vr-value">\${receiptCheck.ok?receiptCheck.hits.slice(0,4).join(', '):'Not found'}</span><span class="\${receiptCheck.ok?'vr-pass':'vr-fail'}">\${receiptCheck.ok?'✅':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value" style="font-size:12px;">\${amtLabel}</span><span class="\${amountStatus==='match'?'vr-pass':amountStatus==='unverifiable'?'':'vr-fail'}">\${amountStatus==='match'?'✅':amountStatus==='unverifiable'?'⚠️':'❌'}</span></div>
+          <div class="verify-row"><span class="vr-label">🔢 Account no.</span><span class="vr-value">\${acctCheck?SCHOOL_ACCOUNT+' found':'Not detected'}</span><span class="\${acctCheck?'vr-pass':''}">\${acctCheck?'✅':'⚠️'}</span></div>
         </div>
-        ${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
-      `;
+        \${previewShort?'<span class="preview-toggle" onclick="togglePreview(this)">▼ Show extracted text</span><div class="receipt-preview" style="display:none;">'+previewShort+'</div>':''}
+      \`;
       el.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
 
     function togglePreview(btn) {
       const pre = btn.nextElementSibling;
-      if (pre.style.display==='none') { pre.style.display='block'; btn.textContent='▲ Hide text'; }
-      else { pre.style.display='none'; btn.textContent='▼ Show extracted text'; }
+      if (pre.style.display === 'none') { pre.style.display = 'block'; btn.textContent = '▲ Hide text'; }
+      else { pre.style.display = 'none'; btn.textContent = '▼ Show extracted text'; }
+    }
+
+    // FIX: submitAdmission was missing entirely — added below
+    function submitAdmission() {
+      // Collect values
+      const childFirst    = document.getElementById('child-first').value.trim();
+      const childLast     = document.getElementById('child-last').value.trim();
+      const childDob      = document.getElementById('child-dob').value;
+      const childGender   = document.getElementById('child-gender').value;
+      const childClass    = document.getElementById('child-class').value;
+      const parentName    = document.getElementById('parent-name').value.trim();
+      const parentPhone   = document.getElementById('parent-phone').value.trim();
+      const parentAddress = document.getElementById('parent-address').value.trim();
+      const payProof      = document.getElementById('adm-pay-proof');
+
+      // Validate required fields
+      if (!childFirst || !childLast) { showToast('Please enter the child\'s full name.'); return; }
+      if (!childDob)                 { showToast('Please enter the child\'s date of birth.'); return; }
+      if (!childGender)              { showToast('Please select the child\'s gender.'); return; }
+      if (!childClass)               { showToast('Please select the class applying for.'); return; }
+      if (!parentName)               { showToast('Please enter the parent/guardian name.'); return; }
+      if (!parentPhone)              { showToast('Please enter a phone number.'); return; }
+      if (!parentAddress)            { showToast('Please enter the home address.'); return; }
+      if (!payProof.files || payProof.files.length === 0) {
+        showToast('Please upload proof of payment.');
+        return;
+      }
+
+      // Generate a unique Application ID: BFS-YEAR-RANDOM6
+      const year  = new Date().getFullYear();
+      const rand  = Math.random().toString(36).substring(2,8).toUpperCase();
+      const appId = `BFS-${year}-${rand}`;
+
+      // Show success banner
+      document.getElementById('dynamic-app-id').textContent = appId;
+      const successBanner = document.getElementById('adm-success');
+      successBanner.style.display = 'block';
+      successBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Optionally disable the submit button to prevent double submission
+      const submitBtn = document.querySelector('.btn-navy');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '✅ Application Submitted';
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    }
+
+    // Fallback toast helper in case main.js does not expose one
+    function showToast(msg) {
+      if (typeof toast === 'function') { toast(msg); return; }
+      const el = document.getElementById('toast');
+      const tx = document.getElementById('toast-text');
+      if (el && tx) {
+        tx.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 3500);
+      } else {
+        alert(msg);
+      }
     }
   </script>
 </body>

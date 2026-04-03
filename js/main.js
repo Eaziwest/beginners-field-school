@@ -105,8 +105,6 @@ function submitAdmission() {
   setTimeout(() => closeModal('admission-modal'), 4500);
 }
 
-/* ===== PAYMENT METHOD SELECTION ===== */
-
 /* ===== ACTIVE SIDEBAR LINK (click highlight) ===== */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.sidebar-link').forEach(link => {
@@ -117,3 +115,186 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+/* ===== SUBJECT SELECTION LOGIC ===== */
+function toggleNewSubjectInput(selectElem) {
+  const customInput = document.getElementById('new-tch-subject-custom');
+  if (selectElem.value === 'ADD_NEW') {
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = ''; 
+  }
+}
+
+/* ===== SAVE NEW TEACHER LOGIC ===== */
+async function saveNewTeacher() {
+  const name = document.getElementById('new-tch-name').value;
+  const phone = document.getElementById('new-tch-phone').value;
+  const assignedClass = document.getElementById('new-tch-class').value;
+  const email = document.getElementById('new-tch-email').value;
+  
+  const subjectSelect = document.getElementById('new-tch-subject').value;
+  let finalSubject = subjectSelect;
+
+  if (subjectSelect === 'ADD_NEW') {
+    const customSubject = document.getElementById('new-tch-subject-custom').value;
+    if (!customSubject.trim()) {
+      toast('Please enter the name of the new subject.');
+      return;
+    }
+    finalSubject = customSubject.trim();
+    
+    // Call Supabase here to save the custom subject dynamically
+    if (typeof supabase !== 'undefined') {
+      const { error: subjectErr } = await supabase
+        .from('subjects')
+        .insert([{ name: finalSubject }]);
+        
+      if (subjectErr) {
+        console.error("Failed to register new subject:", subjectErr);
+        toast('Failed to register the new subject.');
+        return;
+      }
+    }
+  }
+
+  if (!name || !phone || !assignedClass || !finalSubject || !email) {
+    toast('Please fill in all required fields.');
+    return;
+  }
+
+  // Call Supabase here to save the teacher details
+  if (typeof supabase !== 'undefined') {
+    const { data, error } = await supabase
+      .from('teachers')
+      .insert([{ 
+        name: name, 
+        phone: phone, 
+        class_assigned: assignedClass, 
+        subject: finalSubject, 
+        email: email 
+      }]);
+
+    if (error) {
+      toast('Error saving teacher.');
+      console.error(error);
+    } else {
+      toast('Teacher saved successfully!');
+      
+      // Close modal and reset form
+      const modal = document.getElementById('modal-add-teacher');
+      if (modal) modal.classList.remove('open');
+      
+      document.getElementById('new-tch-name').value = '';
+      document.getElementById('new-tch-phone').value = '';
+      document.getElementById('new-tch-class').value = '';
+      document.getElementById('new-tch-email').value = '';
+      document.getElementById('new-tch-subject').value = '';
+      document.getElementById('new-tch-subject-custom').style.display = 'none';
+      document.getElementById('new-tch-subject-custom').value = '';
+      
+      // If there's a function to reload the teachers list, call it here
+      // filterTeachers();
+    }
+  } else {
+    // Fallback logic if Supabase is not configured yet
+    toast(`Teacher ${name} mapped to ${finalSubject} successfully!`);
+    const modal = document.getElementById('modal-add-teacher');
+    if (modal) modal.classList.remove('open');
+  }
+}
+
+// ==========================================
+// TEACHER SUBJECTS SELECTION LOGIC
+// ==========================================
+
+// Array to hold the list of subjects the admin adds
+let selectedTeacherSubjects = [];
+
+// Show/hide the custom subject input field
+function toggleNewSubjectInput(selectElement) {
+  const customInput = document.getElementById('new-tch-subject-custom');
+  if (selectElement.value === 'ADD_NEW') {
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = ''; // clear it if they change their mind
+  }
+}
+
+// Add a subject to the list
+function addTeacherSubject() {
+  const selectElement = document.getElementById('new-tch-subject');
+  const customInput = document.getElementById('new-tch-subject-custom');
+  
+  let newSubject = selectElement.value;
+
+  // If they selected "ADD_NEW", grab the text from the input field instead
+  if (newSubject === 'ADD_NEW') {
+    newSubject = customInput.value.trim();
+  }
+
+  // Validation: Check if empty or if it's already in the list
+  if (!newSubject || newSubject === "") {
+    toast("Please select or enter a subject name.");
+    return;
+  }
+  if (selectedTeacherSubjects.includes(newSubject)) {
+    toast("This subject has already been added.");
+    return;
+  }
+
+  // Add to array and update UI
+  selectedTeacherSubjects.push(newSubject);
+  renderTeacherSubjects();
+
+  // Reset the inputs for the next subject
+  selectElement.value = "";
+  customInput.value = "";
+  customInput.style.display = 'none';
+}
+
+// Remove a subject from the list
+function removeTeacherSubject(subjectToRemove) {
+  // Filter out the subject that was clicked
+  selectedTeacherSubjects = selectedTeacherSubjects.filter(sub => sub !== subjectToRemove);
+  renderTeacherSubjects();
+}
+
+// Render the visual tags (chips) on the screen
+function renderTeacherSubjects() {
+  const container = document.getElementById('tch-subjects-container');
+  const hiddenInput = document.getElementById('tch-selected-subjects-list');
+  
+  container.innerHTML = ''; // Clear current display
+
+  selectedTeacherSubjects.forEach(subject => {
+    // Create the tag element
+    const tag = document.createElement('span');
+    tag.style.cssText = `
+      background: #eff6ff; 
+      color: #3b82f6; 
+      border: 1px solid #bfdbfe; 
+      padding: 6px 12px; 
+      border-radius: 8px; 
+      font-size: 13px; 
+      font-weight: 600;
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px;
+    `;
+    
+    tag.innerHTML = `
+      ${subject} 
+      <button type="button" onclick="removeTeacherSubject('${subject}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px; font-weight:bold; padding:0; display:flex; align-items:center; justify-content:center;">&times;</button>
+    `;
+    
+    container.appendChild(tag);
+  });
+
+  // Store the array as a JSON string in the hidden input so your saveNewTeacher() function can easily grab it
+  hiddenInput.value = JSON.stringify(selectedTeacherSubjects);
+}

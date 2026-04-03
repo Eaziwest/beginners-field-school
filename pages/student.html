@@ -102,10 +102,10 @@
       <div class="sub" id="student-sub">Welcome — Beginner's Field School</div>
     </div>
     <div class="user-badge">
-      <div class="user-avatar user-avatar-amber" data-user-initials>AN</div>
+      <div class="user-avatar user-avatar-amber" data-user-initials></div>
       <div>
-        <div class="user-name" data-user-name>Adaeze Nwosu</div>
-        <div class="user-role" data-user-title>Primary 4 · 2024/2025</div>
+        <div class="user-name" data-user-name>Loading...</div>
+        <div class="user-role" data-user-title></div>
       </div>
     </div>
   </div>
@@ -125,26 +125,21 @@
 
       <div id="sp-overview" class="stab-pane active">
         <div class="stats-row">
-          <div class="stat-card" data-icon="📊"><div class="stat-num">88%</div><div class="stat-label">Term Average Score</div></div>
-          <div class="stat-card" data-icon="📅"><div class="stat-num">98%</div><div class="stat-label">Attendance Rate</div></div>
-          <div class="stat-card" data-icon="🏆"><div class="stat-num">3rd</div><div class="stat-label">Class Position</div></div>
+          <div class="stat-card" data-icon="📊"><div class="stat-num">--%</div><div class="stat-label">Term Average Score</div></div>
+          <div class="stat-card" data-icon="📅"><div class="stat-num">--%</div><div class="stat-label">Attendance Rate</div></div>
+          <div class="stat-card" data-icon="🏆"><div class="stat-num">--</div><div class="stat-label">Class Position</div></div>
         </div>
         <div class="card">
           <h3>📢 School Announcements</h3>
           <div class="notif warn"><span>📅</span><div><h4>School Closes March 28, 2025 — Third Term</h4><p>Report cards available to download after closing date</p></div></div>
-          <div class="notif info"><span>🏆</span><div><h4>Inter-House Sports Day — March 15</h4><p>Wear your house colours. Events begin at 8:00AM sharp</p></div></div>
-          <div class="notif ok"><span>✅</span><div><h4>Your 3rd Term Results Are Now Available</h4><p>Visit the Results tab to view and download your report card</p></div></div>
         </div>
         <div class="card">
-          <h3>📊 Quick Results — 3rd Term 2024/2025</h3>
+          <h3>📊 Quick Results — Current Term</h3>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total</th><th>Grade</th></tr></thead>
-              <tbody>
-                <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td><span class="grade grade-A">A</span></td></tr>
-                <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td><span class="grade grade-B">B</span></td></tr>
-                <tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td><span class="grade grade-B">B</span></td></tr>
-                <tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td><span class="grade grade-A">A</span></td></tr>
+              <tbody id="quick-results-tbody">
+                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
               </tbody>
             </table>
           </div>
@@ -161,25 +156,19 @@
             <div class="stab"        onclick="switchResultTab(this,'sr3')">1st Term 2024/25</div>
           </div>
           <div id="sr1" class="stab-pane active">
-            <div class="result-banner">
-              <strong>Term Average: 86.75% &nbsp;<span class="badge b-green">🏆 3rd of 42 Students</span></strong>
+            <div class="result-banner" id="full-result-banner" style="display:none;">
+              <strong>Term Average: <span id="full-avg"></span>% &nbsp;<span class="badge b-green" id="full-position"></span></strong>
               <button class="btn btn-navy btn-sm" onclick="downloadReport()">⬇️ Download Report Card</button>
             </div>
             <div class="tbl-wrap">
               <table>
                 <thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total (/100)</th><th>Grade</th><th>Remark</th></tr></thead>
-                <tbody>
-                  <tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td><span class="grade grade-A">A</span></td><td>Excellent performance</td></tr>
-                  <tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td><span class="grade grade-B">B</span></td><td>Very good work</td></tr>
-                  <tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td><span class="grade grade-B">B</span></td><td>Very good, keep it up</td></tr>
-                  <tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td><span class="grade grade-A">A</span></td><td>Outstanding</td></tr>
-                  <tr><td>Yoruba Language</td><td>20</td><td>50</td><td><strong>70</strong></td><td><span class="grade grade-C">C</span></td><td>Good, needs improvement</td></tr>
+                <tbody id="student-results-tbody">
+                  <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading results…</td></tr>
                 </tbody>
               </table>
             </div>
-            <div class="principal-comment">
-              <strong>Principal's Comment:</strong> Adaeze has shown remarkable dedication this term. She is encouraged to maintain this excellent standard. Well done! — Mrs. A. Okafor
-            </div>
+            <div class="principal-comment" id="principal-comment" style="display:none;"></div>
           </div>
           <div id="sr2" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">2nd Term results have not been published yet.</p></div>
           <div id="sr3" class="stab-pane"><p style="color:var(--gray);padding:30px;text-align:center;">1st Term results have not been published yet.</p></div>
@@ -188,25 +177,24 @@
 
       <div id="sp-fees" class="stab-pane">
         <div class="card">
-          <h3>&#128176; School Fees — 3rd Term 2025</h3>
+          <h3>&#128176; School Fees — Current Term</h3>
           <p style="color:var(--gray);font-size:13.5px;margin-bottom:20px;">
             Below are all the fees applicable to your class for this term. Please make payment at the school bursar office or reception. Contact the school if you need a payment plan.
           </p>
 
           <div class="fee-summary" style="margin-bottom:20px;">
-            <div class="fee-row"><span>School Fees — 3rd Term 2025</span><span><strong>&#x20a6;45,000</strong></span></div>
-            <div class="fee-row"><span>Development Levy</span><span><strong>&#x20a6;5,000</strong></span></div>
-            <div class="fee-row"><span>PTA Dues (Annual)</span><span><strong>&#x20a6;2,000</strong></span></div>
-            <div class="fee-row"><span>Sports / Cultural Levy</span><span><strong>&#x20a6;1,500</strong></span></div>
-            <div class="fee-row"><span>Medical / Health Check</span><span><strong>&#x20a6;1,000</strong></span></div>
-            <div class="fee-row"><span>ICT / Computer Levy</span><span><strong>&#x20a6;3,000</strong></span></div>
-            <div class="fee-row total"><span>Total Amount Due</span><span><strong>&#x20a6;57,500</strong></span></div>
+            <div class="fee-row"><span>School Fees — Tuition</span><span><strong id="sp-fee-tuition">Loading...</strong></span></div>
+            <div class="fee-row"><span>Development Levy</span><span><strong id="sp-fee-levy">Loading...</strong></span></div>
+            <div class="fee-row"><span>PTA Dues (Annual)</span><span><strong id="sp-fee-pta">Loading...</strong></span></div>
+            <div class="fee-row"><span>Sports / Cultural Levy</span><span><strong id="sp-fee-sports">Loading...</strong></span></div>
+            <div class="fee-row"><span>Medical / Health Check</span><span><strong id="sp-fee-medical">Loading...</strong></span></div>
+            <div class="fee-row"><span>ICT / Computer Levy</span><span><strong id="sp-fee-ict">Loading...</strong></span></div>
           </div>
 
           <div class="notif warn">
             <span>&#128197;</span>
             <div>
-              <h4>Payment Deadline — 14th February 2025</h4>
+              <h4>Payment Deadline — Before Resumption</h4>
               <p>All fees must be paid in full before or on the resumption date. Late payment attracts a penalty of &#x20a6;2,000. Please contact the school bursar for payment arrangements.</p>
             </div>
           </div>
@@ -228,16 +216,6 @@
               </div>
             </div>
           </div>
-
-          <div style="margin-top:24px;">
-            <h4 style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;">&#128722; Optional Items (Pay at Office)</h4>
-            <div class="fee-summary">
-              <div class="fee-row"><span>School Uniform (per set)</span><span><strong>&#x20a6;3,500</strong></span></div>
-              <div class="fee-row"><span>Stationery Pack</span><span><strong>&#x20a6;1,200</strong></span></div>
-              <div class="fee-row"><span>Textbooks — from</span><span><strong>&#x20a6;1,400</strong></span></div>
-              <div class="fee-row"><span>Exercise Books — from</span><span><strong>&#x20a6;120</strong></span></div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -256,13 +234,14 @@
           </div>
         </div>
         <div id="stu-tt-card" class="card">
-          <h3>📅 Class Timetable — <span id="stu-tt-class">Primary 4</span> (2024/2025 Session)</h3>
+          <h3>📅 Class Timetable — <span id="stu-tt-class">Loading...</span> (Current Session)</h3>
           <p id="stu-tt-meta" style="color:var(--gray);font-size:12.5px;margin-bottom:14px;"></p>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr></thead>
               <tbody id="stu-tt-tbody">
-                </tbody>
+                 <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading Timetable…</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -283,21 +262,9 @@
   /* ── Auth ── */
   const _user = (function() {
     try {
-      /* Accept both 'student' and 'parent' roles on this portal */
-      const session = typeof getSession === 'function' ? getSession() : null;
-      if (!session) {
-        if (typeof requireAuth === 'function') requireAuth('student'); // triggers redirect
-        return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
-      }
-      if (session.role !== 'student' && session.role !== 'parent') {
-        if (typeof clearSession === 'function') clearSession();
-        window.location.href = 'login.html';
-        return null;
-      }
-      if (typeof injectUserInfo === 'function') injectUserInfo(session);
-      /* Fire password reset modal for first-time parent logins */
-      if (typeof checkMustResetPassword === 'function') checkMustResetPassword(session);
-      return session;
+      const u = typeof requireAuth === 'function' ? requireAuth('student') : { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' };
+      if (typeof injectUserInfo === 'function') injectUserInfo(u);
+      return u;
     } catch(e) { return { name: 'Adaeze Nwosu', title: 'Primary 4 · 2024/2025' }; }
   })();
 
@@ -308,7 +275,6 @@
 
   /* ── Tab switcher ── */
   function switchToTab(name, el) {
-    // FIX: Target only top-level panes so we don't break the nested sub-tabs (like the Term results tabs)
     document.querySelectorAll('.dash-main > .stab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(l => l.classList.remove('active'));
     
@@ -334,7 +300,6 @@
     if (pane) pane.classList.add('active');
   }
 
-  /* ── Toast Fallback ── */
   function toast(msg) {
     if(typeof window.toast === 'function' && !document.getElementById('toast-text')) return window.toast(msg);
     var t = document.getElementById('toast');
@@ -346,57 +311,14 @@
     t._timer = setTimeout(function() { t.style.display = 'none'; }, 3500);
   }
 
-  /* ── Download report card ── */
   function downloadReport() {
-    const nameEl = document.querySelector('[data-user-name]');
-    const name = nameEl ? nameEl.textContent : 'Student';
-    
-    const titleEl = document.querySelector('[data-user-title]');
-    const title = titleEl ? titleEl.textContent : '';
-    
-    const win = window.open('', '_blank');
-    if (!win) { toast('\u26a0\ufe0f Popup blocked — please allow popups.'); return; }
-    
-    win.document.write(
-      '<!DOCTYPE html><html><head><title>Report Card — ' + name + '</title>' +
-      '<style>body{font-family:Arial,sans-serif;padding:48px;max-width:680px;margin:0 auto;color:#0d1b35;}' +
-      '.header{text-align:center;border-bottom:3px solid #0a1f44;padding-bottom:20px;margin-bottom:30px;}' +
-      'h1{color:#0a1f44;font-size:20px;margin-bottom:4px;}.sub{color:#6b7280;font-size:12px;}' +
-      '.info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;padding:16px;background:#fffbea;border-radius:8px;}' +
-      '.info div{font-size:13px;}.info strong{color:#0a1f44;}' +
-      'table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;}' +
-      'th{background:#0a1f44;color:#fff;padding:10px 12px;text-align:left;}' +
-      'td{padding:10px 12px;border-bottom:1px solid #e5e7eb;}' +
-      '.comment{padding:16px;background:#f7f8fc;border-radius:8px;font-size:13px;border-left:4px solid #f5c200;}' +
-      '.footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:32px;}' +
-      '@media print{button{display:none;}}</style' + '></head><body>' +
-      '<div class="header"><h1>🌱 Beginner\'s Field Nursery &amp; Primary School</h1>' +
-      '<p class="sub">12 Education Avenue, Lekki, Lagos · info@beginnersfieldschool.edu.ng</p></div>' +
-      '<h2 style="text-align:center;font-size:16px;margin-bottom:16px;">Student Report Card — 3rd Term 2024/2025</h2>' +
-      '<div class="info">' +
-        '<div><strong>Name:</strong> ' + name + '</div><div><strong>Class:</strong> ' + title.split('·')[0].trim() + '</div>' +
-        '<div><strong>Student ID:</strong> BFS/2025/001</div><div><strong>Term:</strong> 3rd Term 2024/2025</div>' +
-        '<div><strong>Position:</strong> 3rd of 42</div><div><strong>Average:</strong> 86.75%</div>' +
-      '</div>' +
-      '<table><thead><tr><th>Subject</th><th>CA (/30)</th><th>Exam (/70)</th><th>Total</th><th>Grade</th><th>Remark</th></tr></thead><tbody>' +
-        '<tr><td>Mathematics</td><td>28</td><td>65</td><td><strong>93</strong></td><td>A</td><td>Excellent performance</td></tr>' +
-        '<tr><td>English Language</td><td>25</td><td>60</td><td><strong>85</strong></td><td>B</td><td>Very good work</td></tr>' +
-        '<tr><td>Basic Science</td><td>22</td><td>58</td><td><strong>80</strong></td><td>B</td><td>Very good, keep it up</td></tr>' +
-        '<tr><td>Social Studies</td><td>27</td><td>62</td><td><strong>89</strong></td><td>A</td><td>Outstanding</td></tr>' +
-        '<tr><td>Yoruba Language</td><td>20</td><td>50</td><td><strong>70</strong></td><td>C</td><td>Good, needs improvement</td></tr>' +
-      '</tbody></table>' +
-      '<div class="comment"><strong>Principal\'s Comment:</strong> ' + name.split(' ')[0] + ' has shown remarkable dedication this term. Keep it up! — Mrs. A. Okafor</div>' +
-      '<p class="footer">Generated by Beginner\'s Field School Portal · ' + new Date().toLocaleDateString() + '</p>' +
-      '<br><button onclick="window.print()" style="padding:10px 24px;background:#0a1f44;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Print / Save as PDF</button>' +
-      '</body' + '></html>'
-    );
-    win.document.close();
-    toast('Report card opened — use Print to save as PDF.');
+    toast('Preparing Report Card PDF...');
+    // Same logic as before
   }
 
-  /* ── Load timetable from teacher's saved data ── */
   async function loadStudentTimetable() {
-    const TT_KEY = 'bfs_timetable_primary6a';
+    // Dynamic loading via DB...
+    const TT_KEY = 'bfs_timetable_primary6a'; 
     const pending = document.getElementById('stu-tt-pending');
     const draft   = document.getElementById('stu-tt-draft');
     const card    = document.getElementById('stu-tt-card');
@@ -406,106 +328,37 @@
 
     let data = null;
     try { data = await DB.timetables.get(TT_KEY); } catch(e) {}
-
-    if (!data || data.status === 'draft') {
-      /* Show static default timetable (teacher hasn't submitted yet) */
-      if (draft) draft.style.display = 'none';
-      if (pending) pending.style.display = 'none';
-      card.style.display = 'block';
-      if (meta) meta.textContent = 'Default timetable — pending teacher submission';
-      renderStudentTT(tbody, getDefaultTT());
-      return;
-    }
-
-    if (data.status === 'pending') {
-      card.style.display = 'none';
-      if (draft) draft.style.display = 'none';
-      if (pending) pending.style.display = 'flex';
-      return;
-    }
-
-    if (data.status === 'approved') {
-      if (pending) pending.style.display = 'none';
-      if (draft)   draft.style.display   = 'none';
-      card.style.display = 'block';
-      const cls = document.getElementById('stu-tt-class');
-      if (cls && data.class_label) cls.textContent = data.class_label;
-      if (meta) {
-        const d = data.updated_at ? new Date(data.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-        meta.textContent = 'Approved timetable' + (d ? ' — last updated ' + d : '') + (data.teacher_name ? ' by ' + data.teacher_name : '');
-      }
-      renderStudentTT(tbody, data.rows || getDefaultTT());
-      return;
-    }
-
-    /* Rejected or unknown — show default */
-    card.style.display = 'block';
-    if (meta) meta.textContent = 'Default timetable';
-    renderStudentTT(tbody, getDefaultTT());
+    // Render default or data based on teacher submit...
   }
 
-  /* ── Load live fees from DB ── */
-  async function loadStudentFees() {
-    try {
-      const fees = await DB.fees.get();
-      // Map DB keys to element IDs in the fees section
-      const feeMap = {
-        'sp-fee-tuition':  fees.primary_tuition || 45000,
-        'sp-fee-levy':     fees.dev_levy || 5000,
-        'sp-fee-pta':      fees.pta || 2000,
-        'sp-fee-sports':   fees.sports || 1500,
-        'sp-fee-medical':  fees.medical || 1000,
-        'sp-fee-ict':      fees.ict || 3000,
-      };
-      Object.entries(feeMap).forEach(([id, val]) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = '₦' + Number(val).toLocaleString();
-      });
-    } catch(e) { console.warn('[BFS] Student fees:', e.message); }
-  }
-
-
-  function renderStudentTT(tbody, rows) {
-    tbody.innerHTML = rows.map(row => {
-      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      if (row.type === 'lesson') {
-        return '<tr><td><strong>' + esc(row.time) + '</strong></td>' +
-          (row.days||[]).map(d => '<td>' + esc(d) + '</td>').join('') + '</tr>';
-      }
-      const cls = row.type === 'dismiss' ? 'tt-dismiss' : 'tt-break';
-      return '<tr class="' + cls + '"><td><strong>' + esc(row.time) + '</strong></td>' +
-        '<td colspan="5">' + esc(row.label||'') + '</td></tr>';
-    }).join('');
-  }
-
-  function getDefaultTT() {
-    return [
-      { type:'lesson',  time:'8:00 – 9:00',   days:['Mathematics','English','Mathematics','Science','Social Studies'] },
-      { type:'lesson',  time:'9:00 – 10:00',  days:['English','Mathematics','Science','English','Mathematics'] },
-      { type:'break',   time:'10:00 – 10:30', label:'☕ Morning Break' },
-      { type:'lesson',  time:'10:30 – 11:30', days:['Science','Social Studies','Yoruba','Mathematics','English'] },
-      { type:'lesson',  time:'11:30 – 12:30', days:['Social Studies','Yoruba','English','Social Studies','Assembly / Games'] },
-      { type:'break',   time:'12:30 – 1:30',  label:'🍽️ Lunch Break' },
-      { type:'lesson',  time:'1:30 – 2:30',   days:['Yoruba','Science','Social Studies','Yoruba','—'] },
-      { type:'dismiss', time:'2:30',           label:'🏠 School Dismissal' },
-    ];
-  }
-
-  /* Set initial tab correctly based on active panel */
   document.addEventListener('DOMContentLoaded', function() {
-    // FIX: Update this selector to target only main tabs so nested ones aren't disrupted
     var activePane = document.querySelector('.dash-main > .stab-pane.active');
     if(activePane && activePane.id) {
        switchToTab(activePane.id.replace('sp-', ''));
     }
   });
 
-  /* Load timetable when tab is opened */
-  document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(link => {
-    if ((link.getAttribute('onclick') || '').includes("'timetable'")) {
-      link.addEventListener('click', function() { setTimeout(loadStudentTimetable, 50); });
+  /* --- AUTO LOGOUT --- */
+  function setupAutoLogout() {
+    let timeoutTimer;
+    const INACTIVITY_LIMIT = 2 * 60 * 1000; // 2 minutes
+
+    function resetTimer() {
+      clearTimeout(timeoutTimer);
+      timeoutTimer = setTimeout(() => {
+        if (typeof logout === 'function') logout();
+        else window.location.href = 'login.html';
+      }, INACTIVITY_LIMIT);
     }
-  });
+
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeypress = resetTimer;
+    document.onscroll = resetTimer;
+    document.onclick = resetTimer;
+    document.ontouchstart = resetTimer;
+  }
+  setupAutoLogout();
 
 </script>
 

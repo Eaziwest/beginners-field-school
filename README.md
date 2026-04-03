@@ -120,3 +120,6 @@ This frontend is ready to connect to a backend. Recommended stack for Nigeria:
 ## 📄 License
 
 © 2025 Beginner's Field Nursery & Primary School. All rights reserved.
+
+
+npx live-server --port=8080
