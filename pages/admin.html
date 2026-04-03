@@ -97,9 +97,9 @@
 
       <div id="ap-overview" class="stab-pane active">
         <div class="stats-row">
-          <div class="stat-card" data-icon="🎒"><div class="stat-num">--</div><div class="stat-label">Total Students</div></div>
-          <div class="stat-card" data-icon="👩‍🏫"><div class="stat-num">--</div><div class="stat-label">Teaching Staff</div></div>
-          <div class="stat-card" data-icon="📋"><div class="stat-num">--</div><div class="stat-label">Pending Admissions</div></div>
+          <div class="stat-card" data-icon="🎒"><div class="stat-num" id="overview-students">--</div><div class="stat-label">Total Students</div></div>
+          <div class="stat-card" data-icon="👩‍🏫"><div class="stat-num" id="overview-teachers">--</div><div class="stat-label">Teaching Staff</div></div>
+          <div class="stat-card" data-icon="📋"><div class="stat-num" id="overview-admissions">--</div><div class="stat-label">Pending Admissions</div></div>
           <div class="stat-card" data-icon="📅"><div class="stat-num">--%</div><div class="stat-label">Attendance Rate</div></div>
         </div>
         <div class="card">
@@ -249,6 +249,50 @@
   </div>
 </div>
 
+<div class="admin-modal-overlay" id="modal-add-student">
+  <div class="admin-modal">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-add-student')">✕</button>
+    <h2>➕ Add New Student</h2>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input id="new-stu-fname" /></div>
+      <div class="form-group"><label>Last Name</label><input id="new-stu-lname" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Class</label>
+        <select id="new-stu-class"><option>Primary 1</option><option>Primary 2</option><option>Primary 3</option><option>Primary 4</option><option>Primary 5</option><option>Primary 6</option><option>Nursery 1</option><option>Nursery 2</option><option>Nursery 3</option></select>
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select id="new-stu-gender"><option>Male</option><option>Female</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Parent Name</label><input id="new-stu-pname" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Parent Phone</label><input id="new-stu-pphone" /></div>
+      <div class="form-group"><label>Parent Email</label><input id="new-stu-pemail" /></div>
+    </div>
+    <button class="btn btn-navy" onclick="saveNewStudent()">💾 Save Student</button>
+  </div>
+</div>
+
+<div class="admin-modal-overlay" id="modal-add-teacher">
+  <div class="admin-modal">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-add-teacher')">✕</button>
+    <h2>➕ Add New Teacher</h2>
+    <div class="form-group"><label>Full Name</label><input id="new-tch-name" placeholder="e.g. Mr. E. Chukwu" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Email</label><input id="new-tch-email" type="email" /></div>
+      <div class="form-group"><label>Phone</label><input id="new-tch-phone" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Class Assigned</label><input id="new-tch-class" placeholder="e.g. Primary 6A" /></div>
+      <div class="form-group"><label>Primary Subject</label><input id="new-tch-subject" placeholder="e.g. Mathematics" /></div>
+    </div>
+    <button class="btn btn-navy" onclick="saveNewTeacher()">💾 Save Teacher</button>
+  </div>
+</div>
+
 <div id="toast">&#128276; <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
@@ -285,16 +329,28 @@
   }
 
   /* ══════════════════════════════════════════════════════════
+     MODAL TOGGLE LOGIC
+  ══════════════════════════════════════════════════════════ */
+  function openAdminModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeAdminModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  document.querySelectorAll('.admin-modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+
+  /* ══════════════════════════════════════════════════════════
      DB LOAD FUNCTIONS — populate all tabs from Supabase
   ══════════════════════════════════════════════════════════ */
 
   async function loadOverviewStats() {
     try {
       const s = await DB.stats.getOverview();
-      const cards = document.querySelectorAll('#ap-overview .stat-num');
-      if (cards[0]) cards[0].textContent = s.totalStudents;
-      if (cards[1]) cards[1].textContent = s.totalTeachers;
-      if (cards[2]) cards[2].textContent = s.pendingAdmissions;
+      if (document.getElementById('overview-students')) document.getElementById('overview-students').textContent = s.totalStudents;
+      if (document.getElementById('overview-teachers')) document.getElementById('overview-teachers').textContent = s.totalTeachers;
+      if (document.getElementById('overview-admissions')) document.getElementById('overview-admissions').textContent = s.pendingAdmissions;
     } catch(e) { console.warn('Overview stats:', e.message); }
   }
 
@@ -331,7 +387,7 @@
           <td>${a.parent_phone||'—'}</td>
           <td>${new Date(a.applied_date).toLocaleDateString()}</td>
           <td><span class="badge ${a.status === 'Approved' ? 'b-green' : 'b-yellow'}">${a.status}</span></td>
-          <td><button class="btn btn-outline-navy btn-sm">Details</button></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Viewing admission for ${a.student_name}')">Details</button></td>
         </tr>`).join('');
     } catch(e) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
@@ -350,7 +406,7 @@
           <td><span class="badge ${s.fee_status === 'Paid' ? 'b-green' : 'b-red'}">${s.fee_status}</span></td>
           <td>${s.attendance||'—'}</td>
           <td><span class="badge b-green">${s.status}</span></td>
-          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Viewing profile: ${s.first_name}')">View</button></td>
         </tr>`).join('');
     } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
@@ -367,8 +423,8 @@
           <td>${t.subject||'—'}</td>
           <td>${t.phone||'—'}</td>
           <td>${t.attendance||'—'}</td>
-          <td><span class="badge b-green">${t.employment_status}</span></td>
-          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+          <td><span class="badge b-green">${t.employment_status || 'Active'}</span></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Viewing profile: ${t.name}')">View</button></td>
         </tr>`).join('');
     } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
@@ -403,7 +459,7 @@
           <td>${r.students_count || 0}</td>
           <td><span class="badge ${r.upload_status === 'Published' ? 'b-green' : 'b-yellow'}">${r.upload_status}</span></td>
           <td>${r.uploaded_at ? new Date(r.uploaded_at).toLocaleDateString() : '—'}</td>
-          <td><button class="btn btn-outline-navy btn-sm">View</button></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Viewing results for ${r.class_name}')">View</button></td>
         </tr>`).join('');
     } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
   }
@@ -419,9 +475,9 @@
           <td>${t.teacher_name || '—'}</td>
           <td><span class="badge ${t.status === 'approved' ? 'b-green' : 'b-yellow'}">${t.status}</span></td>
           <td>${new Date(t.updated_at).toLocaleDateString()}</td>
-          <td><button class="btn btn-outline-navy btn-sm">Review</button></td>
+          <td><button class="btn btn-outline-navy btn-sm" onclick="toast('Reviewing ${t.class_label} timetable')">Review</button></td>
         </tr>`).join('');
-    } catch(e) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
+    } catch(e) { tbody.innerHTML = `<tr><td colspan=\"5\" style=\"text-align:center;color:red;\">⚠️ ${e.message}</td></tr>`; }
   }
 
   async function loadAnnouncements() {
@@ -429,12 +485,95 @@
     if (!list) return;
     try {
       const anns = await DB.announcements.getAll();
-      if (!anns.length) { list.innerHTML = '<p style="color:var(--gray);text-align:center;">No announcements yet.</p>'; return; }
-      list.innerHTML = anns.map(a => `<div class="ann-item ${a.priority||'normal'}">
-          <h4>${a.title}</h4>
-          <p>Sent to ${a.audience||'Everyone'} · ${new Date(a.created_at).toLocaleDateString()}</p>
-        </div>`).join('');
+      if (!anns.length) { list.innerHTML = '<p style=\"color:var(--gray);text-align:center;\">No announcements yet.</p>'; return; }
+      list.innerHTML = anns.map(a => `<div class=\"ann-item ${a.priority||'normal'}\">\n          <h4>${a.title}</h4>\n          <p>Sent to ${a.audience||'Everyone'} · ${new Date(a.created_at).toLocaleDateString()}</p>\n        </div>`).join('');
     } catch(e) { console.warn('Announcements:', e.message); }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     ACTION FUNCTIONS (Save Fees, Announcements, Add Users)
+  ══════════════════════════════════════════════════════════ */
+
+  async function saveFees() {
+    const btn = document.querySelector('.fee-save-bar .btn-navy');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
+    try {
+      const feeMap = {
+        'nursery_tuition': document.getElementById('fee-nursery-tuition').value,
+        'primary_tuition': document.getElementById('fee-primary-tuition').value,
+        'dev_levy': document.getElementById('fee-dev-levy').value,
+        'pta': document.getElementById('fee-pta').value
+      };
+      await DB.fees.save(feeMap);
+      toast('✅ Fees updated successfully!');
+      document.getElementById('fee-last-saved').textContent = 'Last saved: ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      toast('⚠️ Error saving fees: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '&#128190; Save Changes'; }
+    }
+  }
+
+  async function sendAnnouncement() {
+    const title = document.getElementById('ann-title').value.trim();
+    const body = document.getElementById('ann-body').value.trim();
+
+    if (!title || !body) {
+      toast('⚠️ Please fill in both the title and body.');
+      return;
+    }
+
+    const btn = document.querySelector('#ap-announcements .btn-navy');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending...'; }
+    try {
+      await DB.announcements.create({ title, body, audience: 'Everyone', priority: 'normal' });
+      toast('📢 Announcement sent successfully!');
+      document.getElementById('ann-title').value = '';
+      document.getElementById('ann-body').value = '';
+      loadAnnouncements(); // Refresh the list automatically
+    } catch (e) {
+      toast('⚠️ Error: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Send Announcement'; }
+    }
+  }
+
+  async function saveNewStudent() {
+    try {
+      await DB.students.add({
+        firstName: document.getElementById('new-stu-fname').value,
+        lastName: document.getElementById('new-stu-lname').value,
+        className: document.getElementById('new-stu-class').value,
+        gender: document.getElementById('new-stu-gender').value,
+        parentName: document.getElementById('new-stu-pname').value,
+        parentPhone: document.getElementById('new-stu-pphone').value,
+        parentEmail: document.getElementById('new-stu-pemail').value
+      });
+      toast('✅ Student added successfully!');
+      closeAdminModal('modal-add-student');
+      loadStudents(); // Refresh table
+      loadOverviewStats(); // Update dashboard count
+    } catch (e) {
+      toast('⚠️ Error: ' + e.message);
+    }
+  }
+
+  async function saveNewTeacher() {
+    try {
+      await DB.teachers.add({
+        name: document.getElementById('new-tch-name').value,
+        email: document.getElementById('new-tch-email').value,
+        phone: document.getElementById('new-tch-phone').value,
+        classAssigned: document.getElementById('new-tch-class').value,
+        subject: document.getElementById('new-tch-subject').value
+      });
+      toast('✅ Teacher added successfully!');
+      closeAdminModal('modal-add-teacher');
+      loadTeachers(); // Refresh table
+      loadOverviewStats(); // Update dashboard count
+    } catch (e) {
+      toast('⚠️ Error: ' + e.message);
+    }
   }
 
   /* ── INIT: run on page load ── */
