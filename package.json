@@ -1,0 +1,23 @@
+{
+  "name": "primary",
+  "version": "1.0.0",
+  "description": "A complete school website with online portals for Admin, Teachers, Students and Parents — built with pure HTML, CSS and JavaScript. No frameworks required.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eaziwest/beginners-field-school.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eaziwest/beginners-field-school/issues"
+  },
+  "homepage": "https://github.com/Eaziwest/beginners-field-school#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
