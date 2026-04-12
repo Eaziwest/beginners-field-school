@@ -979,3 +979,9 @@ td input[type="radio"] { cursor: pointer; }
 .mbn-icon  { font-size: 20px; line-height: 1.2; }
 .mbn-label { font-size: 10px; font-weight: 700; color: var(--gray); white-space: nowrap; }
 .mbn-item.active .mbn-label { color: var(--navy); }
+/* Ensure mobile menu button appears on tablet/mobile */
+@media (max-width: 1023px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}

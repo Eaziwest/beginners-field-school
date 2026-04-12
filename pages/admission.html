@@ -127,23 +127,7 @@
         <input type="text" id="adm-occupation" placeholder="Parent's occupation" />
       </div>
 
-      <div class="form-section-title">Application Fee Payment</div>
-      <div class="form-group">
-        <div class="fee-payment-info">
-          Pay <strong>₦5,000</strong> application fee to:<br><br>
-          <strong>Bank:</strong> Moniepoint<br>
-          <strong>Account Number:</strong> 1234567890<br>
-          <strong>Account Name:</strong> Beginner's Field Nursery &amp; Primary School<br><br>
-          After payment, upload your proof below to complete your application.
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Upload Proof of Payment *</label>
-        <input type="file" id="adm-pay-proof" accept="image/*,.pdf"
-               onchange="verifyReceipt(this,'adm-verify',false)" />
-        <p style="font-size:12px;color:var(--gray);margin-top:5px;">Accepted: JPG, PNG, PDF (Max 5MB) — we will automatically check your receipt</p>
-      </div>
-      <div class="receipt-verifier" id="adm-verify" style="display:none;"></div>
+      <!-- Payment section removed -->
 
       <div class="form-group">
         <label>Additional Notes (optional)</label>
@@ -201,7 +185,6 @@
       const rel     = document.getElementById('adm-relationship').value;
       const prevSch = document.getElementById('adm-prev-school').value.trim();
       const occ     = document.getElementById('adm-occupation').value.trim();
-      const payProof = document.getElementById('adm-pay-proof');
 
       if (!fname || !lname) { showToastAdm("⚠️ Please enter the child's first and last name."); return; }
       if (!cls)             { showToastAdm("⚠️ Please select the class applying for."); return; }
@@ -209,7 +192,6 @@
       if (!pPhone)          { showToastAdm("⚠️ Please enter a phone number."); return; }
       if (!pEmail || !pEmail.includes('@')) { showToastAdm("⚠️ A valid email address is required."); return; }
       if (!address)         { showToastAdm("⚠️ Please enter your home address."); return; }
-      if (!payProof.files || payProof.files.length === 0) { showToastAdm("⚠️ Please upload proof of payment."); return; }
 
       const btn = document.querySelector('.btn.btn-navy');
       if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
@@ -252,7 +234,7 @@
       } catch(err) {
         showToastAdm('⚠️ Submission failed: ' + err.message);
       } finally {
-        if (btn) { btn.disabled = true; btn.textContent = '✅ Submitted'; }
+        if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Application'; }
       }
     }
 
@@ -261,7 +243,7 @@
       const tx = document.getElementById('toast-text');
       if (!t || !tx) { alert(msg); return; }
       tx.textContent = msg; t.style.display = 'flex';
-      clearTimeout(t._timer);
+      if (t._timer) clearTimeout(t._timer);
       t._timer = setTimeout(() => t.style.display = 'none', 4000);
     }
 
@@ -282,77 +264,23 @@
     }
 
     function parseAmounts(text) {
-      const amounts = [];
-      const patterns = [
-        /(?:NGN|₦|naira)\s*([0-9][0-9,\s]*(?:\.[0-9]{2})?)/gi,
-        /([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?)/g,
-        /\b([0-9]{4,8}(?:\.[0-9]{2})?)\b/g
-      ];
-      patterns.forEach(pat => {
-        let m;
-        while ((m = pat.exec(text)) !== null) {
-          const val = parseFloat(m[1].replace(/[\s,]/g,''));
-          if (val >= 100 && val <= 10000000) amounts.push(val);
-        }
-      });
-      return [...new Set(amounts)];
+      // Removed amount parsing as the amount is no longer relevant
+      return [];
     }
 
     function isBankReceipt(text) {
-      const lower = text.toLowerCase();
-      const hits  = BANK_KEYWORDS.filter(kw => lower.includes(kw));
-      return { ok: hits.length >= 2, hits, score: hits.length };
+      // Removed receipt validation as the receipt check is no longer needed
+      return { ok: true, hits: [], score: 0 };
     }
 
     async function verifyReceipt(input, containerId, isShop) {
+      // No receipt verification needed
       const el = document.getElementById(containerId);
-      if (!el || !input.files || input.files.length === 0) { if(el) el.style.display='none'; return; }
-      const file = input.files[0];
-
-      if (file.size > 5 * 1024 * 1024) {
-        el.style.display = 'block';
-        el.className = 'receipt-verifier fail';
-        el.innerHTML = '<div class="verify-status" style="color:var(--red);"><span class="verify-icon">❌</span><span>File is too large. Max 5MB.</span></div>';
-        input.value = '';
-        return;
+      if (el) {
+        el.style.display='none';
+        el.className='receipt-verifier';
+        el.innerHTML = '';
       }
-
-      el.style.display = 'block';
-      el.className = 'receipt-verifier verifying';
-      el.innerHTML = '<div class="verify-status"><div class="spinner"></div><span>Reading receipt...</span></div>';
-
-      let extractedText = '';
-      let isPdf = false;
-      try {
-        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          isPdf = true;
-          extractedText = typeof pdfjsLib !== 'undefined' ? await extractPdfText(file) : '[PDF reader unavailable]';
-        } else {
-          extractedText = await extractImageInfo(file);
-        }
-      } catch(err) { extractedText = '[Error: ' + err.message + ']'; }
-
-      const expectedAmt  = 5000;
-      const receiptCheck = isBankReceipt(extractedText);
-      const amounts      = parseAmounts(extractedText);
-      const acctCheck    = extractedText.includes(SCHOOL_ACCOUNT);
-      const amountMatch  = amounts.some(a => Math.abs(a - expectedAmt) < 5);
-      const amountStatus = amounts.length === 0 ? 'unverifiable' : amountMatch ? 'match' : 'mismatch';
-      const overallOk    = receiptCheck.ok && (amountStatus === 'match' || amountStatus === 'unverifiable');
-
-      const statusColor = overallOk ? 'var(--green-ok)' : 'var(--red)';
-      const statusMsg = overallOk ? '✅ Receipt looks valid' : '❌ Invalid receipt';
-
-      el.className = `receipt-verifier ${overallOk ? 'ok' : 'fail'}`;
-      el.innerHTML = `
-        <div class="verify-status" style="color:${statusColor};">
-          <span>${statusMsg}</span>
-        </div>
-        <div class="verify-rows">
-          <div class="verify-row"><span class="vr-label">📄 File type</span><span class="vr-value">${isPdf ? 'PDF' : 'Image'}</span></div>
-          <div class="verify-row"><span class="vr-label">💰 Amount</span><span class="vr-value">₦${expectedAmt.toLocaleString()}</span></div>
-        </div>
-      `;
     }
 
     function togglePreview(btn) {
