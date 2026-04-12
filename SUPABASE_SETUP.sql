@@ -300,3 +300,46 @@ create or replace view parent_student_link as
 -- ── Extra index for fast pending lookups ─────────────────────
 create index if not exists idx_admissions_status on admissions(status);
 create index if not exists idx_students_class    on students(class);
+
+-- ============================================================
+--  STUDENT RESULTS  (per-student scores — added in v2)
+--  Run this block in your Supabase SQL Editor if upgrading
+--  an existing database, or it is already included above
+--  for fresh installs.
+-- ============================================================
+
+create table if not exists student_results (
+  id           uuid default gen_random_uuid() primary key,
+  student_id   text not null,            -- matches students.student_id e.g. BFS/2025/001
+  student_name text not null,
+  class_name   text not null,
+  subject      text not null,
+  term         text not null default '3rd Term',
+  session      text not null default '2024/2025',
+  ca_score     integer default 0,
+  exam_score   integer default 0,
+  total_score  integer default 0,
+  grade        text default 'F',
+  remark       text default 'Needs Improvement',
+  status       text default 'draft' check (status in ('draft','submitted','approved')),
+  uploaded_at  timestamptz default now(),
+  created_at   timestamptz default now(),
+  -- Unique so upsert works without duplicates
+  unique (student_id, class_name, subject, term, session)
+);
+
+alter table student_results enable row level security;
+
+create policy "Admin can do all on student_results" on student_results
+  for all using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+create policy "Teachers can read and write their class results" on student_results
+  for all using (
+    exists (select 1 from profiles where id = auth.uid() and role in ('admin','teacher'))
+  );
+
+-- Index for fast per-class lookups
+create index if not exists idx_student_results_class   on student_results(class_name);
+create index if not exists idx_student_results_student on student_results(student_id);

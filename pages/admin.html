@@ -371,6 +371,22 @@
     </div>
     <div class="form-group"><label>Class Assigned</label><input id="new-tch-class" placeholder="e.g. Primary 3A" /></div>
 
+    <!-- Login Credentials -->
+    <div style="background:#f0f4ff;border:1.5px solid #b3c6f7;border-radius:12px;padding:16px 18px;margin-bottom:14px;">
+      <p style="font-size:12px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px;">🔐 Login Credentials</p>
+      <p style="font-size:12px;color:#6b7280;margin:0 0 12px;">Set a temporary password the teacher will use to first log in. They will be prompted to change it immediately.</p>
+      <div class="form-row" style="margin-bottom:0;">
+        <div class="form-group">
+          <label>Temporary Password *</label>
+          <input id="new-tch-password" type="password" placeholder="Min. 8 characters" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label>Confirm Password *</label>
+          <input id="new-tch-password-confirm" type="password" placeholder="Repeat password" autocomplete="new-password" />
+        </div>
+      </div>
+    </div>
+
     <!-- Subject multi-pick -->
     <div class="form-group">
       <label>Assigned Subject(s) *</label>
@@ -440,6 +456,34 @@
   </div>
 </div>
 
+<!-- Report Card Viewer -->
+<div class="admin-modal-overlay" id="modal-report-card">
+  <div class="admin-modal" style="max-width:680px;">
+    <button class="admin-modal-close" onclick="closeAdminModal('modal-report-card')">✕</button>
+    <h2>📋 Student Report Card</h2>
+
+    <!-- Class info row -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Class</div>
+        <div id="rc-class-name" style="font-size:15px;font-weight:800;color:var(--navy);">—</div>
+      </div>
+      <div style="flex:1;min-width:180px;">
+        <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:5px;">👤 Select Student</label>
+        <select id="rc-student-select" onchange="loadStudentReportCard()"
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--light-gray);border-radius:9px;font-size:13.5px;font-family:inherit;color:var(--navy);">
+          <option value="">— Pick a student —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Report card content -->
+    <div id="rc-body">
+      <p style="text-align:center;color:var(--gray);padding:32px;">Select a student above to view their report card.</p>
+    </div>
+  </div>
+</div>
+
 <div id="toast">🔔 <span id="toast-text"></span></div>
 
 <script src="../js/auth.js"></script>
@@ -498,8 +542,10 @@ async function openAddTeacherModal() {
   _selectedSubjects = [];
   renderSubjectChips();
   // clear form fields
-  ['new-tch-name','new-tch-email','new-tch-phone','new-tch-class'].forEach(id => {
-    document.getElementById(id).value = '';
+  ['new-tch-name','new-tch-email','new-tch-phone','new-tch-class',
+   'new-tch-password','new-tch-password-confirm'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
   await refreshSubjectDropdown();
   openAdminModal('modal-add-teacher');
@@ -810,8 +856,128 @@ async function loadResults() {
   } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">⚠️ ${e.message}</td></tr>`; }
 }
 
-function viewResults(r) {
-  toast('📊 ' + r.class_name + ' — ' + (r.students_count||0) + ' students · Status: ' + r.upload_status);
+/* ── viewResults — opens the per-student report card modal ── */
+async function viewResults(r) {
+  // Set class label
+  const classEl = document.getElementById('rc-class-name');
+  if (classEl) classEl.textContent = r.class_name + ' · ' + (r.term || '3rd Term') + ' · ' + (r.session || '2024/2025');
+
+  // Reset body
+  const rcBody = document.getElementById('rc-body');
+  if (rcBody) rcBody.innerHTML = '<p style="text-align:center;color:var(--gray);padding:32px;">⏳ Loading students…</p>';
+
+  // Reset dropdown
+  const sel = document.getElementById('rc-student-select');
+  if (sel) sel.innerHTML = '<option value="">— Pick a student —</option>';
+
+  // Store context for dropdown change handler
+  window._rcClass = r.class_name;
+
+  openAdminModal('modal-report-card');
+
+  // Load students in this class into the dropdown
+  try {
+    const stuList = await DB.students.getByClass(r.class_name);
+    if (!sel) return;
+    if (!stuList || stuList.length === 0) {
+      sel.innerHTML = '<option value="">No students in this class yet</option>';
+      if (rcBody) rcBody.innerHTML = '<p style="text-align:center;color:var(--gray);padding:32px;">No students enrolled in this class yet.</p>';
+      return;
+    }
+    sel.innerHTML = '<option value="">— Pick a student —</option>';
+    stuList.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.student_id;
+      opt.textContent = s.first_name + ' ' + s.last_name + ' (' + s.student_id + ')';
+      sel.appendChild(opt);
+    });
+    if (rcBody) rcBody.innerHTML = '<p style="text-align:center;color:var(--gray);padding:32px;">Select a student above to view their report card.</p>';
+  } catch(e) {
+    if (rcBody) rcBody.innerHTML = `<p style="text-align:center;color:red;padding:32px;">⚠️ ${e.message}</p>`;
+  }
+}
+
+async function loadStudentReportCard() {
+  const sel     = document.getElementById('rc-student-select');
+  const rcBody  = document.getElementById('rc-body');
+  const studentId = sel ? sel.value : '';
+  const className = window._rcClass || '';
+
+  if (!studentId) {
+    if (rcBody) rcBody.innerHTML = '<p style="text-align:center;color:var(--gray);padding:32px;">Select a student above to view their report card.</p>';
+    return;
+  }
+
+  const studentName = sel.options[sel.selectedIndex].textContent;
+  if (rcBody) rcBody.innerHTML = '<p style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading report card…</p>';
+
+  try {
+    const rows = await DB.studentResults.getByStudent(studentId, className);
+
+    if (!rows || rows.length === 0) {
+      rcBody.innerHTML = `
+        <div style="text-align:center;padding:32px;color:var(--gray);">
+          <div style="font-size:40px;margin-bottom:12px;">📭</div>
+          <p style="font-size:14px;">No results uploaded yet for <strong>${studentName}</strong>.</p>
+          <p style="font-size:12.5px;margin-top:6px;">The class teacher needs to submit results first.</p>
+        </div>`;
+      return;
+    }
+
+    // Summary stats
+    const totals = rows.map(r => r.total_score || 0);
+    const avg    = totals.length ? (totals.reduce((a,b) => a+b, 0) / totals.length).toFixed(1) : '—';
+    const term   = rows[0].term || '3rd Term';
+    const session= rows[0].session || '2024/2025';
+
+    // Grade colour helper
+    function gradeColor(g) {
+      const map = { A: '#16a34a', B: '#2563eb', C: '#d97706', D: '#d97706', F: '#dc2626' };
+      return map[g] || '#6b7280';
+    }
+
+    rcBody.innerHTML = `
+      <!-- Report card header -->
+      <div style="background:linear-gradient(135deg,#0a1f44,#1a3a6e);border-radius:14px;padding:20px 22px;margin-bottom:18px;color:#fff;">
+        <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Report Card</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:2px;">${studentName}</div>
+        <div style="font-size:12.5px;opacity:.8;">${className} &nbsp;·&nbsp; ${term} &nbsp;·&nbsp; ${session}</div>
+        <div style="margin-top:14px;display:flex;gap:20px;flex-wrap:wrap;">
+          <div><div style="font-size:11px;opacity:.7;">Class Average</div><div style="font-size:20px;font-weight:900;">${avg}%</div></div>
+          <div><div style="font-size:11px;opacity:.7;">Subjects</div><div style="font-size:20px;font-weight:900;">${rows.length}</div></div>
+          <div><div style="font-size:11px;opacity:.7;">Status</div><div style="font-size:13px;font-weight:700;margin-top:4px;"><span style="background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;">${rows[0].status || 'Submitted'}</span></div></div>
+        </div>
+      </div>
+
+      <!-- Scores table -->
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th style="text-align:center;">CA</th>
+              <th style="text-align:center;">Exam</th>
+              <th style="text-align:center;">Total</th>
+              <th style="text-align:center;">Grade</th>
+              <th>Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td><strong>${r.subject}</strong></td>
+              <td style="text-align:center;">${r.ca_score ?? '—'}</td>
+              <td style="text-align:center;">${r.exam_score ?? '—'}</td>
+              <td style="text-align:center;font-weight:800;">${r.total_score ?? '—'}</td>
+              <td style="text-align:center;"><span style="font-size:16px;font-weight:900;color:${gradeColor(r.grade)};">${r.grade || '—'}</span></td>
+              <td style="color:var(--gray);font-size:13px;">${r.remark || '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch(e) {
+    if (rcBody) rcBody.innerHTML = `<p style="text-align:center;color:red;padding:32px;">⚠️ ${e.message}</p>`;
+  }
 }
 
 async function loadAdminTimetables() {
@@ -949,21 +1115,52 @@ async function saveNewStudent() {
 }
 
 async function saveNewTeacher() {
-  const name = document.getElementById('new-tch-name').value.trim();
-  if (!name) return toast('⚠️ Teacher name is required.');
+  const name     = document.getElementById('new-tch-name').value.trim();
+  const email    = document.getElementById('new-tch-email').value.trim();
+  const password = document.getElementById('new-tch-password').value;
+  const confirm  = document.getElementById('new-tch-password-confirm').value;
+
+  if (!name)  return toast('⚠️ Teacher name is required.');
+  if (!email) return toast('⚠️ Teacher email is required — it is used for login.');
   if (_selectedSubjects.length === 0) return toast('⚠️ Please add at least one subject.');
+
+  // Validate password
+  if (!password || password.length < 8)    return toast('⚠️ Password must be at least 8 characters.');
+  if (password !== confirm)                return toast('⚠️ Passwords do not match — please check and try again.');
+
+  const btn = document.querySelector('#modal-add-teacher .btn-navy');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Creating account…'; }
+
   try {
-    await DB.teachers.add({
-      name,
-      email:         document.getElementById('new-tch-email').value,
-      phone:         document.getElementById('new-tch-phone').value,
-      classAssigned: document.getElementById('new-tch-class').value,
-      subjects:      _selectedSubjects.map(s => s.name)
-    });
-    toast('✅ Teacher added successfully!');
+    // If admin client is available use full account creation flow
+    if (window._supabaseAdmin) {
+      await DB.teachers.createAccount({
+        name,
+        email,
+        password,
+        classAssigned: document.getElementById('new-tch-class').value,
+        phone:         document.getElementById('new-tch-phone').value,
+        subjects:      _selectedSubjects.map(s => s.name)
+      });
+      toast('✅ Teacher account created! They can now log in with the temporary password and will be prompted to change it.');
+    } else {
+      // Fallback: save DB record only (no auth user)
+      await DB.teachers.add({
+        name,
+        email,
+        phone:         document.getElementById('new-tch-phone').value,
+        classAssigned: document.getElementById('new-tch-class').value,
+        subjects:      _selectedSubjects.map(s => s.name)
+      });
+      toast('✅ Teacher saved (DB only). To enable login, add SUPABASE_SERVICE_KEY in supabase-config.js.');
+    }
     closeAdminModal('modal-add-teacher');
     loadTeachers(); loadOverviewStats();
-  } catch(e) { toast('⚠️ Error: ' + e.message); }
+  } catch(e) {
+    toast('⚠️ Error: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Teacher'; }
+  }
 }
 
 /* ══════════════════════════════════════════════════════

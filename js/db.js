@@ -10,6 +10,15 @@ const DB = (function () {
     return window._supabase;
   }
 
+  function sbAdmin() {
+    if (!window._supabaseAdmin) throw new Error(
+      '[DB] Admin Supabase client not configured.\n' +
+      'Add your service_role key to SUPABASE_SERVICE_KEY in js/supabase-config.js\n' +
+      '(Settings → API → service_role in your Supabase dashboard)'
+    );
+    return window._supabaseAdmin;
+  }
+
   function fmtErr(e) {
     return (e && e.message) ? e.message : 'Database error — please try again.';
   }
@@ -44,13 +53,12 @@ const DB = (function () {
       return data;
     },
 
-    /* ── NEW: fetch students belonging to a specific class ── */
     async getByClass(className) {
       if (!className) return [];
       const { data, error } = await sb()
         .from('students')
         .select('*')
-        .ilike('class', className.trim())   // case-insensitive match
+        .ilike('class', className.trim())
         .order('first_name', { ascending: true });
       if (error) throw new Error(fmtErr(error));
       return data;
@@ -89,6 +97,12 @@ const DB = (function () {
       if (error) throw new Error(fmtErr(error));
       return data;
     },
+
+    /**
+     * add — creates the teacher DB record only (no auth user).
+     * Call createAccount() first if you want the teacher to be
+     * able to log in.
+     */
     async add({ name, phone, classAssigned, subjects, email }) {
       const subjectList = Array.isArray(subjects) ? subjects.join(', ') : subjects;
       const { data, error } = await sb().from('teachers').insert([{
@@ -97,6 +111,58 @@ const DB = (function () {
       }]).select().single();
       if (error) throw new Error(fmtErr(error));
       return data;
+    },
+
+    /**
+     * createAccount — creates a Supabase Auth user + profile row for a teacher.
+     * Requires window._supabaseAdmin (service role key).
+     * @param {object} opts - { name, email, password, classAssigned, phone, subjects }
+     * @returns {object} - { authUser, profile, teacher }
+     */
+    async createAccount({ name, email, password, classAssigned, phone, subjects: subjectList }) {
+      // 1. Create auth user via admin API (does NOT affect current admin session)
+      const { data: authData, error: authErr } = await sbAdmin().auth.admin.createUser({
+        email:            email.trim().toLowerCase(),
+        password,
+        email_confirm:    true,   // mark email as confirmed immediately
+        user_metadata:    { name, role: 'teacher' }
+      });
+      if (authErr) throw new Error('Auth error: ' + fmtErr(authErr));
+
+      const userId = authData.user.id;
+
+      // 2. Create profile row
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const { error: profErr } = await sbAdmin()
+        .from('profiles')
+        .insert([{
+          id:             userId,
+          role:           'teacher',
+          name,
+          title:          classAssigned ? `Class Teacher — ${classAssigned}` : 'Teacher',
+          initials,
+          email:          email.trim().toLowerCase(),
+          portal:         'teacher.html',
+          must_reset_password: true,   // teacher must change password on first login
+          class_assigned: classAssigned || null
+        }]);
+      if (profErr) {
+        // Roll back auth user to avoid orphaned accounts
+        await sbAdmin().auth.admin.deleteUser(userId).catch(() => {});
+        throw new Error('Profile error: ' + fmtErr(profErr));
+      }
+
+      // 3. Create teacher table row
+      const subStr = Array.isArray(subjectList) ? subjectList.join(', ') : (subjectList || '');
+      const { data: teacherRow, error: tchErr } = await sbAdmin()
+        .from('teachers')
+        .insert([{
+          name, phone, class_assigned: classAssigned, subject: subStr, email: email.trim().toLowerCase(),
+          attendance: '—', results_status: 'Pending', employment_status: 'Active'
+        }]).select().single();
+      if (tchErr) throw new Error('Teacher record error: ' + fmtErr(tchErr));
+
+      return { userId, teacherRow };
     }
   };
 
@@ -145,8 +211,8 @@ const DB = (function () {
         sb().from('admissions').select('*', { count: 'exact', head: true }).eq('status', 'Pending')
       ]);
       return {
-        totalStudents:    stuRes.count || 0,
-        totalTeachers:    tchRes.count || 0,
+        totalStudents:     stuRes.count || 0,
+        totalTeachers:     tchRes.count || 0,
         pendingAdmissions: admRes.count || 0
       };
     }
@@ -161,10 +227,6 @@ const DB = (function () {
       if (error) throw new Error(fmtErr(error));
       return data;
     },
-    /**
-     * getByClass — fetch the approved/latest timetable for a given class.
-     * class_name column holds the class (e.g. "Nursery 1", "Primary 3B").
-     */
     async getByClass(className) {
       if (!className) return null;
       const { data, error } = await sb()
@@ -175,14 +237,9 @@ const DB = (function () {
         .limit(1)
         .maybeSingle();
       if (error) throw new Error(fmtErr(error));
-      return data; // null if none found
+      return data;
     },
-    /**
-     * upsert — insert or update a timetable draft for the given class.
-     * rows_json should be JSON.stringify(array of row objects).
-     */
     async upsert({ className, rowsJson, status }) {
-      // Try update first, then insert
       const { data: existing } = await sb()
         .from('timetables')
         .select('id')
@@ -214,13 +271,77 @@ const DB = (function () {
   };
 
   /* ══════════════════════════════════════════════════════
-     RESULTS
+     RESULTS (class-level summary)
   ══════════════════════════════════════════════════════ */
   const results = {
     async getAll() {
       const { data, error } = await sb().from('results').select('*').order('uploaded_at', { ascending: false });
       if (error) throw new Error(fmtErr(error));
       return data;
+    }
+  };
+
+  /* ══════════════════════════════════════════════════════
+     STUDENT RESULTS (per-student scores)
+  ══════════════════════════════════════════════════════ */
+  const studentResults = {
+    /**
+     * getByClass — all student result rows for a given class.
+     * Returns an array grouped-ready; each row has student_id,
+     * student_name, subject, ca_score, exam_score, total_score, grade, remark.
+     */
+    async getByClass(className) {
+      if (!className) return [];
+      const { data, error } = await sb()
+        .from('student_results')
+        .select('*')
+        .ilike('class_name', className.trim())
+        .order('student_name', { ascending: true });
+      if (error) throw new Error(fmtErr(error));
+      return data || [];
+    },
+
+    /**
+     * getByStudent — all subject rows for one student in a class.
+     */
+    async getByStudent(studentId, className) {
+      if (!studentId) return [];
+      let query = sb()
+        .from('student_results')
+        .select('*')
+        .eq('student_id', studentId);
+      if (className) query = query.ilike('class_name', className.trim());
+      const { data, error } = await query.order('subject', { ascending: true });
+      if (error) throw new Error(fmtErr(error));
+      return data || [];
+    },
+
+    /**
+     * upsertBatch — save/update an array of student result rows.
+     * Each item: { studentId, studentName, className, subject, term, session,
+     *              caScore, examScore, totalScore, grade, remark, status }
+     */
+    async upsertBatch(rows) {
+      if (!rows || !rows.length) return;
+      const payload = rows.map(r => ({
+        student_id:   r.studentId,
+        student_name: r.studentName,
+        class_name:   r.className,
+        subject:      r.subject,
+        term:         r.term  || '3rd Term',
+        session:      r.session || '2024/2025',
+        ca_score:     r.caScore    || 0,
+        exam_score:   r.examScore  || 0,
+        total_score:  r.totalScore || 0,
+        grade:        r.grade  || 'F',
+        remark:       r.remark || 'Needs Improvement',
+        status:       r.status || 'draft',
+        uploaded_at:  new Date().toISOString()
+      }));
+      const { error } = await sb()
+        .from('student_results')
+        .upsert(payload, { onConflict: 'student_id,class_name,subject,term,session' });
+      if (error) throw new Error(fmtErr(error));
     }
   };
 
@@ -246,9 +367,6 @@ const DB = (function () {
      MESSAGES
   ══════════════════════════════════════════════════════ */
   const messages = {
-    /**
-     * getForTeacher — fetch messages addressed to a specific teacher (by email or user_id).
-     */
     async getForTeacher(teacherEmail) {
       if (!teacherEmail) return [];
       const { data, error } = await sb()
@@ -263,7 +381,7 @@ const DB = (function () {
 
   return {
     students, subjects, teachers, admissions, fees,
-    stats, timetables, results, announcements, messages
+    stats, timetables, results, studentResults, announcements, messages
   };
 
 })();

@@ -442,14 +442,51 @@
     if (el) el.innerHTML = `📊 Class Average: <strong>${avg}%</strong> across ${totals.length} students`;
   }
 
-  function saveDraftResults() {
-    toast('💾 Results draft saved locally.');
+  /* ── Helper: collect current results table rows into payload ── */
+  function collectResultsPayload(status) {
+    const subject  = document.getElementById('res-subject')?.value || 'General';
+    const termVal  = document.getElementById('res-term')?.value    || '3rd Term 2024/2025';
+    const termPart = termVal.split(' ').slice(0, 2).join(' ');
+    const sessPart = termVal.includes('/') ? termVal.split(' ').slice(2).join(' ') : '2024/2025';
+    const rows = [];
+    document.querySelectorAll('#results-table-tbody tr[data-student]').forEach(tr => {
+      const studentName = tr.dataset.student;
+      const stu = _allTeacherStudents.find(s => (s.first_name + ' ' + s.last_name) === studentName);
+      if (!stu) return;
+      const ca    = parseFloat(tr.querySelector('.ca-score')?.value)          || 0;
+      const exam  = parseFloat(tr.querySelector('.exam-score')?.value)        || 0;
+      const total = parseFloat(tr.querySelector('.score-total')?.textContent) || (ca + exam);
+      const grade  = tr.querySelector('.grade-cell')?.textContent?.trim()     || 'F';
+      const remark = tr.querySelector('.remark-cell')?.textContent?.trim()    || 'Needs Improvement';
+      rows.push({ studentId: stu.student_id, studentName, className: _teacherClass,
+        subject, term: termPart, session: sessPart, caScore: ca, examScore: exam,
+        totalScore: total, grade, remark, status });
+    });
+    return rows;
   }
 
-  function submitResults() {
-    const rows = document.querySelectorAll('#results-table-tbody tr[data-student]');
+  async function saveDraftResults() {
+    const rows = collectResultsPayload('draft');
+    if (!rows.length) { toast('No results to save.'); return; }
+    const btn = document.querySelector('[onclick="saveDraftResults()"]');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving…'; }
+    try {
+      await DB.studentResults.upsertBatch(rows);
+      toast('💾 Draft saved — ' + rows.length + ' student records updated.');
+    } catch(e) { toast('⚠️ Save failed: ' + e.message); }
+    finally { if (btn) { btn.disabled = false; btn.textContent = '💾 Save as Draft'; } }
+  }
+
+  async function submitResults() {
+    const rows = collectResultsPayload('submitted');
     if (!rows.length) { toast('No results to submit.'); return; }
-    toast('📤 Results submitted for admin approval!');
+    const btn = document.querySelector('[onclick="submitResults()"]');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
+    try {
+      await DB.studentResults.upsertBatch(rows);
+      toast('📤 Results submitted for admin approval! (' + rows.length + ' students)');
+    } catch(e) { toast('⚠️ Submit failed: ' + e.message); }
+    finally { if (btn) { btn.disabled = false; btn.textContent = '📤 Submit for Approval'; } }
   }
 
   /* ================================================================
