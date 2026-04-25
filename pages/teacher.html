@@ -165,9 +165,9 @@
             <div class="form-group"><label>Class</label><select id="res-class"><option>Loading...</option></select></div>
             <div class="form-group">
               <label>Subject</label>
+              <!-- FIX #17 — was hardcoded to only Mathematics & English; now populated from DB.subjects -->
               <select id="res-subject">
-                <option value="Mathematics">Mathematics</option>
-                <option value="English Language">English Language</option>
+                <option value="">⏳ Loading subjects…</option>
               </select>
             </div>
           </div>
@@ -289,6 +289,29 @@
 
   if (document.getElementById('res-class'))
     document.getElementById('res-class').innerHTML = `<option>${_teacherClass}</option>`;
+
+  /* FIX #17 — populate subject dropdown from DB */
+  (async function loadSubjectsDropdown() {
+    const dd = document.getElementById('res-subject');
+    if (!dd) return;
+    try {
+      const list = await DB.subjects.getAll();
+      if (list && list.length) {
+        dd.innerHTML = list.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      } else {
+        /* Fallback to sensible defaults if subjects table is empty */
+        dd.innerHTML = [
+          'Mathematics','English Language','Basic Science','Social Studies',
+          'Yoruba','CRS / MRS','Basic Technology','Computer Studies',
+          'Agric Science','Cultural & Creative Arts','Civic Education'
+        ].map(n => `<option value="${n}">${n}</option>`).join('');
+      }
+    } catch(e) {
+      dd.innerHTML = [
+        'Mathematics','English Language','Basic Science','Social Studies','Yoruba'
+      ].map(n => `<option value="${n}">${n}</option>`).join('');
+    }
+  })();
 
   document.getElementById('att-date').valueAsDate = new Date();
 

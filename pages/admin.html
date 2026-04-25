@@ -508,7 +508,15 @@ const _user = (function() {
    CORE UI
 ══════════════════════════════════════════════════════ */
 function switchToTab(name, el) {
-  document.querySelectorAll('.stab-pane').forEach(p => p.classList.remove('active'));
+  /* FIX #16 — scope selector to the dashboard, not the entire document,
+     so modal panes (e.g., report-card) are never accidentally deactivated */
+  const dashboard = document.getElementById('admin-dashboard');
+  if (dashboard) {
+    dashboard.querySelectorAll(':scope > .dash-body > .dash-main > .stab-pane')
+      .forEach(p => p.classList.remove('active'));
+  } else {
+    document.querySelectorAll('.stab-pane').forEach(p => p.classList.remove('active'));
+  }
   document.querySelectorAll('.sidebar-link, .nav-links a, .mbn-item').forEach(l => l.classList.remove('active'));
   const pane = document.getElementById('ap-' + name);
   if (pane) pane.classList.add('active');

@@ -55,7 +55,8 @@
               </tbody>
             </table>
           </div>
-          <button class="btn btn-navy btn-sm" style="margin-top:14px;" onclick="switchToTab('results', null)">View Full Results →</button>
+          <button class="btn btn-navy btn-sm" style="margin-top:14px;"
+            onclick="switchToTab('results', document.querySelector('#student-sidebar .sidebar-link:nth-child(3)'))">View Full Results →</button>
         </div>
       </div>
 
@@ -112,9 +113,50 @@
   injectUserInfo(_user);
   document.getElementById('student-sub').textContent = 'Welcome, ' + _user.name + ' — Beginner\'s Field School';
 
-  function switchToTab(name) {
+  /* FIX #4 — switchToTab now accepts el to highlight the correct sidebar link */
+  function switchToTab(name, el) {
     document.querySelectorAll('.dash-main > .stab-pane').forEach(p => p.classList.remove('active'));
     document.getElementById('sp-' + name).classList.add('active');
+    /* update sidebar highlight */
+    document.querySelectorAll('#student-sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
+    if (el && el.classList) {
+      el.classList.add('active');
+    } else {
+      /* called programmatically — find and highlight the matching link */
+      const links = document.querySelectorAll('#student-sidebar .sidebar-link');
+      links.forEach(l => {
+        if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'" + name + "'")) {
+          l.classList.add('active');
+        }
+      });
+    }
+    if (name === 'timetable') loadStudentTimetable(); /* FIX #3 */
+  }
+
+  /* FIX #3 — Timetable was never loaded; wire it up via DB.timetables.getByClass() */
+  async function loadStudentTimetable() {
+    const tbody = document.getElementById('stu-tt-tbody');
+    if (!tbody) return;
+    if (!_user.class_assigned) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No class assigned to your account. Please contact admin.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">⏳ Loading Timetable…</td></tr>';
+    try {
+      const saved = await DB.timetables.getByClass(_user.class_assigned);
+      if (!saved || !saved.rows_json) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No timetable published yet.</td></tr>';
+        return;
+      }
+      const rows = typeof saved.rows_json === 'string' ? JSON.parse(saved.rows_json) : saved.rows_json;
+      const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'];
+      tbody.innerHTML = rows.map(row => `<tr>
+        <td><strong>${row.time || ''}</strong></td>
+        ${DAYS.map(d => `<td>${row[d] || ''}</td>`).join('')}
+      </tr>`).join('');
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">Timetable not available.</td></tr>';
+    }
   }
 
   /* Fetch Results dynamically */
@@ -122,21 +164,33 @@
     const qBody = document.getElementById('quick-results-tbody');
     const fBody = document.getElementById('student-results-tbody');
     try {
-      // Assuming db.js has a method to get results for a student. 
-      // Replace with your actual DB fetch logic if different.
-      const { data, error } = await window._supabase.from('student_scores').select('*').eq('student_id', _user.id);
-      
+      /* FIX #2 — table was 'student_scores' (doesn't exist); correct table is 'student_results'.
+         Also used _user.id (auth UUID) instead of _user.student_id (BFS/YYYY/NNN code). */
+      const studentId = _user.student_id || '';
+      if (!studentId) {
+        const msg = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No student ID linked to this account. Please contact admin.</td></tr>';
+        qBody.innerHTML = msg.replace('colspan="6"','colspan="5"');
+        fBody.innerHTML = msg;
+        return;
+      }
+
+      const { data, error } = await window._supabase
+        .from('student_results')
+        .select('*')
+        .eq('student_id', studentId);
+
       if (error || !data || data.length === 0) {
         qBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No results published yet.</td></tr>';
         fBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No results published yet.</td></tr>';
         return;
       }
 
-      let rowsHtml = '';
+      let fullRows = '';
+      let quickRows = '';
       data.forEach(score => {
-        let total = (score.ca_score || 0) + (score.exam_score || 0);
+        let total    = (score.ca_score || 0) + (score.exam_score || 0);
         let gradeObj = getGrade(total);
-        rowsHtml += `<tr>
+        fullRows += `<tr>
             <td>${score.subject}</td>
             <td>${score.ca_score}</td>
             <td>${score.exam_score}</td>
@@ -144,11 +198,17 @@
             <td><span class="grade ${gradeObj.cls}">${gradeObj.grade}</span></td>
             <td>${gradeObj.remark}</td>
           </tr>`;
+        /* FIX #5 — quick view built separately (no brittle regex stripping) */
+        quickRows += `<tr>
+            <td>${score.subject}</td>
+            <td>${score.ca_score}</td>
+            <td>${score.exam_score}</td>
+            <td><strong>${total}</strong></td>
+            <td><span class="grade ${gradeObj.cls}">${gradeObj.grade}</span></td>
+          </tr>`;
       });
-      fBody.innerHTML = rowsHtml;
-      
-      // Quick view omits the remark
-      qBody.innerHTML = rowsHtml.replace(/<td>.*?<\/td>$/gm, ''); 
+      fBody.innerHTML  = fullRows;
+      qBody.innerHTML  = quickRows;
 
     } catch (err) {
       console.warn('Error loading results', err);

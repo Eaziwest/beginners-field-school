@@ -14,6 +14,10 @@ create table if not exists profiles (
   portal              text,
   must_reset_password boolean default false,   -- ← true for auto-created parent accounts
   class_assigned      text,                    -- ← for teachers: their assigned class
+  -- FIX #15 — student_id links this auth profile to the students table row
+  -- (e.g. "BFS/2024/001"). FK added via ALTER TABLE below (after students is created)
+  -- to avoid a forward-reference error in Postgres.
+  student_id          text,
   created_at          timestamptz default now()
 );
 alter table profiles enable row level security;
@@ -51,6 +55,16 @@ create policy "Admin can insert students" on students for insert with check (
 );
 create policy "Admin can update students" on students for update using (
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+-- FIX #15 — add FK from profiles.student_id → students.student_id now that
+-- students table exists (could not be declared inline above due to ordering)
+alter table profiles
+  add constraint if not exists fk_profiles_student_id
+  foreign key (student_id) references students(student_id) on delete set null;
+
+-- FIX #15 — students can read their own record via the profiles.student_id link
+create policy "Student can read own record" on students for select using (
+  student_id = (select student_id from profiles where id = auth.uid())
 );
 
 -- ── 3. ADMISSIONS ──────────────────────────────────────────────
@@ -252,10 +266,11 @@ on conflict (class_key) do nothing;
 --       student@beginnersfieldschool.edu.ng  / Student@2025
 --  3. Copy each user's UUID and insert below:
 
--- insert into profiles (id, role, name, title, initials, email, portal) values
---   ('<ADMIN_UUID>',   'admin',   'Mrs. Adaeze Okafor', 'Principal',           'AO', 'admin@beginnersfieldschool.edu.ng',   'admin.html'),
---   ('<TEACHER_UUID>', 'teacher', 'Mr. Emeka Chukwu',   'Class Teacher — P6A', 'EC', 'e.chukwu@beginnersfieldschool.edu.ng','teacher.html'),
---   ('<STUDENT_UUID>', 'student', 'Adaeze Nwosu',       'Primary 4 · 2024/2025','AN','student@beginnersfieldschool.edu.ng', 'student.html');
+-- insert into profiles (id, role, name, title, initials, email, portal, student_id) values
+--   ('<ADMIN_UUID>',   'admin',   'Mrs. Adaeze Okafor', 'Principal',           'AO', 'admin@beginnersfieldschool.edu.ng',   'admin.html',   null),
+--   ('<TEACHER_UUID>', 'teacher', 'Mr. Emeka Chukwu',   'Class Teacher — P6A', 'EC', 'e.chukwu@beginnersfieldschool.edu.ng','teacher.html', null),
+--   -- FIX #15: student_id must match the students.student_id value (e.g. BFS/2025/001)
+--   ('<STUDENT_UUID>', 'student', 'Adaeze Nwosu',       'Primary 4 · 2024/2025','AN','student@beginnersfieldschool.edu.ng', 'student.html', 'BFS/2025/001');
 
 -- ============================================================
 --  ADMISSION WORKFLOW ADDITIONS
@@ -338,6 +353,12 @@ create policy "Admin can do all on student_results" on student_results
 create policy "Teachers can read and write their class results" on student_results
   for all using (
     exists (select 1 from profiles where id = auth.uid() and role in ('admin','teacher'))
+  );
+
+-- FIX #2 (complement) — students can read their own results
+create policy "Students can read own results" on student_results
+  for select using (
+    student_id = (select student_id from profiles where id = auth.uid())
   );
 
 -- Index for fast per-class lookups

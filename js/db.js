@@ -175,6 +175,29 @@ const DB = (function () {
       if (error) throw new Error(fmtErr(error));
       return data;
     },
+    /* FIX #1 — submit() was entirely missing; the admission form depends on it */
+    async submit({ studentName, classApplied, parentName, parentPhone, parentEmail,
+                   dateOfBirth, gender, previousSchool, homeAddress, occupation,
+                   relationship, notes }) {
+      const { data, error } = await sb().from('admissions').insert([{
+        student_name:    studentName,
+        class_applied:   classApplied,
+        parent_name:     parentName,
+        parent_phone:    parentPhone,
+        parent_email:    parentEmail    || null,
+        date_of_birth:   dateOfBirth    || null,
+        gender:          gender         || null,
+        previous_school: previousSchool || null,
+        home_address:    homeAddress    || null,
+        occupation:      occupation     || null,
+        relationship:    relationship   || null,
+        notes:           notes          || null,
+        status:          'Pending',
+        applied_date:    new Date().toISOString()
+      }]).select().single();
+      if (error) throw new Error(fmtErr(error));
+      return data;
+    },
     async updateStatus(id, status) {
       const { data, error } = await sb().from('admissions').update({ status }).eq('id', id).select().single();
       if (error) throw new Error(fmtErr(error));

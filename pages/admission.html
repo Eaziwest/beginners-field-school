@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- FIX #13 — pdf.js CDN removed; it was loaded solely for the removed payment-receipt system -->
   <style>
     body { padding: 0; }
     .adm-hero {
@@ -56,7 +56,7 @@
     </a>
     <div class="nav-links">
       <a href="../index.html">Home</a>
-      <a href="../index.html#portals">Portals</a>
+      <a href="../index.html#portal">Portals</a>
       <a href="login.html">🔐 Login</a>
     </div>
   </nav>
@@ -162,15 +162,7 @@
       emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
     }
 
-    if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-
-    const SCHOOL_ACCOUNT = '1234567890';
-    const BANK_KEYWORDS  = ['moniepoint','transfer','debit','credit','transaction','payment','receipt',
-      'account','balance','naira','ngn','teller','bank','swift','amount','beneficiary',
-      'ref','reference','date','success','successful','approved'];
+    /* FIX #13 — removed pdfjsLib worker setup; library no longer loaded */
 
     async function submitAdmission() {
       const fname   = document.getElementById('adm-fname').value.trim();
@@ -185,9 +177,11 @@
       const rel     = document.getElementById('adm-relationship').value;
       const prevSch = document.getElementById('adm-prev-school').value.trim();
       const occ     = document.getElementById('adm-occupation').value.trim();
+      const notes   = document.getElementById('adm-notes').value.trim(); /* FIX #11 — notes was never read */
 
       if (!fname || !lname) { showToastAdm("⚠️ Please enter the child's first and last name."); return; }
       if (!cls)             { showToastAdm("⚠️ Please select the class applying for."); return; }
+      if (!gender)          { showToastAdm("⚠️ Please select the child's gender."); return; } /* FIX #12 */
       if (!pName)           { showToastAdm("⚠️ Please enter the parent/guardian name."); return; }
       if (!pPhone)          { showToastAdm("⚠️ Please enter a phone number."); return; }
       if (!pEmail || !pEmail.includes('@')) { showToastAdm("⚠️ A valid email address is required."); return; }
@@ -208,7 +202,8 @@
           previousSchool: prevSch || null,
           homeAddress:    address,
           occupation:     occ  || null,
-          relationship:   rel
+          relationship:   rel,
+          notes:          notes || null   /* FIX #11 */
         });
 
         const appID = result.id.substring(0, 8).toUpperCase();
@@ -227,9 +222,7 @@
         }
 
         // Reset form
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-            if (el.id !== 'adm-pay-proof') el.value = '';
-        });
+        document.querySelectorAll('input, select, textarea').forEach(el => { el.value = ''; });
 
       } catch(err) {
         showToastAdm('⚠️ Submission failed: ' + err.message);
@@ -247,46 +240,9 @@
       t._timer = setTimeout(() => t.style.display = 'none', 4000);
     }
 
-    async function extractPdfText(file) {
-      const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-      let text = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page    = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(item => item.str).join(' ') + '\n';
-      }
-      return text;
-    }
-
-    async function extractImageInfo(file) {
-      return `[Image file: ${file.name} | Size: ${(file.size/1024).toFixed(1)}KB]`;
-    }
-
-    function parseAmounts(text) {
-      // Removed amount parsing as the amount is no longer relevant
-      return [];
-    }
-
-    function isBankReceipt(text) {
-      // Removed receipt validation as the receipt check is no longer needed
-      return { ok: true, hits: [], score: 0 };
-    }
-
-    async function verifyReceipt(input, containerId, isShop) {
-      // No receipt verification needed
-      const el = document.getElementById(containerId);
-      if (el) {
-        el.style.display='none';
-        el.className='receipt-verifier';
-        el.innerHTML = '';
-      }
-    }
-
-    function togglePreview(btn) {
-      const pre = btn.nextElementSibling;
-      pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
-    }
+    /* FIX #13 — removed extractPdfText, extractImageInfo, parseAmounts,
+       isBankReceipt, verifyReceipt, togglePreview, SCHOOL_ACCOUNT, BANK_KEYWORDS.
+       All were dead stubs for the removed payment-receipt verification feature. */
   </script>
 </body>
 </html>

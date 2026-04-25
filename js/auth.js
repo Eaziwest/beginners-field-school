@@ -11,12 +11,14 @@
 
 function saveSession(user) {
   sessionStorage.setItem('bfs_user', JSON.stringify({
+    id:                 user.id   || '',   /* FIX #14 — id was missing; student portal needs it */
     role:               user.role,
     name:               user.name,
     title:              user.title,
     initials:           user.initials,
     email:              user.email,
     class_assigned:     user.class_assigned || '',
+    student_id:         user.student_id    || '', /* populated from profiles for student role */
     must_reset_password:!!user.must_reset_password
   }));
 }
